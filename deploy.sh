@@ -16,12 +16,21 @@
 
 set -e -o pipefail
 
-ODH_PROJECT=${ODH_CR_NAMESPACE:-"opendatahub"}
+# this is the value hardcoded in the CR yaml
+CR_NAMESPACE_VALUE=opendatahub
+
+ODH_PROJECT=${ODH_CR_NAMESPACE:-${CR_NAMESPACE_VALUE}}
+
+# add a namespace flag for the apply command if necessary
+NAMESPACE_FLAG=
+if [ ${ODH_PROJECT} != ${CR_NAMESPACE_VALUE} ]; then
+    NAMESPACE_FLAG="--namespace=${CR_NAMESPACE_VALUE}"
+fi
 
 oc new-project ${ODH_PROJECT} || echo "${ODH_PROJECT} project already exists."
 
 while true; do
-  oc apply -n ${ODH_PROJECT} -f /opendatahub.yaml
+  oc apply -n ${ODH_PROJECT} -f /opendatahub.yaml ${NAMESPACE_FLAG}
   if [ $? -ne 0 ]; then
     echo "Attempt to create the ODH CR failed.  This is expected during operator installation."
   fi
