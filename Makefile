@@ -1,4 +1,4 @@
-CONTAINER_REPO := quay.io/opendatahub
+CONTAINER_REPO := quay.io/modh
 CONTAINER_IMAGE := odh-deployer
 
 BUILDDATE := $(shell date -u '+%Y-%m-%dT%H:%M:%S.%NZ')
