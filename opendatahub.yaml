@@ -66,13 +66,8 @@ spec:
   - kustomizeConfig:
       repoRef:
         name: manifests
-        path: odhargo/cluster
-    name: odhargo-cluster
-  - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: odhargo/odhargo
-    name: odhargo    
+        path: odh-dashboard
+    name: odh-dashboard
   repos:
   - name: manifests
     uri: file:///opt/manifests/odh-manifests.tar.gz
