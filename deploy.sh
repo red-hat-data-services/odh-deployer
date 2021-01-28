@@ -18,12 +18,10 @@ set -e -o pipefail
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"opendatahub"}
 
-oc new-project ${ODH_PROJECT} || echo "${ODH_PROJECT} project already exists."
+oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 
-while true; do
-  oc apply -n ${ODH_PROJECT} -f /opendatahub.yaml
-  if [ $? -ne 0 ]; then
-    echo "Attempt to create the ODH CR failed.  This is expected during operator installation."
-  fi
-  sleep 30s
-done
+oc apply -n ${ODH_PROJECT} -f /opendatahub.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the ODH CR failed."
+  exit 1
+fi
