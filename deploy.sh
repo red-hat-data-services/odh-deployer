@@ -25,3 +25,7 @@ if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the ODH CR failed."
   exit 1
 fi
+
+oc new-project redhat-monitoring || echo "INFO: redhat-monitoring project already exists."
+
+oc apply -n redhat-monitoring -f /grafana.yaml
