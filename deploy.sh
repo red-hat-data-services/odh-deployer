@@ -28,4 +28,5 @@ fi
 
 oc new-project redhat-monitoring || echo "INFO: redhat-monitoring project already exists."
 
+oc apply -n redhat-monitoring -f /prometheus.yaml
 oc apply -n redhat-monitoring -f /grafana.yaml
