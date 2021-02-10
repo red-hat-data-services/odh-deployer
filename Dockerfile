@@ -11,17 +11,19 @@ RUN microdnf update -y && \
     && microdnf clean all && \
     rm -rf /var/cache/yum
 
-ADD https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz $TMPDIR/ 
+ADD https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz $TMPDIR/
 RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
     chmod +x /usr/local/bin/oc && \
     rm $TMPDIR/oc.tar.gz
 
 COPY deploy.sh /
 COPY opendatahub.yaml /
+COPY prometheus.yaml /
 COPY grafana.yaml /
 
 RUN chmod 755 /deploy.sh && \
     chmod 644 /opendatahub.yaml && \
+    chmod 644 /prometheus.yaml && \
     chmod 644 /grafana.yaml && \
     mkdir -p ${HOME} &&\
     chown 1001:0 ${HOME} &&\
