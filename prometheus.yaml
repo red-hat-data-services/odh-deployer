@@ -16,6 +16,7 @@ spec:
       labels:
         deployment: prometheus
     spec:
+      serviceAccountName: prometheus
       containers:
       - image: quay.io/prometheus/prometheus:v2.24.1
         args:
@@ -24,7 +25,7 @@ spec:
           - --storage.tsdb.max-block-duration=2h
           - --storage.tsdb.path=/prometheus/data
           - --config.file=/etc/prometheus/prometheus.yml
-          - --web.listen-address=localhost:9090
+          - --web.listen-address=0.0.0.0:9090
           - --web.enable-lifecycle
           - --web.enable-admin-api
         imagePullPolicy: Always
@@ -41,7 +42,7 @@ spec:
         - mountPath: /etc/prometheus
           name: prometheus-config
         - mountPath: /var/run/secrets/kubernetes.io/scraper
-          name: prometheus-scraper-secret
+          name: prometheus-secret
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -55,9 +56,9 @@ spec:
         configMap:
           defaultMode: 420
           name: prometheus
-      - name: prometheus-scraper-secret
+      - name: prometheus-secret
         secret:
-          secretName: prometheus-scraper
+          secretName: prometheus-secret
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -125,20 +126,19 @@ metadata:
   name: prometheus-reader
   namespace: redhat-monitoring
 ---
-# Create a service account for prometheus to use to scrape other infrastructure components
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: prometheus-scraper
+  name: prometheus
   namespace: redhat-monitoring
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: prometheus-scraper
+  name: prometheus-secret
   namespace: redhat-monitoring
   annotations:
-    kubernetes.io/service-account.name: prometheus-scraper
+    kubernetes.io/service-account.name: prometheus
 type: kubernetes.io/service-account-token
 ---
 apiVersion: route.openshift.io/v1
@@ -161,8 +161,8 @@ metadata:
   name: prometheus_role_binding
 subjects:
 - kind: ServiceAccount
-  name: prometheus-scraper
-  namespace: openshift-monitoring
+  name: prometheus
+  namespace: redhat-monitoring
 roleRef:
   kind: ClusterRole
   name: cluster-reader
