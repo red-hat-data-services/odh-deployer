@@ -1,66 +1,262 @@
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    serviceaccounts.openshift.io/oauth-redirectreference.grafana_secondary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana-external"}}'
+    serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana"}}'
+  name: grafana
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
   name: grafana
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - watch
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana-rb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: grafana
+subjects:
+  - kind: ServiceAccount
+    name: grafana
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-auth-rb
   namespace: redhat-monitoring
-spec:
-  selector:
-    matchLabels:
-      app: grafana
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      containers:
-        - name: grafana
-          image: quay.io/app-sre/grafana:7.4.0
-          ports:
-          - containerPort: 3000
-            name: http
-            protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /api/health
-              port: 3000
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          imagePullPolicy: Always
-          livenessProbe:
-            httpGet:
-              path: /api/health
-              port: 3000
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: grafana
+    namespace: redhat-monitoring
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    prometheus.io/scheme: https
+    prometheus.io/scrape: 'true'
+    service.alpha.openshift.io/serving-cert-secret-name: grafana-tls
   name: grafana
 spec:
   ports:
-    - name: http
+    - name: https
       port: 443
       protocol: TCP
-      targetPort: 3000
+      targetPort: 8443
   selector:
     app: grafana
-
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
+  annotations:
+    kubernetes.io/tls-acme: 'true'
   name: grafana
 spec:
   port:
-    targetPort: http
+    targetPort: https
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: reencrypt
   to:
     kind: Service
     name: grafana
     weight: 100
   wildcardPolicy: None
+---
+apiVersion: v1
+data:
+  dashboards.yaml: |-
+    {
+        "apiVersion": 1,
+        "providers": [
+            {
+                "folder": "",
+                "name": "0",
+                "options": {
+                    "path": "/grafana-dashboard-definitions/0"
+                },
+                "orgId": 1,
+                "type": "file"
+            }
+        ]
+    }
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: redhat-monitoring
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: grafana
+      deployment: grafana
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 30%
+      updatePeriodSeconds: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: grafana
+        deployment: grafana
+    spec:
+      containers:
+        - env:
+            - name: LABEL
+              value: grafana_dashboard
+            - name: FOLDER
+              value: /tmp/
+            - name: FOLDER_ANNOTATION
+              value: grafana-folder
+            - name: RESOURCE
+              value: configmap
+            - name: UNIQUE_FILENAMES
+              value: 'true'
+          image: quay.io/app-sre/k8s-sidecar:0.1.178
+          name: dashboard-discovery
+          volumeMounts:
+            - mountPath: /grafana-dashboard-definitions
+              name: grafana-dashboard-definitions
+        - args:
+            - '-config=/etc/grafana/grafana.ini'
+          env:
+            - name: GF_INSTALL_PLUGINS
+              value: grafana-piechart-panel
+          image: quay.io/app-sre/grafana:7.4.0
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          name: grafana
+          ports:
+            - containerPort: 3001
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: grafana-storage
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: grafana-datasources
+            - mountPath: /etc/grafana/provisioning/dashboards
+              name: grafana-dashboards
+            - mountPath: /etc/grafana/provisioning/notifiers
+              name: grafana-notifiers
+            - mountPath: /etc/grafana
+              name: grafana-config
+            - mountPath: /grafana-dashboard-definitions
+              name: grafana-dashboard-definitions
+        - args:
+            - '-provider=openshift'
+            - '-https-address=:8443'
+            - '-http-address='
+            - '-email-domain=*'
+            - '-upstream=http://localhost:3001'
+            - '-client-id=system:serviceaccount:redhat-monitoring:grafana'
+            - '-openshift-ca=/etc/pki/tls/cert.pem'
+            - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+            - '-openshift-sar={"namespace": "redhat-monitoring", "verb": "list", "resource": "services"}'
+            - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get", "resourceName": "redhat-monitoring", "namespace": "redhat-monitoring"}}'
+            - '-tls-cert=/etc/tls/private/tls.crt'
+            - '-tls-key=/etc/tls/private/tls.key'
+            - '-client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token'
+            - '-cookie-secret-file=/etc/proxy/secrets/session_secret'
+            - '-skip-auth-regex=^/metrics'
+          env:
+            - name: redhat-monitoring
+          image: quay.io/openshift/origin-oauth-proxy:4.7.0
+          imagePullPolicy: IfNotPresent
+          name: auth-proxy
+          ports:
+            - containerPort: 8443
+              name: web
+          resources:
+            limits:
+              cpu: 200m
+              memory: 150Mi
+            requests:
+              cpu: 100m
+              memory: 50Mi
+          volumeMounts:
+            - mountPath: /etc/proxy/secrets
+              name: grafana-proxy-secret
+            - mountPath: /etc/tls/private
+              name: grafana-tls-secret
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: grafana
+      serviceAccountName: grafana
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: grafana-proxy-secret
+          secret:
+            defaultMode: 420
+            secretName: grafana-proxy-config
+        - emptyDir: {}
+          name: grafana-dashboard-definitions
+        - emptyDir: {}
+          name: grafana-storage
+        - emptyDir: {}
+          name: grafana-notifiers
+        - name: grafana-datasources
+          secret:
+            defaultMode: 420
+            secretName: grafana-datasources
+        - configMap:
+            defaultMode: 420
+            name: grafana-dashboards
+          name: grafana-dashboards
+        - name: grafana-config
+          secret:
+            defaultMode: 420
+            secretName: grafana-config
+        - name: grafana-tls-secret
+          secret:
+            defaultMode: 420
+            secretName: grafana-tls
+  test: false
+  triggers:
+    - type: ConfigChange
