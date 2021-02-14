@@ -18,6 +18,44 @@ spec:
     spec:
       serviceAccountName: prometheus
       containers:
+      - args:
+        - -provider=openshift
+        - -https-address=:9091
+        - -http-address=
+        - -email-domain=*
+        - -upstream=http://localhost:9090
+        - -openshift-service-account=prometheus
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "name": "redhat-monitoring",
+          "namespace": "redhat-monitoring"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get",
+          "name": "redhat-monitoring", "namespace": "redhat-monitoring"}}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -openshift-ca=/etc/pki/tls/cert.pem
+        - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - -client-id=system:serviceaccount:redhat-monitoring:prometheus
+        - -skip-auth-regex=^/metrics
+        image: quay.io/openshift/origin-oauth-proxy:4.7.0
+        name: oauth-proxy
+        ports:
+        - containerPort: 9091
+          name: https
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: prometheus-tls
+          readOnly: false
+        - mountPath: /etc/proxy/secrets
+          name: prometheus-proxy
+          readOnly: false
       - image: quay.io/prometheus/prometheus:v2.24.1
         args:
           - --storage.tsdb.retention=6h
@@ -25,14 +63,14 @@ spec:
           - --storage.tsdb.max-block-duration=2h
           - --storage.tsdb.path=/prometheus/data
           - --config.file=/etc/prometheus/prometheus.yml
-          - --web.listen-address=0.0.0.0:9090
+          - --web.listen-address=localhost:9090
           - --web.enable-lifecycle
           - --web.enable-admin-api
         imagePullPolicy: Always
         name: prometheus
         ports:
         - containerPort: 9090
-          protocol: TCP
+          name: http
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
@@ -47,7 +85,7 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 90
       volumes:
       - name: prometheus-data
         persistentVolumeClaim:
@@ -59,6 +97,24 @@ spec:
       - name: prometheus-secret
         secret:
           secretName: prometheus-secret
+      - name: prometheus-tls
+        secret:
+          defaultMode: 420
+          secretName: prometheus-tls
+      - name: prometheus-proxy
+        secret:
+          defaultMode: 420
+          secretName: prometheus-proxy
+---
+apiVersion: v1
+data:
+  session_secret: "uTgRq5qg4GlwsIXrAePXjTqz5DBhKqhERfGVOmyS"
+kind: Secret
+metadata:
+  name: prometheus-proxy
+  namespace: redhat-monitoring
+type: Opaque
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -104,16 +160,19 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: prometheus-tls
+    prometheus.io/scheme: https
+    prometheus.io/scrape: 'true'
   labels:
     app: prometheus
   name: prometheus
   namespace: redhat-monitoring
 spec:
   ports:
-  - name: 9090-tcp
-    port: 9090
-    protocol: TCP
-    targetPort: 9090
+  - name: https
+    port: 9091
+    targetPort: https
   selector:
     deployment: prometheus
   sessionAffinity: None
@@ -129,6 +188,9 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  annotations:
+      serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus"}}'
+      serviceaccounts.openshift.io/oauth-redirectreference.prometheus: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus-external"}}'
   name: prometheus
   namespace: redhat-monitoring
 ---
@@ -144,16 +206,22 @@ type: kubernetes.io/service-account-token
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
+  annotations:
+    kubernetes.io/tls-acme: 'true'
   labels:
     app: prometheus
   name: prometheus
   namespace: redhat-monitoring
 spec:
   port:
-    targetPort: 9090-tcp
+    targetPort: https
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: reencrypt
   to:
     kind: Service
     name: prometheus
+  wildcardPolicy: None
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
