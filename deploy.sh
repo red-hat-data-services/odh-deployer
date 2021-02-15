@@ -26,7 +26,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-oc new-project redhat-monitoring || echo "INFO: redhat-monitoring project already exists."
+oc new-project redhat-odh-monitoring || echo "INFO: redhat-odh-monitoring project already exists."
 
-oc apply -n redhat-monitoring -f /grafana.yaml
-oc apply -n redhat-monitoring -f /prometheus.yaml
+oc apply -n redhat-odh-monitoring -f /grafana.yaml
+oc apply -n redhat-odh-monitoring -f /prometheus.yaml
