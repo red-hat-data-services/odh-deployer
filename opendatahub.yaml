@@ -10,26 +10,6 @@ spec:
         path: odh-common
     name: odh-common
   - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: grafana/cluster
-    name: grafana-cluster
-  - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: grafana/grafana
-    name: grafana-instance
-  - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: prometheus/cluster
-    name: prometheus-cluster
-  - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: prometheus/operator
-    name: prometheus-operator
-  - kustomizeConfig:
       parameters:
         - name: s3_endpoint_url
           value: "s3.odh.com"
