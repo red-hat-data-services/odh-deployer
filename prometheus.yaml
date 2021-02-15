@@ -21,7 +21,6 @@ spec:
       - args:
         - -provider=openshift
         - -https-address=:9091
-        - -http-address=
         - -email-domain=*
         - -upstream=http://localhost:9090
         - -openshift-service-account=prometheus
