@@ -20,7 +20,7 @@ ODH_PROJECT=${ODH_CR_NAMESPACE:-"opendatahub"}
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 
-oc apply -n ${ODH_PROJECT} -f /opendatahub.yaml
+oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
 if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the ODH CR failed."
   exit 1
@@ -28,5 +28,8 @@ fi
 
 oc new-project redhat-odh-monitoring || echo "INFO: redhat-odh-monitoring project already exists."
 
-oc apply -n redhat-odh-monitoring -f /grafana.yaml
-oc apply -n redhat-odh-monitoring -f /prometheus.yaml
+sed -i "s/<replace_me>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/grafana-secrets.yaml
+oc create -n redhat-odh-monitoring -f monitoring/grafana-secrets.yaml || echo "INFO: Grafana secrets already exist."
+
+oc apply -n redhat-odh-monitoring -f monitoring/grafana.yaml
+oc apply -n redhat-odh-monitoring -f monitoring/prometheus.yaml
