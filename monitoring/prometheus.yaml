@@ -18,9 +18,11 @@ spec:
     spec:
       serviceAccountName: prometheus
       containers:
-      - args:
+      - name: oauth-proxy
+        args:
         - -provider=openshift
         - -https-address=:9091
+        - -http-address=
         - -email-domain=*
         - -upstream=http://localhost:9090
         - -openshift-service-account=prometheus
@@ -37,7 +39,6 @@ spec:
         - -client-id=system:serviceaccount:redhat-odh-monitoring:prometheus
         - -skip-auth-regex=^/metrics
         image: quay.io/openshift/origin-oauth-proxy:4.7.0
-        name: oauth-proxy
         ports:
         - containerPort: 9091
           name: https
@@ -55,7 +56,9 @@ spec:
         - mountPath: /etc/proxy/secrets
           name: prometheus-proxy
           readOnly: false
-      - image: quay.io/prometheus/prometheus:v2.24.1
+
+      - name: prometheus
+        image: quay.io/prometheus/prometheus:v2.24.1
         args:
           - --storage.tsdb.retention=6h
           - --storage.tsdb.min-block-duration=2h
@@ -66,7 +69,6 @@ spec:
           - --web.enable-lifecycle
           - --web.enable-admin-api
         imagePullPolicy: Always
-        name: prometheus
         ports:
         - containerPort: 9090
           name: http
@@ -80,6 +82,63 @@ spec:
           name: prometheus-config
         - mountPath: /var/run/secrets/kubernetes.io/scraper
           name: prometheus-secret
+
+      - name: alertmanager-proxy
+        args:
+        - -provider=openshift
+        - -https-address=:10443
+        - -http-address=
+        - -email-domain=*
+        - -upstream=http://localhost:9093
+        - -openshift-service-account=prometheus
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "name": "redhat-odh-monitoring",
+          "namespace": "redhat-odh-monitoring"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get",
+          "name": "redhat-odh-monitoring", "namespace": "redhat-odh-monitoring"}}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -openshift-ca=/etc/pki/tls/cert.pem
+        - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - -client-id=system:serviceaccount:redhat-odh-monitoring:prometheus
+        - -skip-auth-regex=^/metrics
+        image: quay.io/openshift/origin-oauth-proxy:4.7.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 10443
+          name: web
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: alertmanager-tls
+          readOnly: false
+        - mountPath: /etc/proxy/secrets
+          name: alertmanager-proxy
+          readOnly: false
+
+      - name: alertmanager
+        args:
+          - --log.level=info
+          - --config.file=/etc/alertmanager/alertmanager.yml
+          - --web.external-url=https://alertmanager-redhat-odh-monitoring.apps.rhods-idh.dev.datahub.redhat.com
+        image: quay.io/prometheus/alertmanager:v0.21.0
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 9093
+            name: web
+        volumeMounts:
+          - mountPath: /etc/alertmanager
+            name: alertmanager-config
+          - mountPath: /alertmanager
+            name: alertmanager-data
+
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -89,6 +148,13 @@ spec:
       - name: prometheus-data
         persistentVolumeClaim:
           claimName: prometheus-data
+      - name: alertmanager-data
+        persistentVolumeClaim:
+          claimName: "alertmanager-data"
+      - name: alertmanager-config
+        configMap:
+          defaultMode: 420
+          name: alertmanager
       - name: prometheus-config
         configMap:
           defaultMode: 420
@@ -100,19 +166,18 @@ spec:
         secret:
           defaultMode: 420
           secretName: prometheus-tls
+      - name: alertmanager-tls
+        secret:
+          defaultMode: 420
+          secretName: alertmanager-tls
       - name: prometheus-proxy
         secret:
           defaultMode: 420
           secretName: prometheus-proxy
----
-apiVersion: v1
-data:
-  session_secret: "uTgRq5qg4GlwsIXrAePXjTqz5DBhKqhERfGVOmyS"
-kind: Secret
-metadata:
-  name: prometheus-proxy
-  namespace: redhat-odh-monitoring
-type: Opaque
+      - name: alertmanager-proxy
+        secret:
+          defaultMode: 420
+          secretName: alertmanager-proxy
 
 ---
 apiVersion: v1
@@ -121,29 +186,100 @@ metadata:
   name: prometheus
   namespace: redhat-odh-monitoring
 data:
+  alerting.rules: |
+      groups:
+        - name: Pod Restarts
+          interval: 1m
+          rules:
+            - alert: An OpenShift pod has just restarted
+              expr: sum(delta(kube_pod_container_status_restarts_total{namespace="opendatahub", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
+              for: 5m
+              annotations:
+                summary: An OpenShift pod has just been restarted.
+                action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
+                route: idh_router
+
   prometheus.yml: |
+    rule_files:
+      - '*.rules'
     global:
       scrape_interval:     10s
       evaluation_interval: 10s
     scrape_configs:
-      - job_name: 'JupyterHub Metrics'
-        honor_labels: true
-        metrics_path: /hub/metrics
-        scheme: http
-        kubernetes_sd_configs:
-          - role: endpoints
-            namespaces:
-              names:
-                - opendatahub
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_service_name]
-            regex: ^(jupyterhub)$
-            target_label: kubernetes_name
-            action: keep
-          - source_labels: [__address__]
-            regex: (.+):(\d+)
-            target_label: __address__
-            replacement: ${1}:8080
+    - job_name: 'JupyterHub Metrics'
+      honor_labels: true
+      metrics_path: /hub/metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - opendatahub
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(jupyterhub)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
+
+    alerting:
+      alertmanagers:
+      - scheme: http
+        static_configs:
+        - targets:
+          - "localhost:9093"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager
+  namespace: redhat-odh-monitoring
+data:
+  alertmanager.yml: |
+    global:
+      smtp_smarthost: 'smtp.corp.redhat.com:25'
+      smtp_from: 'AlertManager-Production@redhat.com'
+      smtp_auth_username: 'alertmanager'
+      smtp_auth_password: 'password'
+      smtp_require_tls: false
+    # The root route on which each incoming alert enters.
+    route:
+      group_by: ['alertname', 'cluster', 'service', 'job', 'email_to']
+
+      group_wait: 30s
+
+      # When the first notification was sent, wait 'group_interval' to send a batch
+      # of new alerts that started firing for that group.
+      group_interval: 5m
+
+      # If an alert has successfully been sent, wait 'repeat_interval' to
+      # resend them.
+      repeat_interval: 4h
+
+      # A default receiver
+      receiver: developer-mails
+
+      # All the above attributes are inherited by all child routes and can
+      # overwritten on each.
+      routes:
+      - match:
+          route: idh_router
+        receiver: idh_router
+
+    receivers:
+    - name: 'developer-mails'
+      email_configs:
+      - to: 'data-hub-alerts@redhat.com'
+        send_resolved: true
+
+    - name: 'idh_router'
+      email_configs:
+      - to: 'data-hub-alerts@redhat.com'
+        send_resolved: true
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -155,6 +291,18 @@ spec:
   resources:
     requests:
       storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alertmanager-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
 ---
 apiVersion: v1
 kind: Service
@@ -177,6 +325,24 @@ spec:
   sessionAffinity: None
   type: ClusterIP
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: alertmanager-tls
+  labels:
+    name: alertmanager
+  name: alertmanager
+  namespace: "redhat-odh-monitoring"
+spec:
+  ports:
+    - name: alertmanager
+      port: 443
+      protocol: TCP
+      targetPort: 10443
+  selector:
+    deployment: prometheus
+---
 # Create a service account for accessing prometheus data
 apiVersion: v1
 kind: ServiceAccount
@@ -188,8 +354,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
-      serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus"}}'
-      serviceaccounts.openshift.io/oauth-redirectreference.prometheus: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus-external"}}'
+      serviceaccounts.openshift.io/oauth-redirectreference.prometheus: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus"}}'
+      serviceaccounts.openshift.io/oauth-redirectreference.alertmanager: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"alertmanager"}}'
   name: prometheus
   namespace: redhat-odh-monitoring
 ---
@@ -221,6 +387,24 @@ spec:
     kind: Service
     name: prometheus
   wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    kubernetes.io/tls-acme: 'true'
+  name: alertmanager
+  namespace: redhat-odh-monitoring
+spec:
+  host: alertmanager-redhat-odh-monitoring.apps.rhods-idh.dev.datahub.redhat.com
+  ports:
+    targetPort: alertmanager
+  to:
+    kind: Service
+    name: alertmanager
+  tls:
+    termination: Reencrypt
+    insecureEdgeTerminationPolicy: Redirect
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
