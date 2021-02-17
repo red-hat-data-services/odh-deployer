@@ -178,24 +178,7 @@ spec:
         secret:
           defaultMode: 420
           secretName: alertmanager-proxy
----
-apiVersion: v1
-data:
-  session_secret: "uTgRq5qg4GlwsIXrAePXjTqz5DBhKqhERfGVOmyS"
-kind: Secret
-metadata:
-  name: prometheus-proxy
-  namespace: redhat-odh-monitoring
-type: Opaque
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: alertmanager-proxy
-  namespace: redhat-odh-monitoring
-data:
-  session_secret: "Mqgtyv963kLX7NlVopzM3NnjonxKYBuyN6VbLVH6"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -205,17 +188,6 @@ metadata:
 data:
   alerting.rules: |
       groups:
-        - name: DeadManSwitch
-          interval: 1m
-          rules:
-            - alert: DeadManSwitch
-              expr: vector(1)
-              labels:
-                severity: critical
-              annotations:
-                description: This is a DeadMansSwitch meant to ensure that the entire Alerting pipeline is functional.
-                summary: Alerting DeadMansSwitch
-
         - name: Pod Restarts
           interval: 1m
           rules:
@@ -296,10 +268,6 @@ data:
       - match:
           route: idh_router
         receiver: idh_router
-      - match:
-          alertname: DeadManSwitch
-        receiver: deadman-switch
-        repeat_interval: 5m
 
     receivers:
     - name: 'developer-mails'
@@ -312,10 +280,6 @@ data:
       - to: 'data-hub-alerts@redhat.com'
         send_resolved: true
 
-    - name: 'deadman-switch'
-      webhook_configs:
-        - url: 'https://nosnch.in/f85f44a824?m=just+checking+in'
-          send_resolved: false
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
