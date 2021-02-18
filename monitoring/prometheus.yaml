@@ -127,7 +127,7 @@ spec:
         args:
           - --log.level=info
           - --config.file=/etc/alertmanager/alertmanager.yml
-          - --web.external-url=<set_alertmanager_host>
+          - --web.external-url=https://<set_alertmanager_host>
         image: quay.io/prometheus/alertmanager:v0.21.0
         imagePullPolicy: Always
         ports:
