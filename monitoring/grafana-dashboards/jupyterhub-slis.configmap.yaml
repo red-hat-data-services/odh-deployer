@@ -371,7 +371,7 @@
                   {
                     "expr": "sum(jupyterhub_server_spawn_duration_seconds_count{status=\"success\"})/sum(jupyterhub_server_spawn_duration_seconds_count{})",
                     "interval": "",
-                    "legendFormat": "Jupyterhuv Server Spawn Success Rate",
+                    "legendFormat": "Jupyterhub Server Spawn Success Rate",
                     "refId": "A"
                   }
                 ],
@@ -1219,7 +1219,7 @@
             "type": "row"
           }
         ],
-        "refresh": false,
+        "refresh": "10s",
         "schemaVersion": 26,
         "style": "dark",
         "tags": [],
@@ -1227,7 +1227,7 @@
           "list": []
         },
         "time": {
-          "from": "now-6h",
+          "from": "now-3h",
           "to": "now"
         },
         "timepicker": {
