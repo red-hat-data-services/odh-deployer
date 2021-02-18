@@ -41,7 +41,7 @@ oc apply -f monitoring/grafana-sa.yaml
 
 sed -i "s/<change_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/grafana-secrets.yaml
 sed -i "s/<change_route>/$(oc get route prometheus -o jsonpath='{.spec.host}')/g" monitoring/grafana-secrets.yaml
-sed -i "s/<change_token>/$(oc sa get-token grafana)/g" monitoring/grafana.yaml
+sed -i "s/<change_token>/$(oc sa get-token grafana)/g" monitoring/grafana-secrets.yaml
 oc create -n redhat-odh-monitoring -f monitoring/grafana-secrets.yaml || echo "INFO: Grafana secrets already exist."
 
 oc apply -n redhat-odh-monitoring -f monitoring/grafana-dashboards
