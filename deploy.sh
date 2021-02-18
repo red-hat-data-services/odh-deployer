@@ -32,6 +32,9 @@ sed -i "s/<prometheus_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fo
 sed -i "s/<alertmanager_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus-secrets.yaml
 oc create -n redhat-odh-monitoring -f monitoring/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
 
+oc apply -n redhat-odh-monitoring -f monitoring/alertmanager-svc.yaml
+sed -i "s/<set_alertmanager_host>/$(oc get route alertmanager -o jsonpath='{.spec.host}')/g" monitoring/prometheus.yaml
+
 oc apply -n redhat-odh-monitoring -f monitoring/prometheus.yaml
 
 oc apply -f monitoring/grafana-sa.yaml
