@@ -127,7 +127,7 @@ spec:
         args:
           - --log.level=info
           - --config.file=/etc/alertmanager/alertmanager.yml
-          - --web.external-url=https://alertmanager-redhat-odh-monitoring.apps.rhods-idh.dev.datahub.redhat.com
+          - --web.external-url=<set_alertmanager_host>
         image: quay.io/prometheus/alertmanager:v0.21.0
         imagePullPolicy: Always
         ports:
@@ -324,24 +324,7 @@ spec:
     deployment: prometheus
   sessionAffinity: None
   type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    service.alpha.openshift.io/serving-cert-secret-name: alertmanager-tls
-  labels:
-    name: alertmanager
-  name: alertmanager
-  namespace: "redhat-odh-monitoring"
-spec:
-  ports:
-    - name: alertmanager
-      port: 443
-      protocol: TCP
-      targetPort: 10443
-  selector:
-    deployment: prometheus
+
 ---
 # Create a service account for accessing prometheus data
 apiVersion: v1
@@ -387,24 +370,6 @@ spec:
     kind: Service
     name: prometheus
   wildcardPolicy: None
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  annotations:
-    kubernetes.io/tls-acme: 'true'
-  name: alertmanager
-  namespace: redhat-odh-monitoring
-spec:
-  host: alertmanager-redhat-odh-monitoring.apps.rhods-idh.dev.datahub.redhat.com
-  ports:
-    targetPort: alertmanager
-  to:
-    kind: Service
-    name: alertmanager
-  tls:
-    termination: Reencrypt
-    insecureEdgeTerminationPolicy: Redirect
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
