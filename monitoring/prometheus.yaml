@@ -127,7 +127,7 @@ spec:
         args:
           - --log.level=info
           - --config.file=/etc/alertmanager/alertmanager.yml
-          - --web.external-url=https://alertmanager-redhat-odh-monitoring.apps.rhods-idh.dev.datahub.redhat.com
+          - --web.external-url=https://<set_alertmanager_host>
         image: quay.io/prometheus/alertmanager:v0.21.0
         imagePullPolicy: Always
         ports:
@@ -186,18 +186,25 @@ metadata:
   name: prometheus
   namespace: redhat-odh-monitoring
 data:
+  recording.rules: |
+    groups:
+      - name: notebook_count
+        rules:
+        - record: notebook_count
+          expr: jupyterhub_running_servers
+
   alerting.rules: |
-      groups:
-        - name: Pod Restarts
-          interval: 1m
-          rules:
-            - alert: An OpenShift pod has just restarted
-              expr: sum(delta(kube_pod_container_status_restarts_total{namespace="opendatahub", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
-              for: 5m
-              annotations:
-                summary: An OpenShift pod has just been restarted.
-                action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
-                route: idh_router
+    groups:
+      - name: Pod Restarts
+        interval: 1m
+        rules:
+          - alert: An OpenShift pod has just restarted
+            expr: sum(delta(kube_pod_container_status_restarts_total{namespace="opendatahub", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
+            for: 5m
+            annotations:
+              summary: An OpenShift pod has just been restarted.
+              action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
+              route: idh_router
 
   prometheus.yml: |
     rule_files:
@@ -324,24 +331,7 @@ spec:
     deployment: prometheus
   sessionAffinity: None
   type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    service.alpha.openshift.io/serving-cert-secret-name: alertmanager-tls
-  labels:
-    name: alertmanager
-  name: alertmanager
-  namespace: "redhat-odh-monitoring"
-spec:
-  ports:
-    - name: alertmanager
-      port: 443
-      protocol: TCP
-      targetPort: 10443
-  selector:
-    deployment: prometheus
+
 ---
 # Create a service account for accessing prometheus data
 apiVersion: v1
@@ -387,24 +377,6 @@ spec:
     kind: Service
     name: prometheus
   wildcardPolicy: None
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  annotations:
-    kubernetes.io/tls-acme: 'true'
-  name: alertmanager
-  namespace: redhat-odh-monitoring
-spec:
-  host: alertmanager-redhat-odh-monitoring.apps.rhods-idh.dev.datahub.redhat.com
-  ports:
-    targetPort: alertmanager
-  to:
-    kind: Service
-    name: alertmanager
-  tls:
-    termination: Reencrypt
-    insecureEdgeTerminationPolicy: Redirect
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
