@@ -31,7 +31,8 @@ oc new-project redhat-odh-monitoring || echo "INFO: redhat-odh-monitoring projec
 sed -i "s/<prometheus_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus-secrets.yaml
 sed -i "s/<alertmanager_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus-secrets.yaml
 oc create -n redhat-odh-monitoring -f monitoring/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
-
+sed -i "s/<prom_bearer_token>/$(oc sa -n redhat-odh-monitoring get-token prometheus)/g" monitoring/prometheus.yaml
+sed -i "s/<federate_target>/$(oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}')/g" monitoring/prometheus.yaml
 oc apply -n redhat-odh-monitoring -f monitoring/alertmanager-svc.yaml
 sed -i "s/<set_alertmanager_host>/$(oc get route alertmanager -o jsonpath='{.spec.host}')/g" monitoring/prometheus.yaml
 

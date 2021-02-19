@@ -212,7 +212,26 @@ data:
     global:
       scrape_interval:     10s
       evaluation_interval: 10s
+
     scrape_configs:
+    - job_name: 'Federate Prometheus'
+      scrape_interval: 30s
+      scheme: https
+      tls_config:
+        insecure_skip_verify: true
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token: "<prom_bearer_token>"
+      honor_labels: true
+      metrics_path: '/federate'
+
+      params:
+        'match[]':
+          - '{job=~"[A-z].*"}'
+
+      static_configs:
+        - targets:
+          - "<federate_target>"
+
     - job_name: 'JupyterHub Metrics'
       honor_labels: true
       metrics_path: /hub/metrics
@@ -341,15 +360,6 @@ metadata:
   namespace: redhat-odh-monitoring
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-      serviceaccounts.openshift.io/oauth-redirectreference.prometheus: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus"}}'
-      serviceaccounts.openshift.io/oauth-redirectreference.alertmanager: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"alertmanager"}}'
-  name: prometheus
-  namespace: redhat-odh-monitoring
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: prometheus-secret
@@ -378,15 +388,32 @@ spec:
     name: prometheus
   wildcardPolicy: None
 ---
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: authorization.openshift.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: prometheus_role_binding
+  name: prometheus-scraper
+roleRef:
+  name: prometheus-scraper
 subjects:
 - kind: ServiceAccount
   name: prometheus
   namespace: redhat-odh-monitoring
-roleRef:
-  kind: ClusterRole
-  name: cluster-reader
-  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-scraper
+rules:
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routers/metrics
+  - routers/federate
+  verbs:
+  - get
+- apiGroups:
+  - image.openshift.io
+  resources:
+  - registry/metrics
+  verbs:
+  - get
