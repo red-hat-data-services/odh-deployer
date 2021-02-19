@@ -33,6 +33,19 @@ subjects:
   - kind: ServiceAccount
     name: grafana
 ---
+apiVersion: authorization.openshift.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana
+  namespace: redhat-odh-monitoring
+roleRef:
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: grafana
+  namespace: redhat-odh-monitoring
+
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
