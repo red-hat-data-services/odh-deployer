@@ -60,7 +60,7 @@ spec:
       - name: prometheus
         image: quay.io/prometheus/prometheus:v2.24.1
         args:
-          - --storage.tsdb.retention=6h
+          - --storage.tsdb.retention.time=6h
           - --storage.tsdb.min-block-duration=2h
           - --storage.tsdb.max-block-duration=2h
           - --storage.tsdb.path=/prometheus/data
@@ -405,6 +405,24 @@ metadata:
   name: prometheus-scraper
 rules:
 - apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+- apiGroups:
   - route.openshift.io
   resources:
   - routers/metrics
@@ -417,3 +435,14 @@ rules:
   - registry/metrics
   verbs:
   - get
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - pods
+  - services
+  - namespaces
+  verbs:
+  - list
+  - get
+  - watch
