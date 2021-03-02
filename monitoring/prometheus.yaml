@@ -188,9 +188,9 @@ metadata:
 data:
   recording.rules: |
     groups:
-      - name: notebook_count
+      - name: rhods_notebook_count
         rules:
-        - record: notebook_count
+        - record: rhods_notebook_count
           expr: jupyterhub_running_servers
 
   alerting.rules: |
