@@ -1251,7 +1251,7 @@
   kind: ConfigMap
   metadata:
     name: grafana-dashboard-jupyterhub-slis
-    namespace: redhat-odh-monitoring
+    namespace: redhat-ods-monitoring
     labels:
       grafana_dashboard: "true"
     annotations:

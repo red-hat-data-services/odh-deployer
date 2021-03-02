@@ -5,7 +5,7 @@ metadata:
   labels:
     app: prometheus
   name: prometheus
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 spec:
   replicas: 1
   selector:
@@ -26,17 +26,17 @@ spec:
         - -email-domain=*
         - -upstream=http://localhost:9090
         - -openshift-service-account=prometheus
-        - '-openshift-sar={"resource": "namespaces", "verb": "get", "name": "redhat-odh-monitoring",
-          "namespace": "redhat-odh-monitoring"}'
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "name": "redhat-ods-monitoring",
+          "namespace": "redhat-ods-monitoring"}'
         - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get",
-          "name": "redhat-odh-monitoring", "namespace": "redhat-odh-monitoring"}}'
+          "name": "redhat-ods-monitoring", "namespace": "redhat-ods-monitoring"}}'
         - -tls-cert=/etc/tls/private/tls.crt
         - -tls-key=/etc/tls/private/tls.key
         - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
         - -cookie-secret-file=/etc/proxy/secrets/session_secret
         - -openshift-ca=/etc/pki/tls/cert.pem
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        - -client-id=system:serviceaccount:redhat-odh-monitoring:prometheus
+        - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
         image: quay.io/openshift/origin-oauth-proxy:4.7.0
         ports:
@@ -91,17 +91,17 @@ spec:
         - -email-domain=*
         - -upstream=http://localhost:9093
         - -openshift-service-account=prometheus
-        - '-openshift-sar={"resource": "namespaces", "verb": "get", "name": "redhat-odh-monitoring",
-          "namespace": "redhat-odh-monitoring"}'
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "name": "redhat-ods-monitoring",
+          "namespace": "redhat-ods-monitoring"}'
         - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get",
-          "name": "redhat-odh-monitoring", "namespace": "redhat-odh-monitoring"}}'
+          "name": "redhat-ods-monitoring", "namespace": "redhat-ods-monitoring"}}'
         - -tls-cert=/etc/tls/private/tls.crt
         - -tls-key=/etc/tls/private/tls.key
         - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
         - -cookie-secret-file=/etc/proxy/secrets/session_secret
         - -openshift-ca=/etc/pki/tls/cert.pem
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        - -client-id=system:serviceaccount:redhat-odh-monitoring:prometheus
+        - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
         image: quay.io/openshift/origin-oauth-proxy:4.7.0
         imagePullPolicy: Always
@@ -184,7 +184,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 data:
   recording.rules: |
     groups:
@@ -199,7 +199,7 @@ data:
         interval: 1m
         rules:
           - alert: An OpenShift pod has just restarted
-            expr: sum(delta(kube_pod_container_status_restarts_total{namespace="opendatahub", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
+            expr: sum(delta(kube_pod_container_status_restarts_total{namespace="redhat-ods-applications", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
             for: 5m
             annotations:
               summary: An OpenShift pod has just been restarted.
@@ -240,7 +240,7 @@ data:
         - role: endpoints
           namespaces:
             names:
-              - opendatahub
+              - redhat-ods-applications
       relabel_configs:
         - source_labels: [__meta_kubernetes_service_name]
           regex: ^(jupyterhub)$
@@ -262,7 +262,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: alertmanager
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 data:
   alertmanager.yml: |
     global:
@@ -340,7 +340,7 @@ metadata:
   labels:
     app: prometheus
   name: prometheus
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 spec:
   ports:
   - name: https
@@ -357,13 +357,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: prometheus-reader
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: prometheus-secret
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
   annotations:
     kubernetes.io/service-account.name: prometheus
 type: kubernetes.io/service-account-token
@@ -376,7 +376,7 @@ metadata:
   labels:
     app: prometheus
   name: prometheus
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 spec:
   port:
     targetPort: https
@@ -397,7 +397,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: prometheus
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
