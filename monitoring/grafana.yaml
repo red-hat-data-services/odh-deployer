@@ -61,7 +61,7 @@ metadata:
   labels:
     app: grafana
   name: grafana
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 spec:
   replicas: 2
   selector:
@@ -145,18 +145,18 @@ spec:
             - '-http-address='
             - '-email-domain=*'
             - '-upstream=http://localhost:3001'
-            - '-client-id=system:serviceaccount:redhat-odh-monitoring:grafana'
+            - '-client-id=system:serviceaccount:redhat-ods-monitoring:grafana'
             - '-openshift-ca=/etc/pki/tls/cert.pem'
             - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
-            - '-openshift-sar={"namespace": "redhat-odh-monitoring", "verb": "list", "resource": "services"}'
-            - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get", "resourceName": "redhat-odh-monitoring", "namespace": "redhat-odh-monitoring"}}'
+            - '-openshift-sar={"namespace": "redhat-ods-monitoring", "verb": "list", "resource": "services"}'
+            - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get", "resourceName": "redhat-ods-monitoring", "namespace": "redhat-ods-monitoring"}}'
             - '-tls-cert=/etc/tls/private/tls.crt'
             - '-tls-key=/etc/tls/private/tls.key'
             - '-client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token'
             - '-cookie-secret-file=/etc/proxy/secrets/session_secret'
             - '-skip-auth-regex=^/metrics'
           env:
-            - name: redhat-odh-monitoring
+            - name: redhat-ods-monitoring
           image: quay.io/openshift/origin-oauth-proxy:4.7.0
           imagePullPolicy: IfNotPresent
           name: auth-proxy

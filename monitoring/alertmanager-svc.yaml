@@ -7,7 +7,7 @@ metadata:
   labels:
     name: alertmanager
   name: alertmanager
-  namespace: "redhat-odh-monitoring"
+  namespace: "redhat-ods-monitoring"
 spec:
   ports:
     - name: alertmanager
@@ -23,7 +23,7 @@ metadata:
   annotations:
     kubernetes.io/tls-acme: 'true'
   name: alertmanager
-  namespace: redhat-odh-monitoring
+  namespace: redhat-ods-monitoring
 spec:
   ports:
     targetPort: alertmanager
