@@ -195,15 +195,15 @@ data:
       - name: rhods_notebook_cpu
         rules:
         - record: rhods_notebook_cpu_limits
-          expr: avg(sum(kube_pod_container_resource_limits_cpu_cores{namespace="opendatahub",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
+          expr: avg(sum(kube_pod_container_resource_limits_cpu_cores{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
         - record: rhods_notebook_cpu_requests
-          expr: avg(sum(kube_pod_container_resource_requests_cpu_cores{namespace="opendatahub",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
+          expr: avg(sum(kube_pod_container_resource_requests_cpu_cores{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
       - name: rhods_notebook_memory
         rules:
         - record: rhods_notebook_memory_requests
-          expr: avg(sum(kube_pod_container_resource_requests_memory_bytes{namespace="opendatahub",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
+          expr: avg(sum(kube_pod_container_resource_requests_memory_bytes{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
         - record: rhods_notebook_memory_limits
-          expr: avg(sum(kube_pod_container_resource_limits_memory_bytes{namespace="opendatahub",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
+          expr: avg(sum(kube_pod_container_resource_limits_memory_bytes{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
   alerting.rules: |
     groups:
       - name: Pod Restarts
