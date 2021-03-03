@@ -1,0 +1,12 @@
+---
+apiVersion: authorization.openshift.io/v1
+kind: RoleBinding
+metadata:
+  name: cluster-monitor-rhods-reader
+  namespace: redhat-ods-monitoring
+roleRef:
+  name: cluster-reader
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: openshift-monitoring
