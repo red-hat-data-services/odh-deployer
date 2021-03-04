@@ -51,4 +51,4 @@ sleep 5
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana.yaml
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus-service-monitor.yaml
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/rhods-rules.yaml
