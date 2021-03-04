@@ -27,6 +27,8 @@ if [ $? -ne 0 ]; then
 fi
 
 oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT project already exists."
+oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitor-rbac.yaml
 
 sed -i "s/<prometheus_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus-secrets.yaml
 sed -i "s/<alertmanager_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus-secrets.yaml
@@ -48,3 +50,5 @@ oc create -n $ODH_MONITORING_PROJECT -f monitoring/grafana-secrets.yaml || echo 
 sleep 5
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana.yaml
+
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/rhods-rules.yaml
