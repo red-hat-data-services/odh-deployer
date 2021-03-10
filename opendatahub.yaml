@@ -19,6 +19,13 @@ spec:
     name: jupyterhub
   - kustomizeConfig:
       overlays:
+        - jupyterhub-deployment-patch
+      repoRef:
+        name: manifests
+        path: jupyterhub/jupyterhub/overrides
+    name: jupyterhub
+  - kustomizeConfig:
+      overlays:
       #- cuda
       - additional
       repoRef:
