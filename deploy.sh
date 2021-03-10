@@ -32,23 +32,39 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/cluster-mon
 
 sed -i "s/<prometheus_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus/prometheus-secrets.yaml
 sed -i "s/<alertmanager_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/prometheus/prometheus-secrets.yaml
-oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
-sleep 5
+oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist." && sleep 5
 sed -i "s/<prom_bearer_token>/$(oc sa -n $ODH_MONITORING_PROJECT get-token prometheus)/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<federate_target>/$(oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}')/g" monitoring/prometheus/prometheus.yaml
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
-sed -i "s/<set_alertmanager_host>/$(oc get route alertmanager -o jsonpath='{.spec.host}')/g" monitoring/prometheus/prometheus.yaml
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml && sleep 5
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
+ii=0
 
-oc apply -f monitoring/grafana/grafana-sa.yaml
+while [ $ii -le 100 ]
+do
+    pagerduty_token=$(oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}') && returncode=$? || returncode=$?
+    if [ $returncode -eq 0 ]; then
+        break
+    fi
 
+    ((ii=ii+1))
+    if [ $ii -eq 100 ]; then
+        echo "Pagerduty secret doesn't exist"
+        exit 1
+    fi
+    sleep 3
+done
+
+sed -i "s/<pagerduty_token>/$pagerduty_token/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<set_alertmanager_host>/$(oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}')/g" monitoring/prometheus/prometheus.yaml
+
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml && sleep 15
+
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml && sleep 20
 sed -i "s/<change_proxy_secret>/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/g" monitoring/grafana/grafana-secrets.yaml
-sed -i "s/<change_route>/$(oc get route prometheus -o jsonpath='{.spec.host}')/g" monitoring/grafana/grafana-secrets.yaml
-sed -i "s/<change_token>/$(oc sa get-token grafana)/g" monitoring/grafana/grafana-secrets.yaml
-oc create -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-secrets.yaml || echo "INFO: Grafana secrets already exist."
-sleep 5
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-dashboards
+sed -i "s/<change_route>/$(oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}')/g" monitoring/grafana/grafana-secrets.yaml
+sed -i "s/<change_token>/$(oc sa get-token grafana)-n $ODH_MONITORING_PROJECT /g" monitoring/grafana/grafana-secrets.yaml
+oc create -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-secrets.yaml || echo "INFO: Grafana secrets already exist." && sleep 10
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/rhods-rules.yaml

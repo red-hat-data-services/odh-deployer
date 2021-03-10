@@ -304,6 +304,11 @@ data:
       - to: 'test-123@foo.com'
         send_resolved: true
 
+    - name: 'PagerDuty'
+      pagerduty_configs:
+      - service_key: <pagerduty_token>
+        send_resolved: true
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
