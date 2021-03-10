@@ -6,6 +6,7 @@ metadata:
     serviceaccounts.openshift.io/oauth-redirectreference.grafana_secondary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana-external"}}'
     serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana"}}'
   name: grafana
+  namespace: redhat-ods-monitoring
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -25,6 +26,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: grafana-rb
+  namespace: redhat-ods-monitoring
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
