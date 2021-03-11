@@ -246,6 +246,7 @@ data:
       honor_labels: true
       metrics_path: /hub/metrics
       scheme: http
+      bearer_token: <jupyterhub_prometheus_api_token>
       kubernetes_sd_configs:
         - role: endpoints
           namespaces:
