@@ -215,7 +215,6 @@ data:
             annotations:
               summary: An OpenShift pod has just been restarted.
               action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
-              route: idh_router
 
   prometheus.yml: |
     rule_files:
@@ -247,6 +246,7 @@ data:
       honor_labels: true
       metrics_path: /hub/metrics
       scheme: http
+      bearer_token: <jupyterhub_prometheus_api_token>
       kubernetes_sd_configs:
         - role: endpoints
           namespaces:
@@ -299,22 +299,15 @@ data:
       # A default receiver
       receiver: developer-mails
 
-      # All the above attributes are inherited by all child routes and can
-      # overwritten on each.
-      routes:
-      - match:
-          route: idh_router
-        receiver: idh_router
-
     receivers:
     - name: 'developer-mails'
       email_configs:
-      - to: 'data-hub-alerts@redhat.com'
+      - to: 'test-123@foo.com'
         send_resolved: true
 
-    - name: 'idh_router'
-      email_configs:
-      - to: 'data-hub-alerts@redhat.com'
+    - name: 'PagerDuty'
+      pagerduty_configs:
+      - service_key: <pagerduty_token>
         send_resolved: true
 
 ---
