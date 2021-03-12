@@ -51,8 +51,8 @@ ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 
 export jupyterhub_prometheus_api_token=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secret.yaml
-oc apply -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secret.yaml
+sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
+oc apply -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml
 
 oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
 if [ $? -ne 0 ]; then
@@ -79,11 +79,14 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.ya
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 120)
+jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
+sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/blackbox-exporter.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
 
 prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
