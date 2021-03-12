@@ -83,8 +83,8 @@ pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-r
 sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml && sleep 20
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml && sleep 20
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
 
 prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 grafana_token=$(oc::wait::object::availability "oc sa get-token grafana -n $ODH_MONITORING_PROJECT" 2 30)
