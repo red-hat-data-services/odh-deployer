@@ -215,6 +215,15 @@ data:
             annotations:
               summary: An OpenShift pod has just been restarted.
               action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
+      - name: Data Hub Availability
+        interval: 10m
+        rules:
+          - alert: Jupyterhub route is unavailble
+            expr: probe_success{instance="<jupyterhub_host>",job="user_facing_endpoints_status"} == 0
+            for: 5m
+            annotations:
+              summary: JupyterHub in unavailble at its endpoint.
+              component: "{{ $labels.instance }}"
 
   prometheus.yml: |
     rule_files:
