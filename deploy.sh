@@ -51,7 +51,7 @@ ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 
 export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
-sed -i '' -e  "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
+sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc apply -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml
 
 oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
@@ -64,37 +64,48 @@ oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT pr
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/cluster-monitor-rbac.yaml
 
-sed -i '' -e  "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
-sed -i '' -e  "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
+sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
+sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
 oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
 
 
 prometheus_token=$(oc::wait::object::availability "oc sa -n $ODH_MONITORING_PROJECT get-token prometheus" 2 30)
 ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-sed -i '' -e  "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/prometheus/prometheus.yaml
-sed -i '' -e  "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus.yaml
-sed -i '' -e  "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 120)
-jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-sed -i '' -e  "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus.yaml
-sed -i '' -e  "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
-sed -i '' -e  "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
+oc apply -f monitoring/jupyterhub-route.yaml -n $ODH_PROJECT
+
+jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
+
+
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/blackbox-exporter-common.yaml
+
+if [[ "$(oc get route -n openshift-console console --template={{.spec.host}})" =~ .*"redhat.com".* ]]
+then
+  oc apply -f monitoring/prometheus/blackbox-exporter-internal.yaml -n $ODH_MONITORING_PROJECT
+else
+  oc apply -f monitoring/prometheus/blackbox-exporter-external.yaml -n $ODH_MONITORING_PROJECT
+fi
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/blackbox-exporter.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
 
 prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 grafana_token=$(oc::wait::object::availability "oc sa get-token grafana -n $ODH_MONITORING_PROJECT" 2 30)
 
-sed -i '' -e  "s/<change_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/grafana/grafana-secrets.yaml
-sed -i '' -e  "s/<change_route>/$prometheus_route/g" monitoring/grafana/grafana-secrets.yaml
-sed -i '' -e  "s/<change_token>/$grafana_token/g" monitoring/grafana/grafana-secrets.yaml
+sed -i "s/<change_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/grafana/grafana-secrets.yaml
+sed -i "s/<change_route>/$prometheus_route/g" monitoring/grafana/grafana-secrets.yaml
+sed -i "s/<change_token>/$grafana_token/g" monitoring/grafana/grafana-secrets.yaml
 
 oc create -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-secrets.yaml || echo "INFO: Grafana secrets already exist."
 

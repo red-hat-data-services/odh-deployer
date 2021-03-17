@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: blackbox-exporter
+  name: blackbox-exporter
+spec:
+  ports:
+  - name: 9115-tcp
+    port: 9115
+    protocol: TCP
+    targetPort: 9115
+  selector:
+    app: blackbox-exporter
+    deploymentconfig: blackbox-exporter
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  labels:
+    k8s-app: blackbox-exporter
+    service: blackbox-exporter
+  name: blackbox-exporter
+spec:
+  port:
+    targetPort: 9115
+  to:
+    kind: Service
+    name: blackbox-exporter
+    weight: 100
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: blackbox-exporter
+  name: blackbox-exporter
+spec:
+  replicas: 1
+  strategy:
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: blackbox-exporter
+    spec:
+      volumes:
+      - name: config-volume
+        configMap:
+          name: blackbox
+      containers:
+      - image: prom/blackbox-exporter:v0.18.0
+        name: blackbox-exporter
+        args:
+        - --log.level=debug
+        - --config.file=/tmp/blackbox.yml
+        volumeMounts:
+        - name: config-volume
+          mountPath: /tmp
+        ports:
+        - containerPort: 9115
+          protocol: TCP
+      restartPolicy: Always
