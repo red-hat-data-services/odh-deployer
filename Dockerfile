@@ -8,6 +8,7 @@ RUN microdnf update -y && \
       bash \
       tar \
       gzip \
+      openssl \
     && microdnf clean all && \
     rm -rf /var/cache/yum
 
