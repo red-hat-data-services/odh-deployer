@@ -33,6 +33,8 @@ spec:
         path: jupyterhub/notebook-images
     name: notebook-images
   - kustomizeConfig:
+      overlays:
+        - authentication
       repoRef:
         name: manifests
         path: odh-dashboard
