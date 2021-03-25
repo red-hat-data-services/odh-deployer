@@ -103,7 +103,7 @@ spec:
           env:
             - name: GF_INSTALL_PLUGINS
               value: grafana-piechart-panel
-          image: quay.io/bitnami/grafana:7.5.0
+          image: quay.io/modh/grafana:7.5.0
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
