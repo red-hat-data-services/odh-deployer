@@ -93,7 +93,7 @@ spec:
               value: configmap
             - name: UNIQUE_FILENAMES
               value: 'true'
-          image: quay.io/app-sre/k8s-sidecar:0.1.178
+          image: quay.io/kiwigrid/k8s-sidecar:1.11.0
           name: dashboard-discovery
           volumeMounts:
             - mountPath: /grafana-dashboard-definitions
