@@ -1,0 +1,10 @@
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: rhodslink
+spec:
+  applicationMenu:
+    section: OpenShift Managed Services
+  href: <rhods-dashboard-url>
+  location: ApplicationMenu
+  text: Red Hat OpenShift Data Science

@@ -117,3 +117,9 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/rhods-rules.yaml
+
+# Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
+cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
+odh_dashboard_route="https://odh-dashboard-$ODH_PROJECT.$cluster_domain"
+sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
+oc apply -f consolelink/consolelink.yaml

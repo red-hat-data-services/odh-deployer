@@ -21,6 +21,7 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
 COPY deploy.sh $HOME
 COPY opendatahub.yaml $HOME
 ADD monitoring $HOME/monitoring
+ADD consolelink $HOME/consolelink
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 $HOME/opendatahub.yaml && \
