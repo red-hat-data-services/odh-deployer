@@ -222,13 +222,13 @@ data:
             expr: probe_success{instance="<jupyterhub_host>",job="user_facing_endpoints_status"} == 0
             for: 5m
             annotations:
-              summary: JupyterHub in unavailble at its endpoint.
+              summary: JupyterHub in unavailable at its endpoint.
               component: "{{ $labels.instance }}"
           - alert: RHODS Dashboard route is unavailable
             expr: probe_success{instance="<rhods_dashboard_host>",job="user_facing_endpoints_status"} == 0
             for: 5m
             annotations:
-              summary: RHODS dashboard in unavailble at its endpoint.
+              summary: RHODS dashboard in unavailable at its endpoint.
               component: "{{ $labels.instance }}"
 
   prometheus.yml: |
