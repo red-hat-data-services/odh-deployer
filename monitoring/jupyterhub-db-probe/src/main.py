@@ -4,7 +4,7 @@ import time
 from prometheus_client import start_http_server, Gauge
 from sqlalchemy import create_engine
 
-DATABASE_RESPONSE_TIME = Gauge('jupyterhub_db_response_time', 'Time taken for Jupyterhub DB to respond. Negative values indicate failures')
+DATABASE_PROBE_SUCCESS = Gauge('jupyterhub_db_probe_success', 'Whether the Jupyterhub DB probe succeded. 1 indicates a success')
 
 def main():
     user = os.getenv("JUPYTERHUB_DB_USER", "jupyterhub")
@@ -15,19 +15,18 @@ def main():
     start_http_server(8080)
 
     while True:
-        DATABASE_RESPONSE_TIME.set(connect_to_db(user, password, host, port))
+        DATABASE_PROBE_SUCCESS.set(connect_to_db(user, password, host, port))
         time.sleep(30)
 
 
 def connect_to_db(user, password, host, port):
     try:
-        start_time = time.time_ns() // 1_000_000
         db_string = f"postgresql://{user}:{password}@{host}:{port}/jupyterhub"
         db = create_engine(db_string)
         foo = db.execute("SELECT * FROM users LIMIT 1")
-        return ((time.time_ns() // 1_000_000) - start_time)
+        return (1)
     except:
-        return (-1)
+        return (0)
 
 
 if __name__ == "__main__":
