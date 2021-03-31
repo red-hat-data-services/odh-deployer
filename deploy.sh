@@ -81,9 +81,13 @@ alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n
 pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 120)
 
 oc apply -f monitoring/jupyterhub-route.yaml -n $ODH_PROJECT
+oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
 
 jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+rhods_dashboard_host=$(oc::wait::object::availability "oc get route odh-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+
 sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
 
