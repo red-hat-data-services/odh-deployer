@@ -215,6 +215,14 @@ data:
             annotations:
               summary: An OpenShift pod has just been restarted.
               action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
+      - name: JupyterHub Database Availability
+        interval: 10m
+        rules:
+          - alert: Jupyterhub DB Service is unavailable
+            expr: jupyterhub_db_response_time{job="Jupyterhub DB Metrics"} == -1
+            for: 5m
+            annotations:
+              summary: JupyterHub DB Service in unreachable
       - name: RHODS Availability
         interval: 10m
         rules:
@@ -312,6 +320,25 @@ data:
           regex: (.+):(\d+)
           target_label: __address__
           replacement: ${1}:8383
+
+    - job_name: "Jupyterhub DB Metrics"
+      honor_labels: true
+      scheme: http
+      metrics_path: /
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-monitoring
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(jupyterhub-db-probe)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
 
     alerting:
       alertmanagers:
