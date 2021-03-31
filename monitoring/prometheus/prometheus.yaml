@@ -186,24 +186,6 @@ metadata:
   name: prometheus
   namespace: redhat-ods-monitoring
 data:
-  recording.rules: |
-    groups:
-      - name: rhods_notebook_count
-        rules:
-        - record: rhods_notebook_count
-          expr: jupyterhub_running_servers
-      - name: rhods_notebook_cpu
-        rules:
-        - record: rhods_notebook_cpu_limits
-          expr: avg(sum(kube_pod_container_resource_limits_cpu_cores{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
-        - record: rhods_notebook_cpu_requests
-          expr: avg(sum(kube_pod_container_resource_requests_cpu_cores{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
-      - name: rhods_notebook_memory
-        rules:
-        - record: rhods_notebook_memory_requests
-          expr: avg(sum(kube_pod_container_resource_requests_memory_bytes{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
-        - record: rhods_notebook_memory_limits
-          expr: avg(sum(kube_pod_container_resource_limits_memory_bytes{namespace="redhat-ods-applications",pod=~"jupyterhub-nb-.*"}) by (prometheus_replica))
   alerting.rules: |
     groups:
       - name: Pod Restarts
