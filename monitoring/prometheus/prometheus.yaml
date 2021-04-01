@@ -186,6 +186,60 @@ metadata:
   name: prometheus
   namespace: redhat-ods-monitoring
 data:
+  recording.rules: |
+    groups:
+      - name: SLOs - Jupyterhub
+        rules:
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[1d]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[1d]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate1d
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[1h]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[1h]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate1h
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[2h]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[2h]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate2h
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[30m]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[30m]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate30m
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[3d]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[3d]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate3d
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[5m]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[5m]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate5m
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[6h]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="jupyterhub"}[6h]))
+          labels:
+            route: jupyterhub
+          record: haproxy_backend_http_responses_total:burnrate6h
+
   alerting.rules: |
     groups:
       - name: Pod Restarts
