@@ -402,6 +402,15 @@ data:
             instance: jupyterhub-db
           record: probe_success:burnrate6h
 
+      - name: SLOs - RHODS Operator
+        interval: 15m
+        rules:
+        - expr: |
+            rate(controller_runtime_reconcile_total{controller="kfdef-controller", job="RHODS Metrics", result!="success"}[15m])
+          labels:
+            instance: rhods-controller
+          record: controller_runtime_reconcile_total:rate15m
+
   alerting.rules: |
     groups:
       - name: Pod Restarts
