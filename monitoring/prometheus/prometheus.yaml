@@ -446,6 +446,49 @@ data:
               summary: RHODS dashboard in unavailable at its endpoint.
               component: "{{ $labels.instance }}"
 
+      - name: SLOs-haproxy_backend_http_responses_total
+        rules:
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate5m{route=~"jupyterhub|odh-dashboard"}) > (14.40 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate1h{route=~"jupyterhub|odh-dashboard"}) > (14.40 * (1-0.98000))
+          for: 2m
+          labels:
+            severity: critical
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate30m{route=~"jupyterhub|odh-dashboard"}) > (6.00 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) > (6.00 * (1-0.98000))
+          for: 15m
+          labels:
+            severity: critical
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate2h{route=~"jupyterhub|odh-dashboard"}) > (3.00 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate1d{route=~"jupyterhub|odh-dashboard"}) > (3.00 * (1-0.98000))
+          for: 1h
+          labels:
+            severity: warning
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) > (1.00 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate3d{route=~"jupyterhub|odh-dashboard"}) > (1.00 * (1-0.98000))
+          for: 3h
+          labels:
+            severity: warning
+
   prometheus.yml: |
     rule_files:
       - '*.rules'
