@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    opendatahub.io/modified: "false"
+    app: jupyterhub
+  name: rhods-groups-config
+data:
+  admin_groups: "rhods-admins"
+  allowed_groups: "rhods-users"
