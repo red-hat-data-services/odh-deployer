@@ -188,7 +188,7 @@ metadata:
 data:
   recording.rules: |
     groups:
-      - name: SLOs - Jupyterhub
+      - name: SLOs - JupyterHub
         rules:
         - expr: |
             sum(rate(haproxy_backend_http_responses_total{route="jupyterhub",code=~"5.."}[1d]))
@@ -239,6 +239,42 @@ data:
           labels:
             route: jupyterhub
           record: haproxy_backend_http_responses_total:burnrate6h
+
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate6h
 
       - name: SLOs - ODH Dashboard
         rules:
