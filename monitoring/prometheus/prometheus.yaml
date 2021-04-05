@@ -422,29 +422,6 @@ data:
             annotations:
               summary: An OpenShift pod has just been restarted.
               action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
-      - name: JupyterHub Database Availability
-        interval: 10m
-        rules:
-          - alert: Jupyterhub DB Service is unavailable
-            expr: jupyterhub_db_response_time{job="Jupyterhub DB Metrics"} == -1
-            for: 5m
-            annotations:
-              summary: JupyterHub DB Service in unreachable
-      - name: RHODS Availability
-        interval: 10m
-        rules:
-          - alert: Jupyterhub route is unavailable
-            expr: probe_success{instance="<jupyterhub_host>",job="user_facing_endpoints_status"} == 0
-            for: 5m
-            annotations:
-              summary: JupyterHub in unavailable at its endpoint.
-              component: "{{ $labels.instance }}"
-          - alert: RHODS Dashboard route is unavailable
-            expr: probe_success{instance="<rhods_dashboard_host>",job="user_facing_endpoints_status"} == 0
-            for: 5m
-            annotations:
-              summary: RHODS dashboard in unavailable at its endpoint.
-              component: "{{ $labels.instance }}"
 
       - name: SLOs-haproxy_backend_http_responses_total
         rules:
@@ -485,6 +462,49 @@ data:
             sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) > (1.00 * (1-0.98000))
             and
             sum(haproxy_backend_http_responses_total:burnrate3d{route=~"jupyterhub|odh-dashboard"}) > (1.00 * (1-0.98000))
+          for: 3h
+          labels:
+            severity: warning
+
+      - name: SLOs-probe_success
+        rules:
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
+          expr: |
+            sum(probe_success:burnrate5m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (14.40 * (1-0.98000))
+            and
+            sum(probe_success:burnrate1h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (14.40 * (1-0.98000))
+          for: 2m
+          labels:
+            severity: critical
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
+          expr: |
+            sum(probe_success:burnrate30m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (6.00 * (1-0.98000))
+            and
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (6.00 * (1-0.98000))
+          for: 15m
+          labels:
+            severity: critical
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
+          expr: |
+            sum(probe_success:burnrate2h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (3.00 * (1-0.98000))
+            and
+            sum(probe_success:burnrate1d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (3.00 * (1-0.98000))
+          for: 1h
+          labels:
+            severity: warning
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
+          expr: |
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (1.00 * (1-0.98000))
+            and
+            sum(probe_success:burnrate3d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
