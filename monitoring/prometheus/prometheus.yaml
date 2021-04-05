@@ -509,6 +509,25 @@ data:
           labels:
             severity: warning
 
+      - name: SLOs-controller_runtime_reconcile_total
+        rules:
+        - alert: RHODS Operator Reconciliation Failures
+          annotations:
+            message: 'The RHODS operator has failed to reconcile successfully for the last hour'
+          expr: |
+           min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[1h])
+          for: 2m
+          labels:
+            severity: critical
+        - alert: RHODS Operator Reconciliation Failures
+          annotations:
+            message: 'The RHODS operator has failed to reconcile successfully for the last 30 minutes'
+          expr: |
+            min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[30m])
+          for: 2m
+          labels:
+            severity: warning
+
   prometheus.yml: |
     rule_files:
       - '*.rules'
