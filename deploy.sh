@@ -45,6 +45,26 @@ function oc::wait::object::availability() {
     echo $token
 }
 
+function oc::object::safe::to::apply() {
+  local kind=$1
+  local resource=$2
+  local label="opendatahub.io/modified=false"
+
+  local object="${kind}/${resource}"
+
+  exists=$(oc get -n $ODH_PROJECT ${object} -o name | grep ${object} || echo "false")
+  original=$(oc get -n $ODH_PROJECT ${kind} -l ${label} -o name | grep ${object} || echo "false")
+  if [ "$exists" == "false" ]; then
+    return 0
+  fi
+
+  if [ "$original" == "false" ]; then
+    return 1
+  fi
+
+  return 0
+}
+
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
@@ -141,3 +161,12 @@ cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec
 odh_dashboard_route="https://odh-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
+
+kind="configmap"
+resource="rhods-groups-config"
+
+if oc::object::safe::to::apply ${kind} ${resource}; then
+  oc apply -n ${ODH_PROJECT} -f groups/groups.configmap.yaml
+else
+  echo "The groups ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
+fi
