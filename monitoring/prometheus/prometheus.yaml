@@ -328,6 +328,42 @@ data:
             route: odh-dashboard
           record: haproxy_backend_http_responses_total:burnrate6h
 
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"odh-dashboard-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: odh-dashboard
+          record: probe_success:burnrate6h
+
   alerting.rules: |
     groups:
       - name: Pod Restarts
