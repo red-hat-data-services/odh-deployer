@@ -50,6 +50,18 @@ ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 
+# If a reader secret has been created, link it to the default SA
+# This is so that private images in quay.io/modh can be loaded into imagestreams
+READER_SECRET="addon-managed-odh-pullsecret"
+linkdefault=0
+oc get secret ${READER_SECRET} &> /dev/null || linkdefault=1
+if [ "$linkdefault" -eq 0 ]; then
+    echo Linking ${READER_SECRET} to default SA
+    oc secret link default ${READER_SECRET} --for=pull -n ${ODH_PROJECT}
+else
+    echo no ${READER_SECRET} secret, default SA unchanged
+fi
+
 export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc apply -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml
