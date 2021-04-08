@@ -429,9 +429,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
           expr: |
-            sum(haproxy_backend_http_responses_total:burnrate5m{route=~"jupyterhub|odh-dashboard"}) > (14.40 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate5m{route=~"jupyterhub|odh-dashboard"}) by (route) > (14.40 * (1-0.98000))
             and
-            sum(haproxy_backend_http_responses_total:burnrate1h{route=~"jupyterhub|odh-dashboard"}) > (14.40 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate1h{route=~"jupyterhub|odh-dashboard"}) by (route) > (14.40 * (1-0.98000))
           for: 2m
           labels:
             severity: critical
@@ -439,9 +439,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
           expr: |
-            sum(haproxy_backend_http_responses_total:burnrate30m{route=~"jupyterhub|odh-dashboard"}) > (6.00 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate30m{route=~"jupyterhub|odh-dashboard"}) by (route) > (6.00 * (1-0.98000))
             and
-            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) > (6.00 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) by (route) > (6.00 * (1-0.98000))
           for: 15m
           labels:
             severity: critical
@@ -449,9 +449,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
           expr: |
-            sum(haproxy_backend_http_responses_total:burnrate2h{route=~"jupyterhub|odh-dashboard"}) > (3.00 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate2h{route=~"jupyterhub|odh-dashboard"}) by (route) > (3.00 * (1-0.98000))
             and
-            sum(haproxy_backend_http_responses_total:burnrate1d{route=~"jupyterhub|odh-dashboard"}) > (3.00 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate1d{route=~"jupyterhub|odh-dashboard"}) by (route) > (3.00 * (1-0.98000))
           for: 1h
           labels:
             severity: warning
@@ -459,9 +459,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }})'
           expr: |
-            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) > (1.00 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|odh-dashboard"}) by (route) > (1.00 * (1-0.98000))
             and
-            sum(haproxy_backend_http_responses_total:burnrate3d{route=~"jupyterhub|odh-dashboard"}) > (1.00 * (1-0.98000))
+            sum(haproxy_backend_http_responses_total:burnrate3d{route=~"jupyterhub|odh-dashboard"}) by (route) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
@@ -472,9 +472,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
           expr: |
-            sum(probe_success:burnrate5m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate5m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
             and
-            sum(probe_success:burnrate1h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate1h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
           for: 2m
           labels:
             severity: critical
@@ -482,9 +482,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
           expr: |
-            sum(probe_success:burnrate30m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate30m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
           for: 15m
           labels:
             severity: critical
@@ -492,9 +492,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
           expr: |
-            sum(probe_success:burnrate2h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate2h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate1d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate1d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
           for: 1h
           labels:
             severity: warning
@@ -502,9 +502,9 @@ data:
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
           expr: |
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate3d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate3d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
