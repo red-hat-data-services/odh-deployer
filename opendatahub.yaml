@@ -26,7 +26,7 @@ spec:
     name: jupyterhub
   - kustomizeConfig:
       overlays:
-      #- cuda
+      - cuda-11.0.3
       - additional
       repoRef:
         name: manifests
