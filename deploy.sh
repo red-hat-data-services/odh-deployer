@@ -68,7 +68,9 @@ function oc::object::safe::to::apply() {
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
+NAMESPACE_LABEL="redhat-openshift-data-science/generated-namespace=true"
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
+oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 
 # If a reader secret has been created, link it to the default SA
 # This is so that private images in quay.io/modh can be loaded into imagestreams
@@ -94,6 +96,7 @@ fi
 
 oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT project already exists."
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
+oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/cluster-monitor-rbac.yaml
 
 sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
