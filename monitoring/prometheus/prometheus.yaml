@@ -675,7 +675,7 @@ data:
       repeat_interval: 4h
 
       # A default receiver
-      receiver: developer-mails
+      receiver: PagerDuty
 
     receivers:
     - name: 'developer-mails'
