@@ -68,7 +68,7 @@ function oc::object::safe::to::apply() {
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
-NAMESPACE_LABEL="redhat-openshift-data-science/generated-namespace=true"
+NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 
