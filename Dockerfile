@@ -24,6 +24,7 @@ ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
 ADD groups $HOME/groups
 ADD jupyterhub $HOME/jupyterhub
+ADD partners $HOME/partners
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 $HOME/opendatahub.yaml && \
