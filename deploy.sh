@@ -177,3 +177,12 @@ if oc::object::safe::to::apply ${kind} ${resource}; then
 else
   echo "The groups ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
 fi
+
+kind="secret"
+resource="anaconda-ce-access"
+
+if oc::object::safe::to::apply ${kind} ${resource}; then
+  oc apply -n ${ODH_PROJECT} -f partners/anaconda/anaconda-ce-access.yaml
+else
+  echo "The Anaconda base secret (${kind}/${resource}) has been modified. Skipping apply."
+fi
