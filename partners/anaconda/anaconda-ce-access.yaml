@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: anaconda-ce-access
+  namespace: redhat-ods-applications
+  labels:
+    opendatahub.io/modified: "false"
+type: Opaque
