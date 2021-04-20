@@ -90,7 +90,7 @@ oc apply -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yam
 
 export jupyterhub_postgresql_password=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
-oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml
+oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml
 
 oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
 if [ $? -ne 0 ]; then
@@ -161,7 +161,7 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/rhods-rules.yaml
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/jupyterhub-db-probe/jupyterhub-db-probe.yaml
+oc apply -n $ODH_PROJECT -f monitoring/jupyterhub-db-probe/jupyterhub-db-probe.yaml
 
 # Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})

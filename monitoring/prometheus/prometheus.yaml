@@ -629,7 +629,7 @@ data:
         - role: endpoints
           namespaces:
             names:
-              - redhat-ods-monitoring
+              - redhat-ods-applications
       relabel_configs:
         - source_labels: [__meta_kubernetes_service_name]
           regex: ^(jupyterhub-db-probe)$
