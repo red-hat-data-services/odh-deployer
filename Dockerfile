@@ -23,11 +23,13 @@ COPY opendatahub.yaml $HOME
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
 ADD groups $HOME/groups
+ADD jupyterhub $HOME/jupyterhub
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 $HOME/opendatahub.yaml && \
     chmod 644 -R $HOME/monitoring && \
     chmod 644 -R $HOME/groups && \
+    chmod 644 -R $HOME/jupyterhub && \
     chown 1001:0 -R $HOME &&\
     chmod ug+rwx -R $HOME
 
