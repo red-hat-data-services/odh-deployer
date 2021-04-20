@@ -5,7 +5,7 @@ metadata:
   labels:
     app: jupyterhub-db-probe
   name: jupyterhub-db-probe
-  namespace: redhat-ods-monitoring
+  namespace: redhat-ods-applications
 spec:
   replicas: 1
   selector:
@@ -17,7 +17,15 @@ spec:
         deployment: jupyterhub-db-probe
     spec:
       containers:
-      - name: db-probe
+      - env:
+        - name: JUPYTERHUB_DB_USER
+          value: jupyterhub
+        - name: JUPYTERHUB_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jupyterhub-database-password
+              key: POSTGRESQL_PASSWORD
+        name: db-probe
         image: quay.io/modh/jupyterhub-db-probe:v0.2
         imagePullPolicy: Always
         ports:
@@ -41,7 +49,7 @@ metadata:
   labels:
     app: jupyterhub-db-probe
   name: jupyterhub-db-probe
-  namespace: redhat-ods-monitoring
+  namespace: redhat-ods-applications
 spec:
   ports:
   - name: metrics
