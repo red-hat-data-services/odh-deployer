@@ -21,6 +21,7 @@ spec:
     name: jupyterhub
   - kustomizeConfig:
       overlays:
+        - jupyterhub-db-deployment-patch
         - jupyterhub-deployment-patch
       repoRef:
         name: manifests

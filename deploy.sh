@@ -86,11 +86,11 @@ fi
 
 export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
-oc apply -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml
+oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
 export jupyterhub_postgresql_password=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
-oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml
+oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
 
 oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
 if [ $? -ne 0 ]; then
@@ -161,7 +161,7 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/rhods-rules.yaml
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/jupyterhub-db-probe/jupyterhub-db-probe.yaml
+oc apply -n $ODH_PROJECT -f monitoring/jupyterhub-db-probe/jupyterhub-db-probe.yaml
 
 # Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
