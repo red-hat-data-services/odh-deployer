@@ -21,6 +21,7 @@ spec:
     name: jupyterhub
   - kustomizeConfig:
       overlays:
+        - jupyterhub-db-deployment-patch
         - jupyterhub-deployment-patch
       repoRef:
         name: manifests
@@ -41,6 +42,11 @@ spec:
         name: manifests
         path: odh-dashboard
     name: odh-dashboard
+  - kustomizeConfig:
+      repoRef:
+        name: manifests
+        path: partners/anaconda
+    name: anaconda-ce
   repos:
   - name: manifests
     uri: file:///opt/manifests/odh-manifests.tar.gz
