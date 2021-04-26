@@ -186,3 +186,5 @@ if oc::object::safe::to::apply ${kind} ${resource}; then
 else
   echo "The Anaconda base secret (${kind}/${resource}) has been modified. Skipping apply."
 fi
+
+oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml
