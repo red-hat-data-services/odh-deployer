@@ -104,8 +104,8 @@ items:
       local: true
     tags:
     - annotations:
-        opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.3"},{"name":"TensorFlow","version":"==2.4.1"},{"name":"CUDA","version":"11.0.3"}]'
-        opendatahub.io/notebook-python-dependencies: '[{"name":"TensorFlow","version":"==2.4.1"},{"name":"Tensorboard","version":"2.4.1"},{"name":"Boto3","version":"1.17.11"},{"name":"Kafka-Python","version":"2.0.2"},{"name":"Matplotlib","version":"3.1.3"},{"name":"Numpy","version":"1.19.5"},{"name":"Pandas","version":"0.25.3"},{"name":"Scipy","version":"1.6.2"}]'
+        opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.3"},{"name":"TensorFlow","version":"2.4.1"},{"name":"CUDA","version":"11.0.3"}]'
+        opendatahub.io/notebook-python-dependencies: '[{"name":"TensorFlow","version":"2.4.1"},{"name":"Tensorboard","version":"2.4.1"},{"name":"Boto3","version":"1.17.11"},{"name":"Kafka-Python","version":"2.0.2"},{"name":"Matplotlib","version":"3.1.3"},{"name":"Numpy","version":"1.19.5"},{"name":"Pandas","version":"0.25.3"},{"name":"Scipy","version":"1.6.2"}]'
       name: "py3.8-cuda-11.0.3"
       referencePolicy:
         type: Local
