@@ -101,7 +101,6 @@ fi
 oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT project already exists."
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
 oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/cluster-monitor-rbac.yaml
 
 sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
 sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
@@ -159,7 +158,6 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/cluster-monitoring/rhods-rules.yaml
 
 # Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
