@@ -565,7 +565,15 @@ data:
 
       params:
         'match[]':
-          - '{job=~"[A-z].*"}'
+          - '{__name__= "haproxy_backend_http_responses_total"}'
+          - '{__name__= "controller_runtime_reconcile_total"}'
+          - '{__name__= "container_cpu_usage_seconds_total"}'
+          - '{__name__= "container_memory_rss"}'
+          - '{__name__= "kubelet_volume_stats_used_bytes"}'
+          - '{__name__= "kubelet_volume_stats_capacity_bytes"}'
+          - '{__name__= "kube_pod_container_status_waiting_reason"}'
+          - '{__name__= "kube_pod_container_status_restarts_total"}'
+          - '{__name__= "kube_pod_container_status_terminated_reason"}'
 
       static_configs:
         - targets:
