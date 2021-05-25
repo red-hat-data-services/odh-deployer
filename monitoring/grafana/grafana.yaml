@@ -95,6 +95,13 @@ spec:
               value: 'true'
           image: quay.io/kiwigrid/k8s-sidecar:1.11.0
           name: dashboard-discovery
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
           volumeMounts:
             - mountPath: /grafana-dashboard-definitions
               name: grafana-dashboard-definitions
@@ -117,6 +124,13 @@ spec:
             - containerPort: 3001
               name: http
               protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
           readinessProbe:
             httpGet:
               path: /api/health
