@@ -258,7 +258,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/thoth-station/s2i-thoth'
-        ref: v0.26.0
+        ref: v0.28.0
       contextDir: ubi8-py38
     triggers:
       - type: ImageChange
