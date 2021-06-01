@@ -136,6 +136,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-core-ubi8"
+    labels:
+      opendatahub.io/build_type: "base_image"
   spec:
     nodeSelector: null
     output:
@@ -169,6 +171,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-base-ubi8"
+    labels:
+      opendatahub.io/build_type: "base_image"
   spec:
     nodeSelector: null
     output:
@@ -202,6 +206,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-py38-ubi8"
+    labels:
+      opendatahub.io/build_type: "base_image"
   spec:
     nodeSelector: null
     output:
@@ -235,6 +241,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-thoth-ubi8-py38"
+    labels:
+      opendatahub.io/build_type: "base_image"
   spec:
     nodeSelector: null
     output:
@@ -268,6 +276,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: s2i-minimal-gpu-cuda-11.0.3-notebook
+    labels:
+      opendatahub.io/build_type: "notebook_image"
   spec:
     nodeSelector: null
     output:
@@ -302,6 +312,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: s2i-tensorflow-gpu-cuda-11.0.3-notebook
+    labels:
+      opendatahub.io/build_type: "notebook_image"
   spec:
     nodeSelector: null
     output:
@@ -336,6 +348,8 @@ items:
   apiVersion: build.openshift.io/v1
   metadata:
     name: s2i-pytorch-gpu-cuda-11.0.3-notebook
+    labels:
+      opendatahub.io/build_type: "notebook_image"
   spec:
     nodeSelector: null
     output:
