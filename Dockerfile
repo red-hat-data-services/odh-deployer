@@ -20,6 +20,7 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
 
 COPY deploy.sh $HOME
 COPY opendatahub.yaml $HOME
+COPY rhods-monitoring.yaml $HOME
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
 ADD groups $HOME/groups
@@ -28,6 +29,7 @@ ADD partners $HOME/partners
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 $HOME/opendatahub.yaml && \
+    chmod 644 $HOME/rhods-monitoring.yaml && \
     chmod 644 -R $HOME/monitoring && \
     chmod 644 -R $HOME/groups && \
     chmod 644 -R $HOME/jupyterhub && \
