@@ -243,13 +243,14 @@ items:
           kind: ImageStreamTag
           name: '11.0.3-cuda-s2i-base-ubi8:latest'
         noCache: true
-        dockerfilePath: 3.8/Dockerfile.rhel8
+        dockerfilePath: Dockerfile.rhel8
     postCommit: {}
     source:
       type: Git
       git:
-        uri: 'https://github.com/sclorg/s2i-python-container'
-        ref: master
+        uri: 'https://github.com/red-hat-data-services/s2i-python-container'
+        ref: v0.0.1
+      contextDir: '3.8'
     triggers:
       - type: ImageChange
         imageChange: {}
