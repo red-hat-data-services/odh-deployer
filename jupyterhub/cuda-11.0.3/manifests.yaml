@@ -249,7 +249,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-python-container'
-        ref: v0.0.1
+        ref: nb-1
       contextDir: '3.8'
     triggers:
       - type: ImageChange
