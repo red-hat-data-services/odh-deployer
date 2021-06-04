@@ -166,8 +166,8 @@ items:
     source:
       type: Git
       git:
-        uri: 'https://github.com/sclorg/s2i-base-container'
-        ref: master
+        uri: 'https://github.com/red-hat-data-services/s2i-base-container'
+        ref: nb-1
       contextDir: core
     triggers:
       - type: ImageChange
@@ -207,8 +207,8 @@ items:
     source:
       type: Git
       git:
-        uri: 'https://github.com/sclorg/s2i-base-container'
-        ref: master
+        uri: 'https://github.com/red-hat-data-services/s2i-base-container'
+        ref: nb-1
       contextDir: base
     triggers:
       - type: ImageChange
