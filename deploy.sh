@@ -160,6 +160,16 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
+# Due to a switch in the db-probe when we moved from 1.0.13 to 1.0.14 we need to delete the probe and let the operator recreate it
+# This should be removed in future versions of RHODS.
+
+probe_exists=$(oc get -n $ODH_PROJECT deployments -l app=jupyterhub-db-probe | grep jupyterhub-db-probe || echo "false")
+
+if [ "$probe_exists" != "false" ]; then
+    oc delete -n $ODH_PROJECT deployment jupyterhub-db-probe
+else
+    echo "The JupyterHub Probe doesn't exist. Proceeding normally."
+fi
 
 # Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
