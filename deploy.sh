@@ -112,7 +112,7 @@ oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets
 prometheus_token=$(oc::wait::object::availability "oc sa -n $ODH_MONITORING_PROJECT get-token prometheus" 2 30)
 ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
