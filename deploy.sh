@@ -119,6 +119,7 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.ya
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 120)
+pagerduty_service_token=$(echo -ne "$pagerduty_service_token" | tr -d "'" | base64 --decode)
 
 oc apply -f monitoring/jupyterhub-route.yaml -n $ODH_PROJECT
 oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
