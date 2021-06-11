@@ -102,6 +102,8 @@ oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT pr
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
 oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 
+sed -i "s#<snitch_url>#$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 2 30 | tr -d "'"  | base64 --decode)#g" monitoring/prometheus/prometheus.yaml
+
 oc apply -n ${ODH_MONITORING_PROJECT} -f rhods-monitoring.yaml
 
 sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
