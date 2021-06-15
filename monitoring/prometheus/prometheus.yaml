@@ -74,11 +74,11 @@ spec:
           name: http
         resources:
           limits:
-            cpu: 300m
-            memory: 1Gi
+            cpu: 400m
+            memory: 3500Mi
           requests:
-            cpu: 100m
-            memory: 500Mi
+            cpu: 200m
+            memory: 1Gi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
@@ -430,6 +430,17 @@ data:
               action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
               triage: "https://docs.google.com/document/d/1pcYStWmlGN8dtOePyZ5Zy6F07BcHZrraZDYAEx9w_ik"
 
+      - name: DeadManSnitch
+        interval: 1m
+        rules:
+          - alert: DeadManSnitch
+            expr: vector(1)
+            labels:
+              severity: critical
+            annotations:
+              description: This is a DeadManSnitch to ensure RHODS monitoring and alerting pipeline is online.
+              summary: Alerting DeadManSnitch
+
       - name: SLOs-haproxy_backend_http_responses_total
         rules:
         - alert: RHODS Route Error Burn Rate
@@ -691,6 +702,12 @@ data:
       # A default receiver
       receiver: PagerDuty
 
+      routes:
+      - match:
+          alertname: DeadManSnitch
+        receiver: deadman-snitch
+        repeat_interval: 5m
+
     receivers:
     - name: 'developer-mails'
       email_configs:
@@ -701,6 +718,11 @@ data:
       pagerduty_configs:
       - service_key: <pagerduty_token>
         send_resolved: true
+
+    - name: 'deadman-snitch'
+      webhook_configs:
+        - url: '<snitch_url>?m=just+checking+in'
+          send_resolved: false
 
 ---
 apiVersion: v1
