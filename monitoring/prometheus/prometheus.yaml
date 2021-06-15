@@ -417,6 +417,18 @@ data:
             instance: rhods-controller
           record: controller_runtime_reconcile_total:rate15m
 
+      - name: Usage Metrics
+        rules:
+        - expr: jupyterhub_total_users
+          labels:
+            instance: jupyterhub
+          record: rhods_total_users
+
+      - name: Availability Metrics
+        rules:
+        - expr: min(probe_success)
+          record: rhods_aggregate_availability
+
   alerting.rules: |
     groups:
       - name: Pod Restarts
