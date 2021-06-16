@@ -302,6 +302,7 @@ items:
     name: s2i-minimal-gpu-cuda-11.0.3-notebook
     labels:
       opendatahub.io/build_type: "notebook_image"
+      opendatahub.io/notebook-name: "CUDA"
   spec:
     nodeSelector: null
     output:
@@ -342,6 +343,7 @@ items:
     name: s2i-tensorflow-gpu-cuda-11.0.3-notebook
     labels:
       opendatahub.io/build_type: "notebook_image"
+      opendatahub.io/notebook-name: "TensorFlow"
   spec:
     nodeSelector: null
     output:
@@ -380,6 +382,7 @@ items:
     name: s2i-pytorch-gpu-cuda-11.0.3-notebook
     labels:
       opendatahub.io/build_type: "notebook_image"
+      opendatahub.io/notebook-name: "PyTorch"
   spec:
     nodeSelector: null
     output:
