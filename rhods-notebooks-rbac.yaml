@@ -1,0 +1,15 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+  name: notebooks-rbac
+spec:
+  applications:
+  - kustomizeConfig:
+      repoRef:
+        name: manifests
+        path: rhods-notebooks-rbac
+    name: rhods-notebooks-rbac
+  repos:
+  - name: manifests
+    uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0
