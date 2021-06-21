@@ -73,7 +73,7 @@ items:
       opendatahub.io/component: 'true'
       opendatahub.io/notebook-image: 'true'
     annotations:
-      opendatahub.io/notebook-image-url: "https://github.com/thoth-station/s2i-minimal-notebook"
+      opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-minimal-notebook"
       opendatahub.io/notebook-image-name: "CUDA"
       opendatahub.io/notebook-image-desc: "Jupyter notebook image with GPU support and minimal dependency set to start experimenting with Jupyter environment."
     name: "minimal-gpu"
@@ -95,7 +95,7 @@ items:
       opendatahub.io/component: 'true'
       opendatahub.io/notebook-image: 'true'
     annotations:
-      opendatahub.io/notebook-image-url: "https://github.com/thoth-station/s2i-tensorflow-gpu-notebook"
+      opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook"
       opendatahub.io/notebook-image-name: "TensorFlow"
       opendatahub.io/notebook-image-desc: "Jupyter notebook image with GPU support and includes TensorFlow libraries and dependencies to start experimenting with advanced AI/ML notebooks."
     name: "tensorflow-gpu"
@@ -117,7 +117,7 @@ items:
       opendatahub.io/component: 'true'
       opendatahub.io/notebook-image: 'true'
     annotations:
-      opendatahub.io/notebook-image-url: "https://github.com/thoth-station/s2i-pytorch-notebook"
+      opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-pytorch-notebook"
       opendatahub.io/notebook-image-name: "PyTorch"
       opendatahub.io/notebook-image-desc: "Jupyter notebook image with GPU support and includes PyTorch libraries and dependencies to start experimenting with advanced AI/ML notebooks."
     name: "pytorch-gpu"
@@ -331,7 +331,7 @@ items:
     source:
       type: Git
       git:
-        uri: 'https://github.com/thoth-station/s2i-minimal-notebook'
+        uri: 'https://github.com/red-hat-data-services/s2i-minimal-notebook'
         ref: python38
     triggers:
       - type: ImageChange
@@ -370,7 +370,7 @@ items:
     source:
       type: Git
       git:
-        uri: 'https://github.com/thoth-station/s2i-tensorflow-gpu-notebook'
+        uri: 'https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook'
         ref: python38
     triggers:
       - type: ImageChange
@@ -409,7 +409,7 @@ items:
     source:
       type: Git
       git:
-        uri: 'https://github.com/thoth-station/s2i-pytorch-notebook'
+        uri: 'https://github.com/red-hat-data-services/s2i-pytorch-notebook'
         ref: python38
     triggers:
       - type: ImageChange
