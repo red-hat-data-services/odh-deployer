@@ -79,9 +79,9 @@
                 "steppedLine": false,
                 "targets": [
                   {
-                    "expr": "up{job=\"Jupyterhub Metrics\"}",
+                    "expr": "up{job=\"JupyterHub Metrics\"}",
                     "interval": "",
-                    "legendFormat": "Jupyterhub",
+                    "legendFormat": "JupyterHub",
                     "refId": "A"
                   }
                 ],
@@ -170,11 +170,19 @@
                 "spaceLength": 10,
                 "stack": false,
                 "steppedLine": false,
+                "targets": [
+                  {
+                    "expr": "jupyterhub_db_probe_success",
+                    "interval": "",
+                    "legendFormat": "JupyterHub Database",
+                    "refId": "A"
+                  }
+                ],
                 "thresholds": [],
                 "timeFrom": null,
                 "timeRegions": [],
                 "timeShift": null,
-                "title": "TODO: Availability/Traffic for Jupyterhub Database",
+                "title": "Availability for JupyterHub Database",
                 "tooltip": {
                   "shared": true,
                   "sort": 0,
