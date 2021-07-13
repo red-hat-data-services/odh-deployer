@@ -332,7 +332,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-minimal-notebook'
-        ref: python38
+        ref: nb-1
     triggers:
       - type: ImageChange
         imageChange: {}
@@ -371,7 +371,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook'
-        ref: python38
+        ref: nb-1
     triggers:
       - type: ImageChange
         imageChange: {}
@@ -410,7 +410,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-pytorch-notebook'
-        ref: python38
+        ref: nb-1
     triggers:
       - type: ImageChange
         imageChange: {}
