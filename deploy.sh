@@ -68,9 +68,15 @@ function oc::object::safe::to::apply() {
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
+ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
+
+oc apply -n ${ODH_PROJECT} -f rhods-notebooks-namespace.yaml
+
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+
+oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks-rbac.yaml
 
 # If a reader secret has been created, link it to the default SA
 # This is so that private images in quay.io/modh can be loaded into imagestreams
