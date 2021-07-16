@@ -198,4 +198,7 @@ else
   echo "The Anaconda base secret (${kind}/${resource}) has been modified. Skipping apply."
 fi
 
+# Add network policies
+oc apply -n ${ODH_PROJECT} -f network/applications_network_policy.yaml
+
 oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml
