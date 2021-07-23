@@ -1,0 +1,18 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+  name: rhods-notebooks
+spec:
+  applications:
+    - kustomizeConfig:
+        parameters:
+          - name: jupyterhub_namespace
+            value: redhat-ods-applications
+        repoRef:
+          name: manifests
+          path: jupyterhub/custom-notebook-deployment
+      name: jupyterhub/custom-notebook-deployment
+  repos:
+  - name: manifests
+    uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0
