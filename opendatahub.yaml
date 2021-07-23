@@ -11,10 +11,10 @@ spec:
     name: odh-common
   - kustomizeConfig:
       parameters:
-        #- name: s3_endpoint_url
-        #  value: "s3.odh.com"
         - name: jupyterhub_groups_config
           value: rhods-groups-config
+        - name: notebook_destination
+          value: rhods-notebooks
       repoRef:
         name: manifests
         path: jupyterhub/jupyterhub

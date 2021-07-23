@@ -68,9 +68,13 @@ function oc::object::safe::to::apply() {
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
+ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+
+oc new-project ${ODH_NOTEBOOK_PROJECT} || echo "INFO: ${ODH_NOTEBOOK_PROJECT} project already exists."
+oc label namespace $ODH_NOTEBOOK_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 
 # If a reader secret has been created, link it to the default SA
 # This is so that private images in quay.io/modh can be loaded into imagestreams
@@ -95,6 +99,12 @@ oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || e
 oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
 if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the ODH CR failed."
+  exit 1
+fi
+
+oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the RHODS Notebooks CR failed."
   exit 1
 fi
 
