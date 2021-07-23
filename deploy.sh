@@ -181,6 +181,15 @@ sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.
 oc apply -f consolelink/consolelink.yaml
 
 kind="configmap"
+resource="rhods-jupyterhub-sizes"
+
+if oc::object::safe::to::apply ${kind} ${resource}; then
+  oc apply -n ${ODH_PROJECT} -f jupyterhub/sizes/jupyterhub-singleuser-profiles-sizes-configmap.yaml
+else
+  echo "The sizes ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
+fi
+
+kind="configmap"
 resource="rhods-groups-config"
 
 if oc::object::safe::to::apply ${kind} ${resource}; then

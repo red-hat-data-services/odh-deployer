@@ -23,7 +23,6 @@ spec:
       overlays:
         - jupyterhub-db-deployment-patch
         - jupyterhub-deployment-patch
-        - sizes
         - ui-config
       repoRef:
         name: manifests
