@@ -88,9 +88,8 @@ export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
-export jupyterhub_postgresql_password=$(openssl rand -hex 32)
-sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
-oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
+export jupyterhub_database_secret="jupyterhub-rds-secret"
+oc get -o json secret $jupyterhub_database_secret -n cloud-resource-operator | sed 's/"namespace"\: ".*",//g' | oc apply -n ${ODH_PROJECT} -f - || echo "INFO: Jupyterhub Database secret already exist."
 
 oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
 if [ $? -ne 0 ]; then
