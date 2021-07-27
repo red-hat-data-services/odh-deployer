@@ -21,8 +21,7 @@ spec:
     name: jupyterhub
   - kustomizeConfig:
       overlays:
-        - jupyterhub-postgres-db-patches
-        - jupyterhub-db-deployment-patch
+        - jupyterhub-rds-db-patches
         - jupyterhub-deployment-patch
         - ui-config
       repoRef:
