@@ -1,0 +1,27 @@
+# Defines ingress rules for specific port. These ports are defined by
+# the services residing in redhat-ods-monitoring. namespaceSelector
+# ensures that traffic from only the desired namespaces is allowed
+
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: redhat-ods-monitoring
+  namespace: redhat-ods-monitoring
+spec:
+  podSelector: {}
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 9115
+        - protocol: TCP
+          port: 8443
+        - protocol: TCP
+          port: 9091
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              opendatahub.io/generated-namespace: 'true'
+  policyTypes:
+    - Ingress
