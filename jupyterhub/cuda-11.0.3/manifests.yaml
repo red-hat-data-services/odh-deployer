@@ -290,7 +290,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-thoth'
-        ref: nb-1
+        ref: nb-2
       contextDir: ubi8-py38
     triggers:
       - type: ImageChange
