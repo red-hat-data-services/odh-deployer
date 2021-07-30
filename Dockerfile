@@ -29,6 +29,7 @@ ADD groups $HOME/groups
 ADD jupyterhub $HOME/jupyterhub
 ADD partners $HOME/partners
 ADD network $HOME/network
+ADD cloud-resource-operator $HOME/cloud-resource-operator
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 $HOME/opendatahub.yaml && \
@@ -39,6 +40,7 @@ RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 -R $HOME/groups && \
     chmod 644 -R $HOME/jupyterhub && \
     chmod 644 -R $HOME/network && \
+    chmod 644 -R $HOME/cloud-resource-operator && \
     chown 1001:0 -R $HOME &&\
     chmod ug+rwx -R $HOME
 

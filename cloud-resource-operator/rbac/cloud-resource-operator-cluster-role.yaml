@@ -1,0 +1,27 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cloud-resource-operator-cluster-role
+rules:
+  - verbs:
+      - '*'
+    apiGroups:
+      - ''
+    resources:
+      - configmaps
+      - persistentvolumes
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - config.openshift.io
+    resources:
+      - infrastructures
+      - networks
+  - verbs:
+      - '*'
+    apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - prometheusrules
