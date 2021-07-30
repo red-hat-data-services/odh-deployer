@@ -93,6 +93,8 @@ export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
+oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml
+
 # Check if the installation target is OSD to determine the deployment manifest path
 oc get group dedicated-admins
 if [ $? -eq 0 ]; then
@@ -235,5 +237,3 @@ fi
 
 # Add network policies
 oc apply -f network/
-
-oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml
