@@ -20,6 +20,7 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
 
 COPY deploy.sh $HOME
 COPY opendatahub.yaml $HOME
+COPY opendatahub-osd.yaml $HOME
 COPY rhods-monitoring.yaml $HOME
 COPY rhods-notebooks.yaml $HOME
 ADD monitoring $HOME/monitoring
@@ -28,15 +29,18 @@ ADD groups $HOME/groups
 ADD jupyterhub $HOME/jupyterhub
 ADD partners $HOME/partners
 ADD network $HOME/network
+ADD cloud-resource-operator $HOME/cloud-resource-operator
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 $HOME/opendatahub.yaml && \
+    chmod 644 $HOME/opendatahub-osd.yaml && \
     chmod 644 $HOME/rhods-monitoring.yaml && \
     chmod 644 $HOME/rhods-notebooks.yaml && \
     chmod 644 -R $HOME/monitoring && \
     chmod 644 -R $HOME/groups && \
     chmod 644 -R $HOME/jupyterhub && \
     chmod 644 -R $HOME/network && \
+    chmod 644 -R $HOME/cloud-resource-operator && \
     chown 1001:0 -R $HOME &&\
     chmod ug+rwx -R $HOME
 

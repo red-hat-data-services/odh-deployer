@@ -17,7 +17,7 @@
 set -e -o pipefail
 
 
-# This functino is used to get the value of certain secrets/tokens
+# This function is used to get the value of certain secrets/tokens
 # as part of the monitoring deployment process
 
 function oc::wait::object::availability() {
@@ -69,6 +69,7 @@ function oc::object::safe::to::apply() {
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
+CRO_PROJECT=${CRO_NAMESPACE:-"cloud-resource-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
@@ -92,11 +93,33 @@ export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
-export jupyterhub_postgresql_password=$(openssl rand -hex 32)
-sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
-oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
+oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml
 
-oc apply -n ${ODH_PROJECT} -f opendatahub.yaml
+# Check if the installation target is OSD to determine the deployment manifest path
+deploy_on_osd=0
+oc get group dedicated-admins &> /dev/null || deploy_on_osd=1
+if [ "$deploy_on_osd" -eq 0 ]; then
+  # On OpenShift Dedicated, deploy with CRO
+  ODH_MANIFESTS="opendatahub-osd.yaml"
+
+  # Install CRO
+  oc new-project ${CRO_PROJECT} || echo "INFO: ${CRO_PROJECT} project already exists."
+  oc label namespace $CRO_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+  oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/crds
+  oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
+  oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
+  oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
+  oc::wait::object::availability "oc get secret jupyterhub-rds-secret -n $ODH_PROJECT" 30 60
+else
+  # Not on OpenShift Dedicated, deploy local
+  ODH_MANIFESTS="opendatahub.yaml"
+
+  # Create Postgres Secret
+  export jupyterhub_postgresql_password=$(openssl rand -hex 32)
+  sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
+  oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
+fi
+oc apply -n ${ODH_PROJECT} -f ${ODH_MANIFESTS}
 if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the ODH CR failed."
   exit 1
@@ -219,5 +242,3 @@ fi
 
 # Add network policies
 oc apply -f network/
-
-oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml

@@ -132,7 +132,7 @@
                 "dashLength": 10,
                 "dashes": false,
                 "datasource": "Monitoring",
-                "description": "We need to track if the jupyterhub db pod is up and running",
+                "description": "(TODO: Reimplement) We need to track if the jupyterhub db pod is up and running",
                 "fieldConfig": {
                   "defaults": {
                     "custom": {}
@@ -1264,4 +1264,4 @@
       grafana_dashboard: "true"
     annotations:
       grafana-folder: /grafana-dashboard-definitions/0
-  
+
