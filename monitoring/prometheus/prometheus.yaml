@@ -421,7 +421,7 @@ data:
 
       - name: Usage Metrics
         rules:
-        - expr: jupyterhub_total_users
+        - expr: max(jupyterhub_total_users)
           labels:
             instance: jupyterhub
           record: rhods_total_users
@@ -622,7 +622,7 @@ data:
         - source_labels: [__address__]
           regex: (.+):(\d+)
           target_label: __address__
-          replacement: ${1}:8080
+          replacement: ${1}:8081
 
 
     - job_name: 'user_facing_endpoints_status'
