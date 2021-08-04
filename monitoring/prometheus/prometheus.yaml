@@ -570,6 +570,18 @@ data:
           labels:
             severity: warning
 
+      - name: Builds
+        rules:
+        - alert: JupyterHub image builds are failing
+          annotations:
+            message: 'A JupyterHub image build is in a failed state'
+            triage: "https://docs.google.com/document/d/1pcYStWmlGN8dtOePyZ5Zy6F07BcHZrraZDYAEx9w_ik"
+            build: "{{ $labels.buildconfig }}"
+          expr: openshift_build_status_phase_total{build_phase="failed", namespace="redhat-ods-applications"} == 1
+          for: 15m
+          labels:
+            severity: critical
+
   prometheus.yml: |
     rule_files:
       - '*.rules'
@@ -599,6 +611,7 @@ data:
           - '{__name__= "kube_pod_container_status_waiting_reason"}'
           - '{__name__= "kube_pod_container_status_restarts_total"}'
           - '{__name__= "kube_pod_container_status_terminated_reason"}'
+          - '{__name__= "openshift_build_status_phase_total"}'
 
       static_configs:
         - targets:
