@@ -7,11 +7,11 @@ metadata:
   namespace: redhat-ods-applications
 spec:
   port:
-    targetPort: 8080-tcp
+    targetPort: api
   tls:
     insecureEdgeTerminationPolicy: Redirect
     termination: edge
   to:
     kind: Service
-    name: jupyterhub
+    name: traefik-proxy
   wildcardPolicy: None
