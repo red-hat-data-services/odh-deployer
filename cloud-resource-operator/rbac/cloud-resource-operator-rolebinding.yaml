@@ -9,4 +9,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: cloud-resource-operator
-  namespace: cloud-resource-operator
+  namespace: redhat-ods-operator

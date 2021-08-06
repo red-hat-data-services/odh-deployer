@@ -69,7 +69,7 @@ function oc::object::safe::to::apply() {
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
-CRO_PROJECT=${CRO_NAMESPACE:-"cloud-resource-operator"}
+CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
@@ -110,7 +110,7 @@ if [ "$deploy_on_osd" -eq 0 ]; then
   # Install CRO
   oc new-project ${CRO_PROJECT} || echo "INFO: ${CRO_PROJECT} project already exists."
   oc label namespace $CRO_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
-  oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/crds
+  oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/crds
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
   oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
