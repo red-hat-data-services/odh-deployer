@@ -5,7 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: cloud-resource-operator
-    namespace: cloud-resource-operator
+    namespace: redhat-ods-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
