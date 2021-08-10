@@ -71,7 +71,6 @@ items:
     labels:
       component.opendatahub.io/name: jupyterhub
       opendatahub.io/component: 'true'
-      opendatahub.io/notebook-image: 'true'
     annotations:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-minimal-notebook"
       opendatahub.io/notebook-image-name: "CUDA"
@@ -97,14 +96,14 @@ items:
     annotations:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook"
       opendatahub.io/notebook-image-name: "TensorFlow"
-      opendatahub.io/notebook-image-desc: "Jupyter notebook image with GPU support and includes TensorFlow libraries and dependencies to start experimenting with advanced AI/ML notebooks."
-    name: "tensorflow-gpu"
+      opendatahub.io/notebook-image-desc: "Jupyter notebook image with TensorFlow libraries and dependencies to start experimenting with advanced AI/ML notebooks."
+    name: "tensorflow"
   spec:
     lookupPolicy:
       local: true
     tags:
     - annotations:
-        opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.6"},{"name":"TensorFlow","version":"2.4.1"},{"name":"CUDA","version":"11.0.3"}]'
+        opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.6"},{"name":"TensorFlow","version":"2.4.1"}]'
         opendatahub.io/notebook-python-dependencies: '[{"name":"TensorFlow","version":"2.4.1"},{"name":"Tensorboard","version":"2.4.1"},{"name":"Boto3","version":"1.17.11"},{"name":"Kafka-Python","version":"2.0.2"},{"name":"Matplotlib","version":"3.1.3"},{"name":"Numpy","version":"1.19.5"},{"name":"Pandas","version":"0.25.3"},{"name":"Scipy","version":"1.6.2"}]'
       name: "py3.8-cuda-11.0.3"
       referencePolicy:
@@ -119,14 +118,14 @@ items:
     annotations:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-pytorch-notebook"
       opendatahub.io/notebook-image-name: "PyTorch"
-      opendatahub.io/notebook-image-desc: "Jupyter notebook image with GPU support and includes PyTorch libraries and dependencies to start experimenting with advanced AI/ML notebooks."
-    name: "pytorch-gpu"
+      opendatahub.io/notebook-image-desc: "Jupyter notebook image with PyTorch libraries and dependencies to start experimenting with advanced AI/ML notebooks."
+    name: "pytorch"
   spec:
     lookupPolicy:
       local: true
     tags:
     - annotations:
-        opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.6"},{"name":"PyTorch","version":"1.8.1"},{"name":"CUDA","version":"11.0.3"}]'
+        opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.6"},{"name":"PyTorch","version":"1.8.1"}]'
         opendatahub.io/notebook-python-dependencies: '[{"name":"PyTorch","version":"1.8.1"},{"name":"Tensorboard","version":"1.15.0"},{"name":"Boto3","version":"1.17.11"},{"name":"Kafka-Python","version":"2.0.2"},{"name":"Matplotlib","version":"3.4.1"},{"name":"Numpy","version":"1.20.2"},{"name":"Pandas","version":"1.2.3"},{"name":"Scipy","version":"1.6.2"}]'
       name: "py3.8-cuda-11.0.3"
       referencePolicy:
