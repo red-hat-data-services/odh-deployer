@@ -282,6 +282,50 @@ data:
             instance: jupyterhub
           record: probe_success:burnrate6h
 
+      - name: SLOs - Traefik Proxy
+        rules:
+        - expr: min(up{job="Traefik Proxy Metrics"})
+          labels:
+            instance: traefik
+            job: user_facing_endpoints_status
+          record:
+            probe_success
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate6h
+
       - name: SLOs - ODH Dashboard
         rules:
         - expr: |
@@ -509,9 +553,9 @@ data:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
             triage: "https://docs.google.com/document/d/1pcYStWmlGN8dtOePyZ5Zy6F07BcHZrraZDYAEx9w_ik"
           expr: |
-            sum(probe_success:burnrate5m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate5m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (14.40 * (1-0.98000))
             and
-            sum(probe_success:burnrate1h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate1h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (14.40 * (1-0.98000))
           for: 2m
           labels:
             severity: critical
@@ -520,9 +564,9 @@ data:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
             triage: "https://docs.google.com/document/d/1pcYStWmlGN8dtOePyZ5Zy6F07BcHZrraZDYAEx9w_ik"
           expr: |
-            sum(probe_success:burnrate30m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate30m{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (6.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (6.00 * (1-0.98000))
           for: 15m
           labels:
             severity: critical
@@ -531,9 +575,9 @@ data:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
             triage: "https://docs.google.com/document/d/1pcYStWmlGN8dtOePyZ5Zy6F07BcHZrraZDYAEx9w_ik"
           expr: |
-            sum(probe_success:burnrate2h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate2h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate1d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate1d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
           for: 1h
           labels:
             severity: warning
@@ -542,9 +586,9 @@ data:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }})'
             triage: "https://docs.google.com/document/d/1pcYStWmlGN8dtOePyZ5Zy6F07BcHZrraZDYAEx9w_ik"
           expr: |
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate3d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate3d{instance=~"jupyterhub|odh-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
@@ -637,6 +681,24 @@ data:
           target_label: __address__
           replacement: ${1}:8081
 
+    - job_name: 'Traefik Proxy Metrics'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(traefik-proxy)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8082
 
     - job_name: 'user_facing_endpoints_status'
       scrape_interval: 10s
