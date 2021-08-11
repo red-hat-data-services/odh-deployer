@@ -154,7 +154,16 @@ sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/promet
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
-pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 120)
+
+# Check if pagerduty secret exists, if not create a dummy secret
+returncodepd=0
+oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT  &> /dev/null || returncodepd=1
+
+if [ "$returncodepd" -ne 0 ]; then
+    oc apply -f monitoring/pagerduty-empty-secret.yaml -n $ODH_MONITORING_PROJECT
+fi
+
+pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 10)
 pagerduty_service_token=$(echo -ne "$pagerduty_service_token" | tr -d "'" | base64 --decode)
 
 oc apply -f monitoring/jupyterhub-route.yaml -n $ODH_PROJECT
