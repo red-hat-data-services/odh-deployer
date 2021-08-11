@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
   labels:
     app: prometheus
   name: prometheus
@@ -770,11 +769,12 @@ metadata:
 data:
   alertmanager.yml: |
     global:
-      smtp_smarthost: 'smtp.corp.redhat.com:25'
-      smtp_from: 'AlertManager-Production@redhat.com'
-      smtp_auth_username: 'alertmanager'
-      smtp_auth_password: 'password'
-      smtp_require_tls: false
+      smtp_from: 'noreply-alert@redhat.com'
+      smtp_smarthost: '<smtp_host>:<smtp_port>'
+      smtp_auth_username: '<smtp_username>'
+      smtp_auth_password: '<smtp_password>'
+      smtp_require_tls: true
+
     # The root route on which each incoming alert enters.
     route:
       group_by: ['alertname', 'cluster', 'service', 'job', 'email_to']
@@ -803,6 +803,11 @@ data:
       email_configs:
       - to: 'test-123@foo.com'
         send_resolved: true
+
+    - name: 'user-notifications'
+      email_configs:
+      - to: '<user_emails>'
+        send_resolved: false
 
     - name: 'PagerDuty'
       pagerduty_configs:
