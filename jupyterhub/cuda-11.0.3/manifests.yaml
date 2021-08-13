@@ -347,7 +347,7 @@ items:
     output:
       to:
         kind: ImageStreamTag
-        name: 'tensorflow-gpu:py3.8-cuda-11.0.3'
+        name: 'tensorflow:py3.8-cuda-11.0.3'
     resources:
       limits:
         cpu: "4"
@@ -386,7 +386,7 @@ items:
     output:
       to:
         kind: ImageStreamTag
-        name: 'pytorch-gpu:py3.8-cuda-11.0.3'
+        name: 'pytorch:py3.8-cuda-11.0.3'
     resources:
       limits:
         cpu: "4"
