@@ -549,6 +549,27 @@ data:
           labels:
             severity: warning
 
+      - name: RHODS-PVC-Usage
+        rules:
+        - alert: User notebook pvc usage above 90%
+          annotations:
+            message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 90% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+          expr: kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
+          for: 2m
+          labels:
+            severity: warning
+            route: user-notifications
+        - alert: User notebook pvc usage at 100%
+          annotations:
+            message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 100% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+          expr: kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*jupyterhub-nb-.*"}/kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.99
+          for: 2m
+          labels:
+            severity: critical
+            route: user-notifications
+
       - name: SLOs-probe_success
         rules:
         - alert: RHODS Probe Success Burn Rate
@@ -1392,7 +1413,7 @@ data:
 
   alertmanager.yml: |
     global:
-      smtp_from: 'noreply-alert@redhat.com'
+      smtp_from: 'noreply-rhods@devshift.net'
       smtp_smarthost: '<smtp_host>:<smtp_port>'
       smtp_auth_username: '<smtp_username>'
       smtp_auth_password: '<smtp_password>'
@@ -1420,6 +1441,11 @@ data:
           alertname: DeadManSnitch
         receiver: deadman-snitch
         repeat_interval: 5m
+      
+      - match:
+          route: user-notifications
+        receiver: user-notifications
+        repeat_interval: 12h
 
       - match:
           route: user-notifications
