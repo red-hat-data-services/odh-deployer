@@ -116,6 +116,15 @@ if [ "$deploy_on_osd" -eq 0 ]; then
   oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
   oc::wait::object::availability "oc get secret jupyterhub-rds-secret -n $ODH_PROJECT" 30 60
+
+  # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
+  for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
+    oc apply -n $target_project -f rhods-osd-configs.yaml
+    if [ $? -ne 0 ]; then
+      echo "ERROR: Attempt to create the RBAC policy for dedicated admins group in $target_project failed."
+      exit 1
+    fi
+  done
 else
   # Not on OpenShift Dedicated, deploy local
   ODH_MANIFESTS="opendatahub.yaml"
