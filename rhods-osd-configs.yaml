@@ -1,0 +1,15 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+  name: rhods-osd-config
+spec:
+  applications:
+    - kustomizeConfig:
+        repoRef:
+          name: manifests
+          path: osd-configs
+      name: osd-configs
+  repos:
+  - name: manifests
+    uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0
