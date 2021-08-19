@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scheme: http
+    prometheus.io/scrape: 'true'
+  labels:
+    app: jupyterhub-db-probe
+  name: jupyterhub-db-probe
+spec:
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: metrics
+  selector:
+    deployment: jupyterhub-db-probe
