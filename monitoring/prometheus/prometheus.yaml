@@ -478,7 +478,7 @@ data:
         interval: 1m
         rules:
           - alert: An OpenShift pod has just restarted
-            expr: sum(delta(kube_pod_container_status_restarts_total{namespace="redhat-ods-applications", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
+            expr: sum(delta(kube_pod_container_status_restarts_total{namespace="rhods-notebooks", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
             for: 5m
             annotations:
               summary: An OpenShift pod has just been restarted.
