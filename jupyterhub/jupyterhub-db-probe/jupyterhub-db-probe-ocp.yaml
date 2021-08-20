@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: jupyterhub-db-probe
+  name: jupyterhub-db-probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: jupyterhub-db-probe
+  template:
+    metadata:
+      labels:
+        deployment: jupyterhub-db-probe
+    spec:
+      containers:
+      - env:
+        - name: JUPYTERHUB_DB_USER
+          value: jupyterhub
+        - name: JUPYTERHUB_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jupyterhub-database-password
+              key: POSTGRESQL_PASSWORD
+        - name: JUPYTERHUB_DB_PORT
+          value: '5432'
+        name: db-probe
+        image: quay.io/modh/jupyterhub-db-probe:v0.3
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: metrics
+        resources:
+          limits:
+            cpu: 300m
+            memory: 50Mi
+          requests:
+            cpu: 300m
+            memory: 50Mi

@@ -125,6 +125,9 @@ if [ "$deploy_on_osd" -eq 0 ]; then
       exit 1
     fi
   done
+
+  oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-db-probe/jupyterhub-db-probe-osd.yaml
+
 else
   # Not on OpenShift Dedicated, deploy local
   ODH_MANIFESTS="opendatahub.yaml"
@@ -133,7 +136,12 @@ else
   export jupyterhub_postgresql_password=$(openssl rand -hex 32)
   sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
   oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
+  oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-db-probe/jupyterhub-db-probe-ocp.yaml
+
 fi
+
+oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-db-probe/jupyterhub-db-probe-svc.yaml
+
 oc apply -n ${ODH_PROJECT} -f ${ODH_MANIFESTS}
 if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the ODH CR failed."
@@ -236,17 +244,6 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
-
-# Due to a switch in the db-probe when we moved from 1.0.13 to 1.0.14 we need to delete the probe and let the operator recreate it
-# This should be removed in future versions of RHODS.
-
-probe_exists=$(oc get -n $ODH_PROJECT deployments -l app=jupyterhub-db-probe | grep jupyterhub-db-probe || echo "false")
-
-if [ "$probe_exists" != "false" ]; then
-    oc delete -n $ODH_PROJECT deployment jupyterhub-db-probe
-else
-    echo "The JupyterHub Probe doesn't exist. Proceeding normally."
-fi
 
 # Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
