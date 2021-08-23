@@ -16,6 +16,13 @@ spec:
         deployment: prometheus
     spec:
       serviceAccountName: prometheus
+      initContainers:
+        - name: wait-for-deployment
+          image: 'registry.access.redhat.com/ubi8/ubi-minimal:8.4-208'
+          command:
+            - /bin/sh
+            - '-c'
+            - for i in `seq 1 230`; do sleep 10; echo "Waiting for traefik-proxy service to become available..."; if curl -s http://traefik-proxy.redhat-ods-applications.svc:8080; then exit 0; fi; done; exit 1
       containers:
       - name: oauth-proxy
         args:
@@ -146,6 +153,7 @@ spec:
 
       dnsPolicy: ClusterFirst
       restartPolicy: Always
+      progressDeadlineSeconds: 2400
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 90

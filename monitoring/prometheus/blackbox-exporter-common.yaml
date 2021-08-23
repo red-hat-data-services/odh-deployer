@@ -55,6 +55,13 @@ spec:
       - name: config-volume
         configMap:
           name: blackbox
+      initContainers:
+        - name: wait-for-deployment
+          image: 'registry.access.redhat.com/ubi8/ubi-minimal:8.4-208'
+          command:
+            - /bin/sh
+            - '-c'
+            - for i in `seq 1 230`; do sleep 10; echo "Waiting for odh-dashboard service to become available..."; if curl -s -k https://odh-dashboard.redhat-ods-applications.svc:8443; then exit 0; fi; done; exit 1
       containers:
       - image: quay.io/prometheus/blackbox-exporter:v0.18.0
         name: blackbox-exporter
@@ -68,3 +75,4 @@ spec:
         - containerPort: 9115
           protocol: TCP
       restartPolicy: Always
+      progressDeadlineSeconds: 2400
