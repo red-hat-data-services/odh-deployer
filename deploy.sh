@@ -188,7 +188,7 @@ oc apply -f monitoring/jupyterhub-route.yaml -n $ODH_PROJECT
 oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
 
 jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
-rhods_dashboard_host=$(oc::wait::object::availability "oc get route odh-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
 sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus.yaml
@@ -250,9 +250,9 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
-# Add consoleLink CR to provide a link to the odh-dashboard via the Application Launcher in OpenShift
+# Add consoleLink CR to provide a link to the rhods-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
-odh_dashboard_route="https://odh-dashboard-$ODH_PROJECT.$cluster_domain"
+odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
 
