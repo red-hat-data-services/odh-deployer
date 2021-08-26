@@ -46,6 +46,13 @@ spec:
   replicas: 1
   strategy:
     type: Rolling
+    resources:
+      limits:
+        cpu: 150m
+        memory: 50Mi
+      requests:
+        cpu: 150m
+        memory: 50Mi
   template:
     metadata:
       labels:
@@ -74,5 +81,12 @@ spec:
         ports:
         - containerPort: 9115
           protocol: TCP
+        resources:
+          limits:
+            cpu: 50m
+            memory: 50Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
       restartPolicy: Always
       progressDeadlineSeconds: 2400
