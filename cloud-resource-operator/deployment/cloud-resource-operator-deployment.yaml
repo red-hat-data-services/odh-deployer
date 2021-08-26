@@ -31,7 +31,13 @@ spec:
               value: integreatly.org/
             - name: OPERATOR_CONDITION_NAME
               value: cloud-resources.v0.30.0
-          resources: {}
+          resources:
+            limits:
+              cpu: 50m
+              memory: 75Mi
+            requests:
+              cpu: 25m
+              memory: 50Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
