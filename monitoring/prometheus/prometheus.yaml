@@ -660,7 +660,7 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
             build: "{{ $labels.buildconfig }}"
             summary: JupyterHub image builds are failing
-          expr: openshift_build_status_phase_total{build_phase="failed", namespace="redhat-ods-applications"} == 1
+          expr: openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"} == 1
           for: 15m
           labels:
             severity: critical
