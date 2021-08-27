@@ -2,8 +2,8 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   labels:
-    app: odh-dashboard
-  name: odh-dashboard
+    app: rhods-dashboard
+  name: rhods-dashboard
   namespace: redhat-ods-applications
 spec:
   port:
@@ -13,5 +13,5 @@ spec:
     termination: edge
   to:
     kind: Service
-    name: odh-dashboard
+    name: rhods-dashboard
   wildcardPolicy: None
