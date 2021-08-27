@@ -257,6 +257,15 @@ sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.
 oc apply -f consolelink/consolelink.yaml
 
 kind="configmap"
+resource="odh-jupyterhub-global-profile"
+
+if oc::object::safe::to::apply ${kind} ${resource}; then
+  oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-singleuser-profiles-global-profile-configmap.yaml
+else
+  echo "The JH singleuser global profile ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
+fi
+
+kind="configmap"
 resource="rhods-jupyterhub-sizes"
 
 if oc::object::safe::to::apply ${kind} ${resource}; then

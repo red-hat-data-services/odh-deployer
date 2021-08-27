@@ -1,0 +1,18 @@
+# JH Profile to allow the user to override any global profile values
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odh-jupyterhub-global-profile
+  labels:
+    jupyterhub: singleuser-profiles
+data:
+  jupyterhub-singleuser-profiles.yaml: |
+      profiles:
+        - name: globals
+          resources:
+            requests:
+              memory: 4Gi
+              cpu: 1
+            limits:
+              memory: 8Gi
+              cpu: 2
