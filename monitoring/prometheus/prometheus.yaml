@@ -629,28 +629,29 @@ data:
           labels:
             severity: warning
 
-      - name: SLOs-controller_runtime_reconcile_total
-        rules:
-        - alert: RHODS Operator Reconciliation Failures
-          annotations:
-            message: 'The RHODS operator has failed to reconcile successfully for the last hour.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
-            summary: RHODS Operator Reconciliation Failures
-          expr: |
-           min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[1h])
-          for: 2m
-          labels:
-            severity: critical
-        - alert: RHODS Operator Reconciliation Failures
-          annotations:
-            message: 'The RHODS operator has failed to reconcile successfully for the last 30 minutes.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
-            summary: RHODS Operator Reconciliation Failures
-          expr: |
-            min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[30m])
-          for: 2m
-          labels:
-            severity: warning
+      # TODO: ENABLE THESE ALERTS AGAIN ONCE THE RECONCILE METRIC IS FIXED.
+      # - name: SLOs-controller_runtime_reconcile_total
+      #   rules:
+      #   - alert: RHODS Operator Reconciliation Failures
+      #     annotations:
+      #       message: 'The RHODS operator has failed to reconcile successfully for the last hour.'
+      #       triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+      #       summary: RHODS Operator Reconciliation Failures
+      #     expr: |
+      #      min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[1h])
+      #     for: 2m
+      #     labels:
+      #       severity: critical
+      #   - alert: RHODS Operator Reconciliation Failures
+      #     annotations:
+      #       message: 'The RHODS operator has failed to reconcile successfully for the last 30 minutes.'
+      #       triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+      #       summary: RHODS Operator Reconciliation Failures
+      #     expr: |
+      #       min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[30m])
+      #     for: 2m
+      #     labels:
+      #       severity: warning
 
       - name: Builds
         rules:
