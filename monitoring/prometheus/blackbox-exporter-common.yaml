@@ -12,31 +12,24 @@ spec:
     protocol: TCP
     targetPort: 9115
   selector:
-    app: blackbox-exporter
-    deploymentconfig: blackbox-exporter
+    deployment: blackbox-exporter
 
 ---
-apiVersion: apps.openshift.io/v1
-kind: DeploymentConfig
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   labels:
-    app: blackbox-exporter
+    deployment: blackbox-exporter
   name: blackbox-exporter
 spec:
   replicas: 1
-  strategy:
-    type: Rolling
-    resources:
-      limits:
-        cpu: 150m
-        memory: 50Mi
-      requests:
-        cpu: 150m
-        memory: 50Mi
+  selector:
+    matchLabels:
+      deployment: blackbox-exporter
   template:
     metadata:
       labels:
-        app: blackbox-exporter
+        deployment: blackbox-exporter
     spec:
       volumes:
       - name: config-volume
