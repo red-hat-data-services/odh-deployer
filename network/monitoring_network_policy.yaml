@@ -19,6 +19,8 @@ spec:
           port: 8443
         - protocol: TCP
           port: 9091
+        - protocol: TCP
+          port: 10443
     - from:
         - namespaceSelector:
             matchLabels:
