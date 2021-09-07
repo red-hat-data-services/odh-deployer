@@ -491,7 +491,7 @@ data:
             annotations:
               summary: An OpenShift pod has just been restarted.
               action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
-              triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+              triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
 
       - name: DeadManSnitch
         interval: 1m
@@ -509,7 +509,7 @@ data:
         - alert: RHODS Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate5m{route=~"jupyterhub|rhods-dashboard"}) by (route) > (14.40 * (1-0.98000))
@@ -521,7 +521,7 @@ data:
         - alert: RHODS Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate30m{route=~"jupyterhub|rhods-dashboard"}) by (route) > (6.00 * (1-0.98000))
@@ -533,7 +533,7 @@ data:
         - alert: RHODS Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate2h{route=~"jupyterhub|rhods-dashboard"}) by (route) > (3.00 * (1-0.98000))
@@ -545,7 +545,7 @@ data:
         - alert: RHODS Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate6h{route=~"jupyterhub|rhods-dashboard"}) by (route) > (1.00 * (1-0.98000))
@@ -560,7 +560,7 @@ data:
         - alert: User notebook pvc usage above 90%
           annotations:
             message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 90% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: User notebook pvc usage above 90%
           expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
           for: 2m
@@ -570,7 +570,7 @@ data:
         - alert: User notebook pvc usage at 100%
           annotations:
             message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 100% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: User notebook pvc usage at 100%
           expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"}/kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.99
           for: 2m
@@ -583,7 +583,7 @@ data:
         - alert: RHODS Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(probe_success:burnrate5m{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (14.40 * (1-0.98000))
@@ -595,7 +595,7 @@ data:
         - alert: RHODS Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(probe_success:burnrate30m{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (6.00 * (1-0.98000))
@@ -607,7 +607,7 @@ data:
         - alert: RHODS Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(probe_success:burnrate2h{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
@@ -619,7 +619,7 @@ data:
         - alert: RHODS Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: RHODS Route Error Burn Rate
           expr: |
             sum(probe_success:burnrate6h{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
@@ -635,7 +635,7 @@ data:
       #   - alert: RHODS Operator Reconciliation Failures
       #     annotations:
       #       message: 'The RHODS operator has failed to reconcile successfully for the last hour.'
-      #       triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+      #       triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
       #       summary: RHODS Operator Reconciliation Failures
       #     expr: |
       #      min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[1h])
@@ -645,7 +645,7 @@ data:
       #   - alert: RHODS Operator Reconciliation Failures
       #     annotations:
       #       message: 'The RHODS operator has failed to reconcile successfully for the last 30 minutes.'
-      #       triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+      #       triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
       #       summary: RHODS Operator Reconciliation Failures
       #     expr: |
       #       min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[30m])
@@ -658,7 +658,7 @@ data:
         - alert: JupyterHub image builds are failing
           annotations:
             message: 'A JupyterHub image build is in a failed state.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/master/RHODS/README.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             build: "{{ $labels.buildconfig }}"
             summary: JupyterHub image builds are failing
           expr: openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"} == 1
