@@ -1,4 +1,4 @@
-- [ ] The commits are squashed in a choesive manner and have meaningful messages.
+- [ ] The commits are squashed in a cohesive manner and have meaningful messages.
 - [ ] For commits that came from upstream, `[UPSTREAM]` has been prepended to the commit message
 - [ ] JIRA link(s): 
 - [ ] The Jira story is acked
