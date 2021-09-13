@@ -496,16 +496,6 @@ data:
 
   alerting.rules: |
     groups:
-      - name: Pod Restarts
-        interval: 1m
-        rules:
-          - alert: An OpenShift pod has just restarted
-            expr: sum(delta(kube_pod_container_status_restarts_total{namespace="rhods-notebooks", pod!~"jupyterhub-nb-.*"}[5m])) by (namespace, pod) > 0
-            for: 5m
-            annotations:
-              summary: An OpenShift pod has just been restarted.
-              action: Check {{ $labels.kubernetes_pod_name }} pod in {{ $labels.kubernetes_namespace}} namespace to determine why the pod is restarting.
-              triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
 
       - name: DeadManSnitch
         interval: 1m
