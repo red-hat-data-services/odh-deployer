@@ -126,8 +126,6 @@ if [ "$deploy_on_osd" -eq 0 ]; then
     fi
   done
 
-  oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-db-probe/jupyterhub-db-probe-osd.yaml
-
 else
   # Not on OpenShift Dedicated, deploy local
   ODH_MANIFESTS="opendatahub.yaml"
@@ -136,11 +134,8 @@ else
   export jupyterhub_postgresql_password=$(openssl rand -hex 32)
   sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
   oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
-  oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-db-probe/jupyterhub-db-probe-ocp.yaml
 
 fi
-
-oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-db-probe/jupyterhub-db-probe-svc.yaml
 
 oc apply -n ${ODH_PROJECT} -f ${ODH_MANIFESTS}
 if [ $? -ne 0 ]; then

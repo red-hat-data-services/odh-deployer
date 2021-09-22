@@ -435,44 +435,6 @@ data:
             instance: rhods-dashboard
           record: probe_success:burnrate6h
 
-      - name: SLOs - JupyterHub DB
-        rules:
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[1d])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate1d
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[1h])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate1h
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[2h])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate2h
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[30m])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate30m
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[3d])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate3d
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[5m])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate5m
-        - expr: |
-            1 - avg_over_time(jupyterhub_db_probe_success[6h])
-          labels:
-            instance: jupyterhub-db
-          record: probe_success:burnrate6h
-
       - name: SLOs - RHODS Operator
         interval: 15m
         rules:
@@ -778,25 +740,6 @@ data:
           regex: (.+):(\d+)
           target_label: __address__
           replacement: ${1}:8383
-
-    - job_name: "Jupyterhub DB Metrics"
-      honor_labels: true
-      scheme: http
-      metrics_path: /
-      kubernetes_sd_configs:
-        - role: endpoints
-          namespaces:
-            names:
-              - redhat-ods-applications
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_service_name]
-          regex: ^(jupyterhub-db-probe)$
-          target_label: kubernetes_name
-          action: keep
-        - source_labels: [__address__]
-          regex: (.+):(\d+)
-          target_label: __address__
-          replacement: ${1}:8080
 
     alerting:
       alertmanagers:
