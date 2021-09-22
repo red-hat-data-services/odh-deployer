@@ -43,7 +43,7 @@ spec:
             - '-c'
             - for i in `seq 1 230`; do sleep 10; echo "Waiting for rhods-dashboard service to become available..."; if curl -s -k https://rhods-dashboard.redhat-ods-applications.svc:8443; then exit 0; fi; done; exit 1
       containers:
-      - image: quay.io/prometheus/blackbox-exporter:v0.18.0
+      - image: quay.io/integreatly/prometheus-blackbox-exporter:v0.19.0
         name: blackbox-exporter
         args:
         - --log.level=debug

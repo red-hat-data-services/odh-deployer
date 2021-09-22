@@ -110,7 +110,7 @@ spec:
           env:
             - name: GF_INSTALL_PLUGINS
               value: grafana-piechart-panel
-          image: quay.io/modh/grafana:7.5.0
+          image: registry.redhat.io/openshift4/ose-grafana
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
@@ -171,7 +171,7 @@ spec:
             - '-skip-auth-regex=^/metrics'
           env:
             - name: redhat-ods-monitoring
-          image: quay.io/openshift/origin-oauth-proxy:4.7.0
+          image: registry.redhat.io/openshift4/ose-oauth-proxy
           imagePullPolicy: IfNotPresent
           name: auth-proxy
           ports:
