@@ -97,6 +97,7 @@ items:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook"
       opendatahub.io/notebook-image-name: "TensorFlow"
       opendatahub.io/notebook-image-desc: "Jupyter notebook image with TensorFlow libraries and dependencies to start experimenting with advanced AI/ML notebooks."
+      opendatahub.io/notebook-image-order: "40"
     name: "tensorflow"
   spec:
     lookupPolicy:
@@ -119,6 +120,7 @@ items:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-pytorch-notebook"
       opendatahub.io/notebook-image-name: "PyTorch"
       opendatahub.io/notebook-image-desc: "Jupyter notebook image with PyTorch libraries and dependencies to start experimenting with advanced AI/ML notebooks."
+      opendatahub.io/notebook-image-order: "30"
     name: "pytorch"
   spec:
     lookupPolicy:
