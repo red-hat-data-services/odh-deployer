@@ -51,7 +51,7 @@ spec:
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
-        image: quay.io/openshift/origin-oauth-proxy:4.7.0
+        image: registry.redhat.io/openshift4/ose-oauth-proxy
         ports:
         - containerPort: 9091
           name: https
@@ -71,7 +71,7 @@ spec:
           readOnly: false
 
       - name: prometheus
-        image: quay.io/prometheus/prometheus:v2.24.1
+        image: registry.redhat.io/openshift4/ose-prometheus
         args:
           - --storage.tsdb.retention.time=6h
           - --storage.tsdb.min-block-duration=2h
@@ -122,7 +122,7 @@ spec:
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
-        image: quay.io/openshift/origin-oauth-proxy:4.7.0
+        image: registry.redhat.io/openshift4/ose-oauth-proxy
         imagePullPolicy: Always
         ports:
         - containerPort: 10443
@@ -152,9 +152,10 @@ spec:
             memory: 128Mi
         args:
           - --log.level=info
+          - --storage.path=/alertmanager
           - --config.file=/etc/alertmanager/alertmanager.yml
           - --web.external-url=https://<set_alertmanager_host>
-        image: quay.io/prometheus/alertmanager:v0.21.0
+        image: registry.redhat.io/openshift4/ose-prometheus-alertmanager
         imagePullPolicy: Always
         ports:
           - containerPort: 9093
