@@ -38,6 +38,13 @@ spec:
       initContainers:
         - name: wait-for-deployment
           image: 'registry.access.redhat.com/ubi8/ubi-minimal:8.4-208'
+          resources:
+            limits:
+              cpu: 150m
+              memory: 50Mi
+            requests:
+              cpu: 150m
+              memory: 20Mi
           command:
             - /bin/sh
             - '-c'
