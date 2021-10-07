@@ -4,6 +4,8 @@ items:
   apiVersion: image.openshift.io/v1
   metadata:
     name: "nvidia-cuda-11.0.3"
+    labels:
+      rhods/buildchain: cuda
   spec:
     lookupPolicy:
       local: true
@@ -19,6 +21,8 @@ items:
   apiVersion: image.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-core-ubi8"
+    labels:
+      rhods/buildchain: cuda
   spec:
     lookupPolicy:
       local: true
@@ -31,6 +35,8 @@ items:
   apiVersion: image.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-base-ubi8"
+    labels:
+      rhods/buildchain: cuda
   spec:
     lookupPolicy:
       local: true
@@ -45,6 +51,8 @@ items:
   apiVersion: image.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-py38-ubi8"
+    labels:
+      rhods/buildchain: cuda
   spec:
     lookupPolicy:
       local: true
@@ -57,6 +65,8 @@ items:
   apiVersion: image.openshift.io/v1
   metadata:
     name: "11.0.3-cuda-s2i-thoth-ubi8-py38"
+    labels:
+      rhods/buildchain: cuda
   spec:
     lookupPolicy:
       local: true
@@ -71,6 +81,7 @@ items:
     labels:
       component.opendatahub.io/name: jupyterhub
       opendatahub.io/component: 'true'
+      rhods/buildchain: cuda
     annotations:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-minimal-notebook"
       opendatahub.io/notebook-image-name: "CUDA"
@@ -93,6 +104,7 @@ items:
       component.opendatahub.io/name: jupyterhub
       opendatahub.io/component: 'true'
       opendatahub.io/notebook-image: 'true'
+      rhods/buildchain: cuda
     annotations:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook"
       opendatahub.io/notebook-image-name: "TensorFlow"
@@ -116,6 +128,7 @@ items:
       component.opendatahub.io/name: jupyterhub
       opendatahub.io/component: 'true'
       opendatahub.io/notebook-image: 'true'
+      rhods/buildchain: cuda
     annotations:
       opendatahub.io/notebook-image-url: "https://github.com/red-hat-data-services/s2i-pytorch-notebook"
       opendatahub.io/notebook-image-name: "PyTorch"
@@ -139,6 +152,7 @@ items:
     name: "11.0.3-cuda-s2i-core-ubi8"
     labels:
       opendatahub.io/build_type: "base_image"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:
@@ -180,6 +194,7 @@ items:
     name: "11.0.3-cuda-s2i-base-ubi8"
     labels:
       opendatahub.io/build_type: "base_image"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:
@@ -221,6 +236,7 @@ items:
     name: "11.0.3-cuda-s2i-py38-ubi8"
     labels:
       opendatahub.io/build_type: "base_image"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:
@@ -262,6 +278,7 @@ items:
     name: "11.0.3-cuda-s2i-thoth-ubi8-py38"
     labels:
       opendatahub.io/build_type: "base_image"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:
@@ -303,6 +320,7 @@ items:
     labels:
       opendatahub.io/build_type: "notebook_image"
       opendatahub.io/notebook-name: "CUDA"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:
@@ -344,6 +362,7 @@ items:
     labels:
       opendatahub.io/build_type: "notebook_image"
       opendatahub.io/notebook-name: "TensorFlow"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:
@@ -383,6 +402,7 @@ items:
     labels:
       opendatahub.io/build_type: "notebook_image"
       opendatahub.io/notebook-name: "PyTorch"
+      rhods/buildchain: cuda
   spec:
     nodeSelector: null
     output:

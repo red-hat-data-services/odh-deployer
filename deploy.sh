@@ -99,7 +99,9 @@ export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
-oc apply -n $ODH_PROJECT -f jupyterhub/cuda-11.0.3/manifests.yaml
+# Create the runtime buildchain if the rhods-buildchain configmap is missing,
+# otherwise recreate it if the stored hecksum does not match
+$HOME/buildchain.sh
 
 # Check if the installation target is OSD to determine the deployment manifest path
 deploy_on_osd=0
