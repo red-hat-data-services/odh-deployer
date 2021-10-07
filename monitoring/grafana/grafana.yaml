@@ -163,6 +163,26 @@ spec:
             requests:
               cpu: 100m
               memory: 50Mi
+          livenessProbe:
+            httpGet:
+              path: /oauth/healthz
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /oauth/healthz
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
           volumeMounts:
             - mountPath: /etc/proxy/secrets
               name: grafana-proxy-secret
