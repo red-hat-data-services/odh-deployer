@@ -55,6 +55,26 @@ spec:
         ports:
         - containerPort: 9091
           name: https
+        livenessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 9091
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 9091
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
         resources:
           limits:
             cpu: 100m
@@ -78,13 +98,33 @@ spec:
           - --storage.tsdb.max-block-duration=2h
           - --storage.tsdb.path=/prometheus/data
           - --config.file=/etc/prometheus/prometheus.yml
-          - --web.listen-address=localhost:9090
+          - --web.listen-address=0.0.0.0:9090
           - --web.enable-lifecycle
           - --web.enable-admin-api
         imagePullPolicy: Always
         ports:
         - containerPort: 9090
           name: http
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
         resources:
           limits:
             cpu: 400m
@@ -127,6 +167,26 @@ spec:
         ports:
         - containerPort: 10443
           name: web
+        livenessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 10443
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 10443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
         resources:
           limits:
             cpu: 100m
@@ -160,6 +220,26 @@ spec:
         ports:
           - containerPort: 9093
             name: web
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9093
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9093
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
         volumeMounts:
           - mountPath: /etc/alertmanager
             name: alertmanager-config
