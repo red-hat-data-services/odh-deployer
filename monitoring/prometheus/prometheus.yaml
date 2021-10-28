@@ -728,7 +728,7 @@ data:
       scrape_interval: 30s
       scheme: https
       tls_config:
-        insecure_skip_verify: true
+        server_name: <federate_target>
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
       bearer_token: "<prom_bearer_token>"
       honor_labels: true
