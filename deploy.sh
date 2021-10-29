@@ -119,6 +119,8 @@ if [ "$deploy_on_osd" -eq 0 ]; then
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
   oc::wait::object::availability "oc get secret jupyterhub-rds-secret -n $ODH_PROJECT" 30 60
 
+  sed -i '/tlsSkipVerify/d' monitoring/grafana/grafana-secrets.yaml
+
   # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
   for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
     oc apply -n $target_project -f rhods-osd-configs.yaml
@@ -235,12 +237,21 @@ oc delete replicasets -n $ODH_MONITORING_PROJECT -l deployment=prometheus
 
 prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 grafana_token=$(oc::wait::object::availability "oc sa get-token grafana -n $ODH_MONITORING_PROJECT" 2 30)
+grafana_proxy_secret=$(oc get -n $ODH_MONITORING_PROJECT secret grafana-proxy-config -o jsonpath='{.data.session_secret}') && returncode=$? || returncode=$?
 
-sed -i "s/<change_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/grafana/grafana-secrets.yaml
+if [[ $returncode == 0 ]]
+then
+    echo "INFO: Grafana secrets already exist"
+    grafana_proxy_secret_token=$(echo $grafana_proxy_secret | base64 --decode)
+else
+    echo "INFO: Grafana secrets did not exist. Generating new proxy token"
+    grafana_proxy_secret_token=$(openssl rand -hex 32)
+fi
+sed -i "s/<change_proxy_secret>/$grafana_proxy_secret_token/g" monitoring/grafana/grafana-secrets.yaml
 sed -i "s/<change_route>/$prometheus_route/g" monitoring/grafana/grafana-secrets.yaml
 sed -i "s/<change_token>/$grafana_token/g" monitoring/grafana/grafana-secrets.yaml
 
-oc create -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-secrets.yaml || echo "INFO: Grafana secrets already exist."
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-secrets.yaml
 
 oc::wait::object::availability "oc get secret grafana-config -n $ODH_MONITORING_PROJECT" 2 30
 oc::wait::object::availability "oc get secret grafana-proxy-config -n $ODH_MONITORING_PROJECT" 2 30
