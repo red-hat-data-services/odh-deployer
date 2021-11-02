@@ -708,10 +708,11 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             build: "{{ $labels.buildconfig }}"
             summary: JupyterHub image builds are failing
-          expr: openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"} == 1
-          for: 15m
+          expr: sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"}) > sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"} offset 10m)
+          for: 5m
           labels:
-            severity: critical
+            severity: warning
+
 
   prometheus.yml: |
     rule_files:
