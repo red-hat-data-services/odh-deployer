@@ -51,7 +51,7 @@ spec:
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
-        image: registry.redhat.io/openshift4/ose-oauth-proxy
+        image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
         ports:
         - containerPort: 9091
           name: https
@@ -162,7 +162,7 @@ spec:
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
-        image: registry.redhat.io/openshift4/ose-oauth-proxy
+        image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
         imagePullPolicy: Always
         ports:
         - containerPort: 10443

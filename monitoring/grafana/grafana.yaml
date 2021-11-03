@@ -150,7 +150,7 @@ spec:
             - '-skip-auth-regex=^/metrics'
           env:
             - name: redhat-ods-monitoring
-          image: registry.redhat.io/openshift4/ose-oauth-proxy
+          image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
           imagePullPolicy: IfNotPresent
           name: auth-proxy
           ports:
