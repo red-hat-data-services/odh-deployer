@@ -48,6 +48,11 @@ elif [ "$version" == "true" ]; then
         oc label buildconfig -n $ODH_PROJECT "$name" rhods/buildchain=cuda-"$RHODS_VERSION" --overwrite=true
     done
 
+    bu=($(oc get build -l rhods/buildchain -n $ODH_PROJECT -o jsonpath=' {range .items [*]} {.metadata.name}'))
+    for name in ${bu[*]}; do
+        oc label build -n $ODH_PROJECT "$name" rhods/buildchain=cuda-"$RHODS_VERSION" --overwrite=true
+    done
+
     is=($(oc get imagestream -l rhods/buildchain -n $ODH_PROJECT -o jsonpath=' {range .items [*]} {.metadata.name}'))
     for name in ${is[*]}; do
         oc label imagestream -n $ODH_PROJECT "$name" rhods/buildchain=cuda-"$RHODS_VERSION" --overwrite=true
