@@ -103,6 +103,23 @@ oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.ya
 # otherwise recreate it if the stored hecksum does not match
 $HOME/buildchain.sh
 
+# As a one-time repair, move the tags for generic and minimal to py3.8 instead of v0.0.5 and v0.0.15
+set +e
+res=$(oc tag s2i-minimal-notebook:v0.0.15 s2i-minimal-notebook:py3.8 -n ${ODH_PROJECT} &>/dev/null)
+if [ "$?" -eq 0 ]; then
+    # tagging v0.0.15 to py3.8 worked, which means the v0.0.15 tag existed :) Remove it
+    echo Tagged s2i-minimal-notebook:v0.0.15 to s2i-minimal-notebook:py3.8
+    oc tag -d s2i-minimal-notebook:v0.0.15 -n ${ODH_PROJECT}
+fi
+
+res=$(oc tag s2i-generic-data-science-notebook:v0.0.5 s2i-generic-data-science-notebook:py3.8 -n ${ODH_PROJECT} &>/dev/null)
+if [ "$?" -eq 0 ]; then
+    # tagging v0.0.5 to py3.8 worked, which means the v0.0.5 tag existed :) Remove it
+    echo Tagged s2i-generic-data-science-notebook:v0.0.5 to s2i-generic-data-science-notebook:py3.8
+    oc tag -d s2i-generic-data-science-notebook:v0.0.5 -n ${ODH_PROJECT}
+fi
+set -e
+
 # Check if the installation target is OSD to determine the deployment manifest path
 deploy_on_osd=0
 oc get group dedicated-admins &> /dev/null || deploy_on_osd=1
