@@ -4,6 +4,7 @@ ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 checksum=false
 version=false
 
+# Figure out if the RHODS version has changed or the buildchain manifest checksum
 res=$(oc get cm rhods-buildchain -n $ODH_PROJECT)
 if [ "$?" -eq 0 ]; then
     # See if the version matches
@@ -34,6 +35,7 @@ else
     checksum=true
 fi
 
+# Handle relabeling or recreating the buildchain objects
 if [ "$checksum" == "true" ]; then
     echo recreating the runtime buildchain
     oc delete buildconfig -l rhods/buildchain -n $ODH_PROJECT
