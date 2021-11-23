@@ -93,7 +93,7 @@ items:
     tags:
     - annotations:
         opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.6"},{"name":"CUDA","version":"11.0.3"}]'
-        opendatahub.io/notebook-python-dependencies: '[{"name":"JupyterLab","version":"3.0.16"},{"name":"Notebook","version":"6.4.0"}]'
+        opendatahub.io/notebook-python-dependencies: '[{"name":"JupyterLab","version":"3.2.4"},{"name":"Notebook","version":"6.4.0"}]'
       name: "py3.8-cuda-11.0.3"
       referencePolicy:
         type: Local
