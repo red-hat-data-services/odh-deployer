@@ -93,7 +93,7 @@ items:
     tags:
     - annotations:
         opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8"},{"name":"CUDA","version":"11.0"}]'
-        opendatahub.io/notebook-python-dependencies: '[{"name":"JupyterLab","version":"3.0"},{"name":"Notebook","version":"6.4"}]'
+        opendatahub.io/notebook-python-dependencies: '[{"name":"JupyterLab","version":"3.2.4"},{"name":"Notebook","version":"6.4"}]'
       name: "py3.8-cuda-11.0.3"
       referencePolicy:
         type: Local
@@ -350,7 +350,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-minimal-notebook'
-        ref: nb-2
+        ref: nb-6
     triggers:
       - type: ImageChange
         imageChange: {}
@@ -390,7 +390,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook'
-        ref: nb-4
+        ref: nb-5
     triggers:
       - type: ImageChange
         imageChange: {}
@@ -430,7 +430,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-pytorch-notebook'
-        ref: nb-3
+        ref: nb-4
     triggers:
       - type: ImageChange
         imageChange: {}
