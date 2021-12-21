@@ -73,6 +73,10 @@ CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"}
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 
+echo ""
+echo "RHODS Live Builder workshop!!"
+echo ""
+
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 
