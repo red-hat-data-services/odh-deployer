@@ -247,6 +247,14 @@ then
   sed -i "s/redhat-openshift-alert@devshift.net/redhat-openshift-alert@rhmw.io/g" monitoring/prometheus/prometheus.yaml
 fi
 
+if [[ "$(oc get route -n openshift-console console --template={{.spec.host}})" =~ .*"aisrhods".* ]]
+then
+  echo "Cluster is for RHODS engineering or test purposes. Disabling SRE alerting."
+  sed -i "s/receiver: PagerDuty/receiver: developer-mails/g" monitoring/prometheus/prometheus.yaml
+else
+  echo "Cluster is not for RHODS engineering or test purposes."
+fi
+
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
 

@@ -1493,7 +1493,7 @@ data:
     receivers:
     - name: 'developer-mails'
       email_configs:
-      - to: 'test-123@foo.com'
+      - to: 'test-123@redhat.com'
         send_resolved: true
 
     - name: 'user-notifications'
