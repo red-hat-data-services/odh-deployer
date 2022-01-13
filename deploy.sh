@@ -266,8 +266,9 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
-# Add segment.io secret key
+# Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
+oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-config.yaml
 
 # Add consoleLink CR to provide a link to the rhods-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
