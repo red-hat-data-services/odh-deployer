@@ -4,6 +4,27 @@ ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 checksum=false
 version=false
 
+function delete_tags() {
+    local name=$1
+    local tags=
+
+    tags=$(oc get imagestream $name -n $ODH_PROJECT -o jsonpath={.status.tags[*].tag})
+    if [ "$?" -eq 0 ]; then
+	for t in ${tags[*]}; do
+	    oc tag -d $ODH_PROJECT/$name:$t
+	done
+    fi
+}
+
+function delete_tags_for_prebuilts() {
+    local is=
+
+    is=($(oc get imagestream -l rhods/prebuilt -n $ODH_PROJECT -o jsonpath=' {range .items [*]} {.metadata.name}'))
+    for name in ${is[*]}; do
+	delete_tags $name
+    done
+}
+
 # Figure out if the RHODS version has changed or the buildchain manifest checksum
 res=$(oc get cm rhods-buildchain -n $ODH_PROJECT)
 if [ "$?" -eq 0 ]; then
@@ -33,6 +54,12 @@ else
     echo rhods-buildchain configmap missing
     version=true
     checksum=true
+fi
+
+if [ "$version" == "true" ]; then
+    # For the prebuilt images, the operator is going to potentially add a new tag
+    # Delete the existing tags and let the operator fill in the new ones
+    delete_tags_for_prebuilts
 fi
 
 # Handle relabeling or recreating the buildchain objects
