@@ -710,8 +710,21 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/spawner-greyed-images.md"
             build: "{{ $labels.buildconfig }}"
             summary: JupyterHub image builds are failing
-          expr: sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"}) > sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed", namespace="redhat-ods-applications"} offset 10m)
-          for: 5m
+          expr: |
+            (
+              (1 - sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"running",namespace="redhat-ods-applications"}))  # Do not alert if there is a build actively running (this will make the left-hand side of the GT operator always 0 or negative and therefore false)
+              *
+              (sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"}))  # Get the current number of historical build failures at current time.  If its greater than the historical count from earlier, then a build failure has happened
+            )
+            >
+            (
+              sum by(buildconfig) (
+                (openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"} offset 30m)  # Compare this value (the number of historical build failures $offset time BEFORE current) against the current historical build failure count
+                or
+                (0 * openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"})  # This 'defaults' the historical build count above to 0, needed in case a the build label did not exist yet at that time.
+              )
+            )
+          for: 2m
           labels:
             severity: warning
 
