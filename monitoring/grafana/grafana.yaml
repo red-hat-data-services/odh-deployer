@@ -87,7 +87,7 @@ spec:
           env:
             - name: GF_INSTALL_PLUGINS
               value: grafana-piechart-panel
-          image: registry.redhat.io/openshift4/ose-grafana
+          image: registry.redhat.io/rhel8/grafana:7-29
           imagePullPolicy: Always
           livenessProbe:
             httpGet:

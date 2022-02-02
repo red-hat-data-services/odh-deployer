@@ -23,6 +23,34 @@ rules:
       - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: use-anyuid-scc
+  namespace: redhat-ods-monitoring
+rules:
+  - apiGroups:
+      - security.openshift.io
+    resources:
+      - securitycontextconstraints
+    verbs:
+      - use
+    resourceNames:
+      - anyuid
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana-sa-anyuid
+  namespace: redhat-ods-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-anyuid-scc
+subjects:
+  - kind: ServiceAccount
+    name: grafana
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: grafana-rb
@@ -46,7 +74,6 @@ subjects:
 - kind: ServiceAccount
   name: grafana
   namespace: redhat-ods-monitoring
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
