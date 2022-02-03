@@ -25,3 +25,14 @@ rules:
       - monitoring.coreos.com
     resources:
       - prometheusrules
+  - verbs:
+      - list
+      - watch
+    apiGroups:
+      - integreatly.org
+    resources:
+      - postgres
+      - postgressnapshots
+      - redis
+      - redissnapshots
+
