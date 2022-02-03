@@ -1,21 +1,20 @@
 CONTAINER_REPO := quay.io/modh
 CONTAINER_IMAGE := odh-deployer
 
-BUILDDATE := $(shell date -u '+%Y-%m-%dT%H:%M:%S.%NZ')
-VERSION := v0.8.0
-VCS := $(shell git describe --match 'v[0-9]*' --tags --dirty 2> /dev/null || git describe --always --dirty)
+VERSION := $(shell git describe --match 'v[0-9]*' --tags --abbrev=0 2> /dev/null)
+RELEASE := $(shell git rev-parse --short HEAD)
 
 .PHONY: all
-all: build
+all: build-img push-img
 
-.PHONY: build
-build:
+.PHONY: build-img
+build-img:
 	podman build \
-	  --build-arg "builddate=$(BUILDDATE)" \
-	  --build-arg "version=$(VERSION)" \
-	  --build-arg "vcs=$(VCS)" \
-	  -t $(CONTAINER_REPO)/$(CONTAINER_IMAGE):$(VERSION) \
+	  --build-arg "CI_CONTAINER_VERSION=$(VERSION)" \
+	  --build-arg "CI_CONTAINER_RELEASE=$(RELEASE)" \
+	  -t $(CONTAINER_REPO)/$(CONTAINER_IMAGE):$(VERSION)-$(RELEASE) \
 	  -f Dockerfile .
 
-push:
-	podman push $(CONTAINER_REPO)/$(CONTAINER_IMAGE):$(VERSION)
+.PHONY: push-img
+push-img:
+	podman push $(CONTAINER_REPO)/$(CONTAINER_IMAGE):$(VERSION)-$(RELEASE)
