@@ -17,18 +17,5 @@ spec:
         - namespaceSelector:
             matchLabels:
               opendatahub.io/generated-namespace: 'true'
-  egress:
-    - ports:
-        - protocol: TCP
-          port: 8443
-        - protocol: TCP
-          port: 8080
-        - protocol: TCP
-          port: 8081
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              opendatahub.io/generated-namespace: 'true'
   policyTypes:
     - Ingress
-    - Egress
