@@ -99,6 +99,8 @@ export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
 sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
 oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
+sed -i "s/<notebook_destination>/$ODH_NOTEBOOK_PROJECT/g" jupyterhub/jupyterhub-configmap.yaml
+oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-configmap.yaml || echo "INFO: Jupyterhub ConfigMap already created "
 # Check if the installation target is OSD to determine the deployment manifest path
 deploy_on_osd=0
 oc get group dedicated-admins &> /dev/null || deploy_on_osd=1
