@@ -57,11 +57,11 @@ RUN chmod 755 $HOME/deploy.sh && \
 # This checksum will be deployed in a configmap in a running deployment and so
 # if the content other than the rhods/buildchain label value changes, the
 # checksum will match
-RUN sha256sum $HOME/jupyterhub/cuda-11.0.3/manifests.yaml > $HOME/manifest-checksum
+RUN sha256sum $HOME/jupyterhub/cuda-11.4.2/manifests.yaml > $HOME/manifest-checksum
 
 # Update the labels with the specific version value
 RUN sed -i 's,rhods/buildchain:.*,rhods/buildchain: cuda-'"${version}"',g' \
-       $HOME/jupyterhub/cuda-11.0.3/manifests.yaml
+       $HOME/jupyterhub/cuda-11.4.2/manifests.yaml
 
 
 LABEL org.label-schema.build-date="$builddate" \
