@@ -290,11 +290,17 @@ fi
 
 kind="configmap"
 resource="rhods-groups-config"
-
-if oc::object::safe::to::apply ${kind} ${resource}; then
-  oc apply -n ${ODH_PROJECT} -f groups/groups.configmap.yaml
-else
-  echo "The groups ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
+object="rhods-groups-config"
+exists=$(oc get -n $ODH_PROJECT ${object} -o name | grep ${object} || echo "false")
+# If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the groups configmap
+# This is part of RHODS-2442 where we are changing the default groups.  The idea is for it to
+# not affect any pre-exisitng clusters that have already set up their access as they see fit.
+if [ "$exists" == "false" ]; then
+  if oc::object::safe::to::apply ${kind} ${resource}; then
+    oc apply -n ${ODH_PROJECT} -f groups/groups.configmap.yaml
+  else
+    echo "The groups ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
+  fi
 fi
 
 kind="secret"

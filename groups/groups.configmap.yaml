@@ -6,5 +6,5 @@ metadata:
     app: jupyterhub
   name: rhods-groups-config
 data:
-  admin_groups: "rhods-admins"
-  allowed_groups: "rhods-users"
+  admin_groups: "dedicated-admins"
+  allowed_groups: "system:authenticated"
