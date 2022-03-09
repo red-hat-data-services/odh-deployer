@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: cloud-resource-operator
-          image: 'quay.io/modh/cloud-resource-operator-container:v0.35.2'
+          image: 'quay.io/modh/cloud-resource-operator-container:v0.37.1'
           command:
             - cloud-resource-operator
           env:
