@@ -590,7 +590,7 @@ data:
             sum(haproxy_backend_http_responses_total:burnrate1d{route=~"rhods-dashboard"}) by (route) > (3.00 * (1-0.98000))
           for: 1h
           labels:
-            severity: warning
+            severity: critical
         - alert: RHODS Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
@@ -602,7 +602,7 @@ data:
             sum(haproxy_backend_http_responses_total:burnrate3d{route=~"rhods-dashboard"}) by (route) > (1.00 * (1-0.98000))
           for: 3h
           labels:
-            severity: warning
+            severity: critical
 
       - name: RHODS-PVC-Usage
         rules:
@@ -614,7 +614,7 @@ data:
           expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
           for: 2m
           labels:
-            severity: warning
+            severity: critical
             route: user-notifications
         - alert: User notebook pvc usage at 100%
           annotations:
@@ -664,7 +664,7 @@ data:
             sum(probe_success:burnrate1d{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
           for: 1h
           labels:
-            severity: warning
+            severity: critical
         - alert: RHODS Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
@@ -676,7 +676,7 @@ data:
             sum(probe_success:burnrate3d{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
           for: 3h
           labels:
-            severity: warning
+            severity: critical
 
       # TODO: ENABLE THESE ALERTS AGAIN ONCE THE RECONCILE METRIC IS FIXED.
       # - name: SLOs-controller_runtime_reconcile_total
@@ -700,7 +700,7 @@ data:
       #       min_over_time(controller_runtime_reconcile_total:rate15m{instance="rhods-controller"}[30m])
       #     for: 2m
       #     labels:
-      #       severity: warning
+      #       severity: critical
 
       - name: Builds
         rules:
@@ -726,7 +726,7 @@ data:
             )
           for: 2m
           labels:
-            severity: warning
+            severity: critical
 
 
   prometheus.yml: |
