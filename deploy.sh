@@ -297,7 +297,7 @@ fi
 kind="configmap"
 resource="rhods-groups-config"
 object="rhods-groups-config"
-exists=$(oc get -n $ODH_PROJECT ${object} -o name | grep ${object} || echo "false")
+exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
 # If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the groups configmap
 # This is part of RHODS-2442 where we are changing the default groups.  The idea is for it to
 # not affect any pre-exisitng clusters that have already set up their access as they see fit.
