@@ -115,7 +115,13 @@ if [ "$deploy_on_osd" -eq 0 ]; then
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
   oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
-  oc::wait::object::availability "oc get secret jupyterhub-rds-secret -n $ODH_PROJECT" 30 60
+
+  jupyterhubsecret=$(oc::wait::object::availability "oc get secret jupyterhub-rds-secret -n $ODH_PROJECT" 30 60)
+  if [ -z "$jupyterhubsecret" ];then
+    echo "ERROR: Jupyterhub RDS secret does not exist."
+    exit 1
+  fi
+
 
   sed -i '/tlsSkipVerify/d' monitoring/grafana/grafana-secrets.yaml
 
@@ -151,7 +157,14 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-sed -i "s#<snitch_url>#$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 2 30 | tr -d "'"  | base64 --decode)#g" monitoring/prometheus/prometheus.yaml
+deadmanssnitch=$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 4 90 | tr -d "'"  | base64 --decode)
+
+if [ -z "$deadmanssnitch" ];then
+    echo "ERROR: Dead Man Snitch secret does not exist."
+    exit 1
+fi
+
+sed -i "s#<snitch_url>#$deadmanssnitch#g" monitoring/prometheus/prometheus.yaml
 
 oc apply -n ${ODH_MONITORING_PROJECT} -f rhods-monitoring.yaml
 
@@ -170,12 +183,13 @@ oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.ya
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-# Check if pagerduty secret exists, if not create a dummy secret
-returncodepd=0
-oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT  &> /dev/null || returncodepd=1
+# Check if pagerduty secret exists, if not, exit installation
 
-if [ "$returncodepd" -ne 0 ]; then
-    oc apply -f monitoring/pagerduty-empty-secret.yaml -n $ODH_MONITORING_PROJECT
+redhat_rhods_pagerduty=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT" 5 60 )
+
+if [ -z "$redhat_rhods_pagerduty" ];then
+    echo "ERROR: Pagerduty secret does not exist."
+    exit 1
 fi
 
 pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 10)
@@ -192,20 +206,22 @@ sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/
 sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
 
-returncodepd=0
-oc get secret redhat-rhods-smtp -n $ODH_MONITORING_PROJECT  &> /dev/null || returncodepd=1
+# Check if smtp secret exists, exit if it doesn't
+redhat_rhods_smtp=$(oc::wait::object::availability "oc get secret redhat-rhods-smtp -n $ODH_MONITORING_PROJECT" 5 60 )
 
-if [ "$returncodepd" -ne 0 ]; then
-    oc apply -f monitoring/smtp-dummy-secret.yaml -n $ODH_MONITORING_PROJECT
+if [ -z "$redhat_rhods_smtp" ];then
+    echo "ERROR: SMTP secret does not exist."
+    exit 1
 fi
 
-returncodepd=0
-oc get secret addon-managed-odh-parameters -n $ODH_OPERATOR_PROJECT  &> /dev/null || returncodepd=1
+# Check if addon parameter for mail secret exists, exit if it doesn't
 
-if [ "$returncodepd" -ne 0 ]; then
-    oc apply -f monitoring/parameters-dummy-secret.yaml -n $ODH_OPERATOR_PROJECT
+addon_managed_odh_parameter=$(oc::wait::object::availability "oc get secret addon-managed-odh-parameters -n $ODH_OPERATOR_PROJECT" 5 60 )
+
+if [ -z "$addon_managed_odh_parameter" ];then
+    echo "ERROR: Addon managed odh parameter secret does not exist."
+    exit 1
 fi
-
 
 sed -i "s/<smtp_host>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.host}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
 sed -i "s/<smtp_port>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.port}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
