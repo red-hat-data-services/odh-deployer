@@ -14,6 +14,9 @@ spec:
     metadata:
       labels:
         deployment: prometheus
+      annotations:
+        alertmanager: <alertmanager_config_hash>
+        prometheus: <prometheus_config_hash>
     spec:
       serviceAccountName: prometheus
       initContainers:
@@ -286,6 +289,8 @@ spec:
         secret:
           defaultMode: 420
           secretName: alertmanager-proxy
+  strategy:
+    type: Recreate
 
 ---
 apiVersion: v1
