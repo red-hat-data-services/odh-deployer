@@ -151,7 +151,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-sed -i "s#<snitch_url>#$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 2 30 | tr -d "'"  | base64 --decode)#g" monitoring/prometheus/prometheus.yaml
+sed -i "s#<snitch_url>#$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 2 30 | tr -d "'"  | base64 --decode)#g" monitoring/prometheus/prometheus-configs.yaml
 
 oc apply -n ${ODH_MONITORING_PROJECT} -f rhods-monitoring.yaml
 
@@ -163,9 +163,9 @@ oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets
 prometheus_token=$(oc::wait::object::availability "oc sa -n $ODH_MONITORING_PROJECT get-token prometheus" 2 30)
 ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus-configs.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
@@ -187,9 +187,9 @@ oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
 jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus-configs.yaml
 sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
 
 returncodepd=0
@@ -207,12 +207,12 @@ if [ "$returncodepd" -ne 0 ]; then
 fi
 
 
-sed -i "s/<smtp_host>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.host}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<smtp_port>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.port}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<smtp_username>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.username}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
-sed -i "s/<smtp_password>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.password}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<smtp_host>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.host}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<smtp_port>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.port}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<smtp_username>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.username}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
+sed -i "s/<smtp_password>/$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-smtp -o jsonpath='{.data.password}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
 
-sed -i "s/<user_emails>/$(oc::wait::object::availability "oc get secret -n $ODH_OPERATOR_PROJECT addon-managed-odh-parameters -o jsonpath='{.data.notification-email}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<user_emails>/$(oc::wait::object::availability "oc get secret -n $ODH_OPERATOR_PROJECT addon-managed-odh-parameters -o jsonpath='{.data.notification-email}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/blackbox-exporter-common.yaml
 
@@ -225,16 +225,18 @@ fi
 
 if [[ "$(oc get route -n openshift-console console --template={{.spec.host}})" =~ .*"devshift.org".* ]]
 then
-  sed -i "s/redhat-openshift-alert@devshift.net/redhat-openshift-alert@rhmw.io/g" monitoring/prometheus/prometheus.yaml
+  sed -i "s/redhat-openshift-alert@devshift.net/redhat-openshift-alert@rhmw.io/g" monitoring/prometheus/prometheus-configs.yaml
 fi
 
 if [[ "$(oc get route -n openshift-console console --template={{.spec.host}})" =~ .*"aisrhods".* ]]
 then
   echo "Cluster is for RHODS engineering or test purposes. Disabling SRE alerting."
-  sed -i "s/receiver: PagerDuty/receiver: developer-mails/g" monitoring/prometheus/prometheus.yaml
+  sed -i "s/receiver: PagerDuty/receiver: developer-mails/g" monitoring/prometheus/prometheus-configs.yaml
 else
   echo "Cluster is not for RHODS engineering or test purposes."
 fi
+
+oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-configs.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
