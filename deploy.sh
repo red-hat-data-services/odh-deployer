@@ -238,10 +238,15 @@ fi
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-configs.yaml
 
+prometheus_config=$(oc get cm prometheus -o jsonpath='{.data}' | openssl dgst -binary -sha256 | openssl base64)
+alertmanager_config=$(oc get cm alertmanager -o jsonpath='{.data.alertmanager\.yml}' | openssl dgst -binary -sha256 | openssl base64)
+
+sed -i "s/<prometheus_config_hash>/$prometheus_config/g" monitoring/prometheus/prometheus.yaml
+sed -i "s/<alertmanager_config_hash>/$alertmanager_config/g" monitoring/prometheus/prometheus.yaml
+
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
 
-oc delete replicasets -n $ODH_MONITORING_PROJECT -l deployment=prometheus
 
 prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 grafana_token=$(oc::wait::object::availability "oc sa get-token grafana -n $ODH_MONITORING_PROJECT" 2 30)
