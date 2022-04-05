@@ -101,11 +101,12 @@ oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.ya
 
 sed -i "s/<notebook_destination>/$ODH_NOTEBOOK_PROJECT/g" jupyterhub/jupyterhub-configmap.yaml
 oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-configmap.yaml || echo "INFO: Jupyterhub ConfigMap already created "
-# Check if the installation target is OSD to determine the deployment manifest path
-deploy_on_osd=0
-oc get group dedicated-admins &> /dev/null || deploy_on_osd=1
-if [ "$deploy_on_osd" -eq 0 ]; then
-  # On OpenShift Dedicated, deploy with CRO
+
+infrastructure=$(oc get infrastructure cluster -o jsonpath='{.spec.platformSpec.type}')
+# Check if the installation target is AWS to determine the deployment manifest path
+if [ $infrastructure = "AWS" ]; then
+  # On AWS OpenShift Dedicated, deploy with CRO
+  echo "INFO: Deploying on AWS. Creating CRO for deployment of RDS Instance"
   ODH_MANIFESTS="opendatahub-osd.yaml"
 
   # Install CRO
@@ -133,16 +134,19 @@ if [ "$deploy_on_osd" -eq 0 ]; then
       exit 1
     fi
   done
-
-else
-  # Not on OpenShift Dedicated, deploy local
+elif [ $infrastructure = "OpenStack" ]; then
+  # On PSI, deploy local
+  echo "INFO: Deploying on PSI. Creating local database"
   ODH_MANIFESTS="opendatahub.yaml"
 
   # Create Postgres Secret
   export jupyterhub_postgresql_password=$(openssl rand -hex 32)
   sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
   oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
-
+else
+  # Not on PSI or AWS, Fail Installation
+  echo "ERROR: Deploying on $infrastructure, which is not supported. Failing Installation"
+  exit 1
 fi
 
 oc apply -n ${ODH_PROJECT} -f ${ODH_MANIFESTS}
