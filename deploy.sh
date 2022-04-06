@@ -266,6 +266,10 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
+# Add segment.io secret key & configmap
+oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
+oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-config.yaml
+
 # Add consoleLink CR to provide a link to the rhods-dashboard via the Application Launcher in OpenShift
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
 odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
@@ -293,7 +297,7 @@ fi
 kind="configmap"
 resource="rhods-groups-config"
 object="rhods-groups-config"
-exists=$(oc get -n $ODH_PROJECT ${object} -o name | grep ${object} || echo "false")
+exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
 # If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the groups configmap
 # This is part of RHODS-2442 where we are changing the default groups.  The idea is for it to
 # not affect any pre-exisitng clusters that have already set up their access as they see fit.
