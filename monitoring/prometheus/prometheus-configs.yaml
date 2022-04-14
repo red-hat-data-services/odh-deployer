@@ -1,0 +1,1181 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus
+  namespace: redhat-ods-monitoring
+data:
+  recording.rules: |
+    groups:
+      - name: SLOs - JupyterHub
+        rules:
+        # The haproxy errors SLO for JupyterHub is disabled. Context at https://issues.redhat.com/browse/RHODS-2101
+
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: jupyterhub
+          record: probe_success:burnrate6h
+
+      - name: SLOs - Traefik Proxy
+        rules:
+        - expr: min(up{job="Traefik Proxy Metrics"})
+          labels:
+            instance: traefik
+            job: user_facing_endpoints_status
+          record:
+            probe_success
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: traefik
+          record: probe_success:burnrate6h
+
+      - name: SLOs - ODH Dashboard
+        rules:
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[1d]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[1d]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate1d
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[1h]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[1h]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate1h
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[2h]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[2h]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate2h
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[30m]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[30m]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate30m
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[3d]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[3d]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate3d
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[5m]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[5m]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate5m
+        - expr: |
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard",code=~"5.."}[6h]))
+            /
+            sum(rate(haproxy_backend_http_responses_total{route="rhods-dashboard"}[6h]))
+          labels:
+            route: rhods-dashboard
+          record: haproxy_backend_http_responses_total:burnrate6h
+
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"rhods-dashboard-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: rhods-dashboard
+          record: probe_success:burnrate6h
+
+      - name: SLOs - RHODS Operator
+        interval: 15m
+        rules:
+        - expr: |
+            rate(controller_runtime_reconcile_total{controller="kfdef-controller", job="RHODS Metrics", result!="success"}[15m])
+          labels:
+            instance: rhods-controller
+          record: controller_runtime_reconcile_total:rate15m
+
+      - name: Usage Metrics
+        rules:
+        - expr: max(jupyterhub_total_users)
+          labels:
+            instance: jupyterhub
+          record: rhods_total_users
+
+      - name: Availability Metrics
+        rules:
+        - expr: min(probe_success)
+          record: rhods_aggregate_availability
+
+  alerting.rules: |
+    groups:
+
+      - name: DeadManSnitch
+        interval: 1m
+        rules:
+          - alert: DeadManSnitch
+            expr: vector(1)
+            labels:
+              severity: critical
+            annotations:
+              description: This is a DeadManSnitch to ensure RHODS monitoring and alerting pipeline is online.
+              summary: Alerting DeadManSnitch
+
+      - name: SLOs-haproxy_backend_http_responses_total
+        rules:
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate5m{route=~"rhods-dashboard"}) by (route) > (14.40 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate1h{route=~"rhods-dashboard"}) by (route) > (14.40 * (1-0.98000))
+          for: 2m
+          labels:
+            severity: critical
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate30m{route=~"rhods-dashboard"}) by (route) > (6.00 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"rhods-dashboard"}) by (route) > (6.00 * (1-0.98000))
+          for: 15m
+          labels:
+            severity: critical
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate2h{route=~"rhods-dashboard"}) by (route) > (3.00 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate1d{route=~"rhods-dashboard"}) by (route) > (3.00 * (1-0.98000))
+          for: 1h
+          labels:
+            severity: critical
+        - alert: RHODS Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate6h{route=~"rhods-dashboard"}) by (route) > (1.00 * (1-0.98000))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate3d{route=~"rhods-dashboard"}) by (route) > (1.00 * (1-0.98000))
+          for: 3h
+          labels:
+            severity: critical
+
+      - name: RHODS-PVC-Usage
+        rules:
+        - alert: User notebook pvc usage above 90%
+          annotations:
+            message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 90% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit.'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
+            summary: User notebook pvc usage above 90%
+          expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
+          for: 2m
+          labels:
+            severity: critical
+            route: user-notifications
+        - alert: User notebook pvc usage at 100%
+          annotations:
+            message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 100% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit.'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
+            summary: User notebook pvc usage at 100%
+          expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"}/kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.99
+          for: 2m
+          labels:
+            severity: critical
+            route: user-notifications
+
+      - name: SLOs-probe_success
+        rules:
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(probe_success:burnrate5m{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (14.40 * (1-0.98000))
+            and
+            sum(probe_success:burnrate1h{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (14.40 * (1-0.98000))
+          for: 2m
+          labels:
+            severity: critical
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(probe_success:burnrate30m{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (6.00 * (1-0.98000))
+            and
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (6.00 * (1-0.98000))
+          for: 15m
+          labels:
+            severity: critical
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(probe_success:burnrate2h{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
+            and
+            sum(probe_success:burnrate1d{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
+          for: 1h
+          labels:
+            severity: critical
+        - alert: RHODS Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
+            summary: RHODS Route Error Burn Rate
+          expr: |
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
+            and
+            sum(probe_success:burnrate3d{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
+          for: 3h
+          labels:
+            severity: critical
+
+      - name: Builds
+        rules:
+        - alert: JupyterHub image builds are failing
+          annotations:
+            message: 'A JupyterHub image build is in a failed state.'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/spawner-greyed-images.md"
+            build: "{{ $labels.buildconfig }}"
+            summary: JupyterHub image builds are failing
+          expr: |
+            (
+              clamp( 1 - sum by (buildconfig) (openshift_build_status_phase_total{build_phase=~"running",namespace="redhat-ods-applications"}),0,1)  # Do not alert if is a build currently running(this will make the left-hand side of the GT operator 0 and therefore always false)
+              *
+              (
+                sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"})  # Get the current number of historical build failures at current time.  If its greater than the historical low water mark, then a build failure has happened
+                -
+                (
+                  sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"complete",namespace="redhat-ods-applications"})  # Subtract the value of the increase (over last 30m) in successful builds
+                  -
+                  sum by(buildconfig) (min_over_time(openshift_build_status_phase_total{build_phase=~"complete",namespace="redhat-ods-applications"}[30m]))
+                )
+              )
+            )
+            >
+            (
+              sum by(buildconfig) (
+                (min_over_time(openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"}[30m]))  # Compare this value (the lowest number of historical build failures $offset time BEFORE current) against the current historical build failure count
+                or
+                (0 * openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"})  # This 'defaults' the historical build count above to 0, needed in case a the build label did not exist yet at that time.
+              )
+            )
+          for: 2m
+          labels:
+            severity: critical
+
+
+  prometheus.yml: |
+    rule_files:
+      - '*.rules'
+    global:
+      scrape_interval:     10s
+      evaluation_interval: 10s
+
+    scrape_configs:
+    - job_name: 'Federate Prometheus'
+      scrape_interval: 30s
+      scheme: https
+      tls_config:
+        server_name: <federate_target>
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token: "<prom_bearer_token>"
+      honor_labels: true
+      metrics_path: '/federate'
+
+      params:
+        'match[]':
+          - '{__name__= "haproxy_backend_http_responses_total"}'
+          - '{__name__= "controller_runtime_reconcile_total"}'
+          - '{__name__= "container_cpu_usage_seconds_total"}'
+          - '{__name__= "container_memory_rss"}'
+          - '{__name__= "kubelet_volume_stats_used_bytes"}'
+          - '{__name__= "kubelet_volume_stats_capacity_bytes"}'
+          - '{__name__= "kube_pod_container_status_waiting_reason"}'
+          - '{__name__= "kube_pod_container_status_restarts_total"}'
+          - '{__name__= "kube_pod_container_status_terminated_reason"}'
+          - '{__name__= "openshift_build_status_phase_total"}'
+
+      static_configs:
+        - targets:
+          - "<federate_target>"
+
+    - job_name: 'JupyterHub Metrics'
+      honor_labels: true
+      metrics_path: /hub/metrics
+      scheme: http
+      bearer_token: <jupyterhub_prometheus_api_token>
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(jupyterhub)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8081
+
+    - job_name: 'Traefik Proxy Metrics'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(traefik-proxy)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8082
+
+    - job_name: 'user_facing_endpoints_status'
+      scrape_interval: 10s
+      metrics_path: /probe
+      scheme: https
+      tls_config:
+        insecure_skip_verify: true
+      params:
+        module: [http_2xx]
+      authorization:
+        credentials_file: /run/secrets/kubernetes.io/serviceaccount/token
+      static_configs:
+      - targets:
+        - <jupyterhub_host>
+        - <rhods_dashboard_host>
+      relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter.redhat-ods-monitoring.svc.cluster.local:9114
+
+    - job_name: 'RHODS Metrics'
+      honor_labels: true
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-operator
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(rhods-operator-metrics)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8383
+
+    alerting:
+      alertmanagers:
+      - scheme: http
+        static_configs:
+        - targets:
+          - "localhost:9093"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager
+  namespace: redhat-ods-monitoring
+data:
+  default.tmpl: |
+    {{ define "email.rhods.subject" }}
+        {{ if gt (len .Alerts.Firing) 1 }}
+            Red Hat OpenShift Data Science Notifications
+        {{ else }}
+            {{ (index .Alerts.Firing 0).Annotations.summary }} 
+        {{ end }}
+    {{ end }}
+    {{ define "email.rhods.html" }}
+
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Alert fired</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text&display=swap');
+
+            .rh-masthead__content-title,
+            .rh-masthead__metric-block-count,
+            .rh-masthead__metric-block-text,
+            .rh-masthead__subhead {
+                font-family: 'Red Hat Display', Helvetica, sans-serif;
+            }
+
+            body,
+            .rh-content__block,
+            .rh-data-table,
+            .rh-masthead__subhead {
+                font-family: 'Red Hat Text', Helvetica, sans-serif;
+            }
+
+            #outlook a {
+                padding: 0;
+            }
+
+            /* Force Outlook to provide a "view in browser" message */
+            body,
+            table,
+            td,
+            p,
+            a,
+            li,
+            blockquote {
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+            }
+
+            /* Prevent WebKit and Windows mobile changing default text sizes */
+            table,
+            td {
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+            }
+
+            /* Remove spacing between tables in Outlook 2007 and up */
+            img {
+                -ms-interpolation-mode: bicubic;
+            }
+
+            /* Allow smoother rendering of resized image in Internet Explorer */
+
+            /* reset styles */
+            img {
+                border: 0;
+                height: auto;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+            }
+
+            table {
+                border-collapse: collapse !important;
+            }
+
+            a {
+                text-decoration: none !important;
+            }
+
+            /* Remove space around email design */
+            html,
+            body {
+                margin: 0 auto !important;
+                padding: 0 !important;
+                height: 100% !important;
+                width: 100% !important;
+                background-color: #fff;
+            }
+
+            /* Stop Outlook resizing small text */
+            * {
+                -ms-text-size-adjust: 100%;
+            }
+
+            /* Stop Outlook from adding extra spacing to tables */
+            table,
+            td {
+                mso-table-lspace: 0pt !important;
+                mso-table-rspace: 0pt !important;
+            }
+
+            /* Better rendering method when resizing impages in Outlook IE */
+            img {
+                -ms-interpolation-mode: bicubic;
+            }
+
+            a {
+                text-decoration: none;
+                color: #fff;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-family: 'Red Hat Display', sans-serif;
+                font-size: 16px;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            p {
+                margin-top: 0;
+            }
+
+            
+            h1:last-child,
+            h2:last-child,
+            h3:last-child,
+            h4:last-child,
+            h5:last-child,
+            h6:last-child,
+            p:last-child {
+                margin-bottom: 0;
+            }
+
+            .fh-inline-title {
+                margin-bottom: 6px !important;
+            }
+
+
+            .rh-masthead__content-title h1,
+            .rh-masthead__content-title h2,
+            .rh-masthead__content-title h3,
+            .rh-masthead__content-title h4,
+            .rh-masthead__subhead h1,
+            .rh-masthead__subhead h2,
+            .rh-masthead__subhead h3,
+            .rh-masthead__subhead h4 {
+                font-weight: 400;
+                line-height: 1;
+            }
+
+            .rh-body-table,
+            .rh-body-cell {
+                height: 100% !important;
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+            }
+
+            .rh-body-table {
+                background-color: #f5f5f5;
+                background-color: #fff;
+            }
+
+            .rh-page {
+                padding: 0 0 30px 0;
+                background: #efefef;
+            }
+
+            .rh-template-container {
+                padding: 0 0 30px 0;
+                width: 600px;
+            }
+
+            .rh-template-container,
+            .rh-template-container>tbody {
+                background: #ededed;
+            }
+
+            .rh-head,
+            .rh-body,
+            .rh-footer {
+                margin: 0;
+                mso-line-height-rule: exactly;
+                font-family: arial;
+                font-size: 16px;
+                box-sizing: border-box;
+            }
+
+            .rh-body {
+                padding: 0 20px 20px 20px;
+            }
+
+            .rh-body,
+            .rh-masthead,
+            .rh-content,
+            .rh-data-table,
+            .rh-head {
+                width: 100% !important;
+            }
+
+            .rh-head {
+                padding: 0 0 20px 0;
+            }
+
+            .rh-footer {
+                padding: 10px 20px 30px 20px;
+            }
+
+            .rh-masthead__content {
+                background-color: #090a0a !important;
+                background-color: #030303 !important;
+                background-image: url(https://cloud.redhat.com/apps/frontend-assets/email-assets/bg_masthead-hat.png);
+                background-size: cover;
+            }
+
+            .rh-masthead__subhead {
+                background-color: #282828 !important;
+                padding: 20px;
+                color: #ffffff !important;
+                font-size: 18px;
+                text-align: center;
+            }
+
+            .rh-masthead__block {
+                width: 200px;
+            }
+
+            .rh-masthead__brand {
+                padding: 5px 20px 5px 20px;
+                background-color: #c0c0c0 !important;
+                background-repeat: repeat;
+
+                text-align: center;
+            }
+
+            .rh-masthead__brand-link {
+                display: block;
+                text-align: center;
+            }
+
+            .rh-masthead__content {
+                background-color: #151515;
+                background-size: cover;
+                background-repeat: no-repeat;
+            }
+
+            .rh-masthead__content-title {
+                padding: 20px 20px 20px 20px;
+                margin: 0 0 10px 0;
+                color: #ffffff;
+                font-size: 18px;
+                position: relative;
+                font-weight: 400;
+            }
+
+            .rh-masthead__metric-block-count {
+                display: block;
+                padding-bottom: 10px;
+                text-align: center;
+                font-size: 28px;
+                word-break: break-all;
+                color: #ffffff !important;
+                line-height: 1;
+            }
+
+            .rh-masthead__metric-block-text {
+                display: block;
+                padding: 0 20px 40px 20px;
+                word-break: break-all;
+                color: #ffffff !important;
+                line-height: 1;
+                font-size: 14px;
+            }
+
+            .rh-masthead__metric-block-icon {
+                padding: 0 0 20px;
+                display: block;
+            }
+
+            .rh-content+.rh-content {
+                padding: 0 0 20px 0;
+            }
+
+            .rh-content a {
+                color: #0066cc;
+            }
+
+            .rh-content {
+                background: #efefef;
+            }
+
+            .rh-content table {
+                background: #fff;
+            }
+
+            /* Content block */
+            .rh-content__block {
+                max-width: 100%;
+                padding: 20px 20px 20px 20px;
+                overflow: hidden;
+            }
+
+            .rh-title__block {
+                max-width: 100%;
+                padding: 20px 20px 20px 20px;
+                overflow: hidden;
+            }
+
+            .rh-alert__block {
+                max-width: 100%;
+                padding: 20px;
+                margin: 4px;
+                overflow: hidden;
+                background: #ececec;
+            }
+
+            .rh-content tr+tr .rh-content__block {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .rh-content tr:last-child {
+                padding-top: 0;
+                padding-bottom: 20px;
+            }
+
+            .rh-content .rh-content__block {
+                background-color: #fff;
+            }
+
+            .rh-content .rh-title__block {
+                background-color: #fff;
+            }
+
+            .rh-footer__text {
+                font-size: 14px;
+                text-align: center;
+            }
+
+            .rh-footer__text a {
+                color: #0066cc;
+            }
+
+            .rh-content__spacer {
+                font-size: 0;
+                line-height: 0;
+                height: 20px;
+                background-color: #ffffff;
+            }
+
+            .rh-cta-link {
+                display: block;
+                padding: 10px 20px;
+                background-color: #0066cc;
+                border-radius: 3px;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            .rh-cta-link a {
+                color: #ffffff;
+                text-decoration: none;
+            }
+
+            .rh-data-table thead th {
+                font-weight: 700;
+                text-align: left;
+            }
+
+            .rh-data-table tbody th {
+                font-weight: 500;
+                text-align: left;
+                width: 200px;
+            }
+
+            .rh-data-table.rh-m-bordered th {
+                padding: 10px;
+                text-align: left;
+                font-size: 14px;
+                font-weight: 500;
+                text-transform: uppercase;
+                background-color: #ededed;
+            }
+
+            .rh-data-table.rh-m-bordered td {
+                padding: 10px;
+                text-align: left;
+            }
+
+            .rh-data-table.rh-m-bordered {
+                border-collapse: collapse;
+            }
+
+            .rh-table-header {
+                text-align: left;
+                padding-bottom: 0;
+            }
+
+            .rh-m-bordered th,
+            .rh-m-bordered td {
+                border-width: 1px;
+                border-color: #b8bbbe;
+                border-style: solid;
+            }
+
+            .rh-m-bordered tr:nth-child(even) {
+                background-color: #fafafa;
+            }
+
+            .rh-color__red {
+                color: #a30000;
+            }
+
+            .rh-color__orange {
+                color: #ec7a08;
+            }
+
+            .rh-color__green {
+                color: #486b00;
+            }
+
+            .rh-m-block {
+                display: block;
+            }
+
+            .rh-url {
+                word-break: break-word;
+            }
+
+            .rh-stack>*+* {
+                margin-top: 10px;
+            }
+
+            .rh-inline {
+                display: flex;
+                align-items: center;
+            }
+
+            .rh-icon {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                line-height: 1;
+            }
+
+            .rh-inline>*+* {
+                display: inline-block;
+                margin-left: 5px;
+            }
+
+            /* dark mode hacks */
+            [data-ogsc] .rh-masthead__brand,
+            [data-ogsb] .rh-masthead__brand {
+                background-color: #151515 !important;
+            }
+
+            @media only screen and (max-width: 320px) {
+                .rh-masthead__block {
+                    width: 100% !important;
+                    display: block !important;
+                }
+            }
+
+            @media only screen and (max-width: 480px) {
+                .rh-template-container {
+                    max-width: 480px !important;
+                    /*@editable*/
+                    width: 100% !important;
+                }
+
+                .rh-data-table tbody th {
+                    width: auto !important;
+                }
+
+                .rh-data-table th,
+                .rh-data-table td {
+                    font-size: 14px;
+                }
+
+                .rh-data-table.rh-m-bordered th,
+                .rh-data-table.rh-m-bordered td {
+                    padding: 5px;
+                    text-align: left;
+                }
+            }
+
+            @media only screen and (max-width: 600px) {
+                body {
+                    width: 100% !important;
+                    min-width: 100% !important;
+                }
+
+                .rh-template-container {
+                    max-width: 600px !important;
+                    /*@editable*/
+                    width: 100% !important;
+                }
+
+                .rh-masthead__block {
+                    width: 33%;
+                    max-width: 200px;
+                }
+            }
+
+            .rh-masthead__brand-img {
+                width: 282px;
+                padding: 20px 0px;
+            }
+
+            .rh-spacer {
+                height: 20px;
+                width: 100%;
+            }
+        </style>
+    </head>
+
+    <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" class="rh-body">
+        <center>
+            <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%"
+                class="rh-body-table">
+                <tr>
+                    <td align="center" valign="top" class="rh-body-cell">
+                        <table border="0" cellpadding="0" cellspacing="0" class="rh-template-container">
+
+                            <!-- Head -->
+                            <tr>
+                                <td class="rh-head">
+                                    <table class="rh-masthead" role="presentation" align="center" border="0" cellpadding="0"
+                                        cellspacing="0" width="100%">
+                                        <tr>
+                                            <!--Red Hat logo-->
+                                            <td align="center" class="rh-masthead__brand" bgcolor="#151515">
+                                                <a href="https://cloud.redhat.com/" target="_blank"
+                                                    class="rh-masthead__brand-link">
+                                                    <img class="rh-masthead__brand-img" src="https://raw.githubusercontent.com/red-hat-data-services/odh-deployer/main/resources/logos/LogoRHODS.png" />
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="rh-masthead__subhead">
+                                                <!-- <h1>{#insert content-title}{/}</h1> -->
+                                                <h1>Notifications</h1>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <!-- end head -->
+
+                            <!-- Body section -->
+                            <tr>
+                                <td class="rh-body">
+                                    <table class="rh-content" role="presentation" align="center" border="0" cellpadding="0"
+                                        cellspacing="0" width="100%">
+                                        {{ range .Alerts.Firing }}
+                                            {{ if .Annotations.message }}
+                                                <tr>
+                                                    <td class="rh-content__block">
+                                                        <div class="rh-alert__block">
+                                                            <h4 class="fh-inline-title"> {{ .Annotations.summary }}</h4> 
+                                                            {{ .Annotations.message }}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {{ end }}             
+                                        {{ end }}
+                                        <tr><td class="rh-content__block"><div class="rh-spacer"></div></td></tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <!-- end body section -->
+
+                            <!-- Footer -->
+                            <tr>
+                                <td class="rh-footer">
+                                    <table role="presentation" border="0" align="center" cellpadding="0" cellspacing="0"
+                                        width="100%">
+                                        <tr>
+                                            <td class="rh-footer__text">
+                                                This email was sent by Red Hat OpenShift Data Science
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <!-- end footer -->
+
+                            <!-- Ensure padding bottom - don't remove empty row -->
+                            <tr>
+                                <td>
+                                </td>
+                            </tr>
+                            <!-- leave - empty row -->
+
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </body>
+    </html>
+    {{ end }}
+
+
+  alertmanager.yml: |
+    global:
+      smtp_from: 'redhat-openshift-alert@devshift.net'
+      smtp_smarthost: '<smtp_host>:<smtp_port>'
+      smtp_auth_username: '<smtp_username>'
+      smtp_auth_password: '<smtp_password>'
+      smtp_require_tls: true
+
+    # The root route on which each incoming alert enters.
+    route:
+      group_by: ['alertname', 'cluster', 'service', 'job', 'email_to']
+
+      group_wait: 30s
+
+      # When the first notification was sent, wait 'group_interval' to send a batch
+      # of new alerts that started firing for that group.
+      group_interval: 5m
+
+      # If an alert has successfully been sent, wait 'repeat_interval' to
+      # resend them.
+      repeat_interval: 4h
+
+      # A default receiver
+      receiver: PagerDuty
+
+      routes:
+      - match:
+          alertname: DeadManSnitch
+        receiver: deadman-snitch
+        repeat_interval: 5m
+      
+      - match:
+          route: user-notifications
+        receiver: user-notifications
+        repeat_interval: 12h
+
+    receivers:
+    - name: 'developer-mails'
+      email_configs:
+      - to: 'test-123@redhat.com'
+        send_resolved: true
+
+    - name: 'user-notifications'
+      email_configs:
+      - to: '<user_emails>'
+        send_resolved: false
+        html: '{{ template "email.rhods.html" . }}'
+        headers: 
+          subject: '{{ template "email.rhods.subject" . }}'
+
+    - name: 'PagerDuty'
+      pagerduty_configs:
+      - service_key: <pagerduty_token>
+        send_resolved: true
+
+    - name: 'deadman-snitch'
+      webhook_configs:
+        - url: '<snitch_url>?m=just+checking+in'
+          send_resolved: false
+
+    templates:
+      - '/etc/alertmanager/default.tmpl'
