@@ -11,3 +11,4 @@ data:
   gpu_mode: ""
   singleuser_pvc_size: 20Gi
   notebook_destination: <notebook_destination>
+  culler_timeout: "31536000" # 1 year in seconds

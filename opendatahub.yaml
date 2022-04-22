@@ -25,6 +25,7 @@ spec:
         - jupyterhub-db-deployment-patch
         - jupyterhub-deployment-patch
         - ui-config
+        - ../overlays/jupyterhub-idle-culler
       repoRef:
         name: manifests
         path: jupyterhub/jupyterhub/overrides
