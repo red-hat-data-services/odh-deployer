@@ -251,7 +251,7 @@ data:
             sum(haproxy_backend_http_responses_total:burnrate1d{route=~"rhods-dashboard"}) by (route) > (3.00 * (1-0.98000))
           for: 1h
           labels:
-            severity: critical
+            severity: warning
         - alert: RHODS Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
@@ -263,7 +263,7 @@ data:
             sum(haproxy_backend_http_responses_total:burnrate3d{route=~"rhods-dashboard"}) by (route) > (1.00 * (1-0.98000))
           for: 3h
           labels:
-            severity: critical
+            severity: warning
 
       - name: RHODS-PVC-Usage
         rules:
@@ -275,7 +275,7 @@ data:
           expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
           for: 2m
           labels:
-            severity: critical
+            severity: warning
             route: user-notifications
         - alert: User notebook pvc usage at 100%
           annotations:
@@ -285,7 +285,7 @@ data:
           expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"}/kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.99
           for: 2m
           labels:
-            severity: critical
+            severity: warning
             route: user-notifications
 
       - name: SLOs-probe_success
@@ -325,7 +325,7 @@ data:
             sum(probe_success:burnrate1d{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (3.00 * (1-0.98000))
           for: 1h
           labels:
-            severity: critical
+            severity: warning
         - alert: RHODS Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
@@ -337,7 +337,7 @@ data:
             sum(probe_success:burnrate3d{instance=~"jupyterhub|rhods-dashboard|jupyterhub-db|traefik"}) by (instance) > (1.00 * (1-0.98000))
           for: 3h
           labels:
-            severity: critical
+            severity: warning
 
       - name: Builds
         rules:
@@ -371,7 +371,7 @@ data:
             )
           for: 2m
           labels:
-            severity: critical
+            severity: warning
 
 
   prometheus.yml: |
@@ -1140,7 +1140,7 @@ data:
       repeat_interval: 4h
 
       # A default receiver
-      receiver: PagerDuty
+      receiver: alerts-sink
 
       routes:
       - match:
@@ -1153,11 +1153,13 @@ data:
         receiver: user-notifications
         repeat_interval: 12h
 
+      - match:
+          severity: critical
+        receiver: PagerDuty
+
     receivers:
-    - name: 'developer-mails'
-      email_configs:
-      - to: 'test-123@redhat.com'
-        send_resolved: true
+
+    - name: 'alerts-sink'
 
     - name: 'user-notifications'
       email_configs:
