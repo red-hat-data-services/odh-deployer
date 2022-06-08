@@ -114,6 +114,7 @@ if [ $infrastructure = "AWS" ]; then
   oc label namespace $CRO_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/crds
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
+  oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds
   oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
   oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
 

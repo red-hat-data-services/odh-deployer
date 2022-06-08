@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: cloud-resource-operator
-          image: 'quay.io/modh/cloud-resource-operator-container:v0.37.1'
+          image: 'quay.io/modh/cloud-resource-operator-container:v0.39.0'
           command:
             - cloud-resource-operator
           env:
@@ -30,7 +30,7 @@ spec:
             - name: TAG_KEY_PREFIX
               value: integreatly.org/
             - name: OPERATOR_CONDITION_NAME
-              value: cloud-resources.v0.35.2
+              value: cloud-resources.v0.39.0
           resources:
             limits:
               cpu: 50m
