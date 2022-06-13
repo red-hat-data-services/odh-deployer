@@ -216,11 +216,11 @@ data:
 
       - name: SLOs-haproxy_backend_http_responses_total
         rules:
-        - alert: RHODS Route Error Burn Rate
+        - alert: RHODS Dashboard Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
-            summary: RHODS Route Error Burn Rate
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md'
+            summary: RHODS Dashboard Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate5m{route=~"rhods-dashboard"}) by (route) > (14.40 * (1-0.99950))
             and
@@ -228,11 +228,11 @@ data:
           for: 2m
           labels:
             severity: critical
-        - alert: RHODS Route Error Burn Rate
+        - alert: RHODS Dashboard Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
-            summary: RHODS Route Error Burn Rate
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md'
+            summary: RHODS Dashboard Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate30m{route=~"rhods-dashboard"}) by (route) > (6.00 * (1-0.99950))
             and
@@ -240,11 +240,11 @@ data:
           for: 15m
           labels:
             severity: critical
-        - alert: RHODS Route Error Burn Rate
+        - alert: RHODS Dashboard Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
-            summary: RHODS Route Error Burn Rate
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md'
+            summary: RHODS Dashboard Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate2h{route=~"rhods-dashboard"}) by (route) > (3.00 * (1-0.99950))
             and
@@ -252,11 +252,11 @@ data:
           for: 1h
           labels:
             severity: warning
-        - alert: RHODS Route Error Burn Rate
+        - alert: RHODS Dashboard Route Error Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
-            triage: '{{if eq $labels.route "jupyterhub"}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-error-burn-rate.md{{else}}https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md{{end}}'
-            summary: RHODS Route Error Burn Rate
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-error-burn-rate.md'
+            summary: RHODS Dashboard Route Error Burn Rate
           expr: |
             sum(haproxy_backend_http_responses_total:burnrate6h{route=~"rhods-dashboard"}) by (route) > (1.00 * (1-0.99950))
             and
