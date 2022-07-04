@@ -100,7 +100,8 @@ sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" 
 oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
 
 sed -i "s/<notebook_destination>/$ODH_NOTEBOOK_PROJECT/g" jupyterhub/jupyterhub-configmap.yaml
-oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-configmap.yaml || echo "INFO: Jupyterhub ConfigMap already created "
+# Requires oc create instead of apply to prevent overwriting.
+oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-configmap.yaml || echo "INFO: Jupyterhub ConfigMap already created "
 
 infrastructure=$(oc get infrastructure cluster -o jsonpath='{.spec.platformSpec.type}')
 # Check if the installation target is AWS to determine the deployment manifest path
