@@ -296,9 +296,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
             summary: RHODS JupyterHub Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate5m{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (14.40 * (1-0.99950))
+            sum(probe_success:burnrate5m{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
             and
-            sum(probe_success:burnrate1h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (14.40 * (1-0.99950))
+            sum(probe_success:burnrate1h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
           for: 2m
           labels:
             severity: critical
@@ -308,9 +308,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
             summary: RHODS JupyterHub Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate30m{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (6.00 * (1-0.99950))
+            sum(probe_success:burnrate30m{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (6.00 * (1-0.99950))
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
           for: 15m
           labels:
             severity: critical
@@ -320,9 +320,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
             summary: RHODS JupyterHub Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate2h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (3.00 * (1-0.99950))
+            sum(probe_success:burnrate2h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate1d{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (3.00 * (1-0.99950))
+            sum(probe_success:burnrate1d{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
           for: 1h
           labels:
             severity: warning
@@ -332,9 +332,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
             summary: RHODS JupyterHub Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (1.00 * (1-0.99950))
+            sum(probe_success:burnrate6h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate3d{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (1.00 * (1-0.99950))
+            sum(probe_success:burnrate3d{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
