@@ -1,0 +1,9 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  name: <notebook_pod_name>
+  annotations:
+    notebooks.opendatahub.io/inject-oauth: "true"
+spec:
+  template:
+    spec:
