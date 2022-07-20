@@ -143,7 +143,7 @@ items:
     tags:
     - annotations:
         opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8"},{"name":"PyTorch","version":"1.8"},{"name":"CUDA","version":"11.4"}]'
-        opendatahub.io/notebook-python-dependencies: '[{"name":"PyTorch","version":"1.8"},{"name":"Tensorboard","version":"1.15"},{"name":"Boto3","version":"1.17"},{"name":"Kafka-Python","version":"2.0"},{"name":"Matplotlib","version":"3.4"},{"name":"Numpy","version":"1.19"},{"name":"Pandas","version":"1.2"},{"name":"Scikit-learn","version":"0.24"},{"name":"Scipy","version":"1.6"}]'
+        opendatahub.io/notebook-python-dependencies: '[{"name":"PyTorch","version":"1.8"},{"name":"Tensorboard","version":"2.6"},{"name":"Boto3","version":"1.17"},{"name":"Kafka-Python","version":"2.0"},{"name":"Matplotlib","version":"3.4"},{"name":"Numpy","version":"1.19"},{"name":"Pandas","version":"1.2"},{"name":"Scikit-learn","version":"0.24"},{"name":"Scipy","version":"1.6"}]'
       name: "py3.8-cuda-11.4.2-1"
       referencePolicy:
         type: Local
