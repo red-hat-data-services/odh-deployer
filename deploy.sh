@@ -346,6 +346,49 @@ else
   echo "The Anaconda base secret (${kind}/${resource}) has been modified. Skipping apply."
 fi
 
+####################################################################################################
+# RHODS DASHBOARD
+####################################################################################################
+
+# Deploying the ODHDashboardConfig CRD
+oc apply -n ${ODH_PROJECT} -f odh-dashboard/crds/odh-dashboard-crd.yaml
+odhdashboardconfigcrd=$(oc::wait::object::availability "oc get crd odhdashboardconfigs.opendatahub.io" 30 60)
+if [ -z "$odhdashboardconfigcrd" ];then
+  echo "ERROR: OdhDashboardConfig CRD does not exist."
+  exit 1
+fi
+
+kind="configmap"
+resource="odh-enabled-applications-config"
+object="odh-enabled-applications-config"
+exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
+#TODO: This should probably exist in odh-manifests due to the fact that it controls enabled applications
+if [ "$exists" == "false" ]; then
+  if oc::object::safe::to::apply ${kind} ${resource}; then
+    oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-enabled-applications-config.configmap.yaml
+  else
+    echo "The ODH Dashboard enabled-applications-config (${kind}/${resource}) has been modified. Skipping apply."
+  fi
+fi
+
+kind="odhdashboardconfigs"
+resource="odh-dashboard-config"
+object="odh-dashboard-config"
+exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
+# If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the ODHDashboardConfig resource
+#TODO: This controls feature flags and notebook controller presets like Notebook size. Confirm that notebook sizes can be configured external to the ODHDashboardConfig CR
+if [ "$exists" == "false" ]; then
+  if oc::object::safe::to::apply ${kind} ${resource}; then
+    oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
+  else
+    echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."
+  fi
+fi
+
+####################################################################################################
+# END RHODS DASHBOARD
+####################################################################################################
+
 # Add network policies
 oc apply -f network/
 
