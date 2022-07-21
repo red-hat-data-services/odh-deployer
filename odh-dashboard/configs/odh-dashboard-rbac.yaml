@@ -1,0 +1,32 @@
+# TODO: Remove when https://github.com/opendatahub-io/odh-dashboard/issues/290
+# is fixed
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: odh-notebooks-readers
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: "system:authenticated"
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: "system:authenticated:oauth"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: odh-notebook-controller-notebooks-view
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: odh-notebooks-image-pullers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-puller
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:serviceaccounts:redhat-ods-applications
