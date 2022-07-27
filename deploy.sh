@@ -179,7 +179,24 @@ oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets
 
 
 prometheus_token=$(oc::wait::object::availability "oc sa -n $ODH_MONITORING_PROJECT get-token prometheus" 2 30)
-ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+if [ $(oc get clusterversion -o jsonpath='{.items[0].status.desired.version}' | cut -d '.' -f 1) -gt 4 ]; then
+    route="prometheus-k8s-federate"
+    echo "On OpenShift 5 or higher"
+else
+    if [ $(oc get clusterversion -o jsonpath='{.items[0].status.desired.version}' | cut -d '.' -f 1) -eq 4 ]; then
+        if [ $(oc get clusterversion -o jsonpath='{.items[0].status.desired.version}' | cut -d '.' -f 2) -ge 11 ]; then
+            route="prometheus-k8s-federate"
+            echo "On OpenShift 4.11 or higher"
+        else
+            route="prometheus-k8s"
+            echo "Version of OpenShift is older than 4.11"
+        fi
+    else
+        route="prometheus-k8s"
+        echo "Version of OpenShift is older than 4.11"
+    fi
+fi
+ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route $route -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
 sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
 sed -i "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus-configs.yaml
