@@ -1,0 +1,27 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+  name: rhods-nbc
+spec:
+  applications:
+  - kustomizeConfig:
+      repoRef:
+        name: manifests
+        path: odh-common
+    name: odh-common
+  - kustomizeConfig:
+      overlays:
+      - additional
+      repoRef:
+        name: manifests
+        path: jupyterhub/notebook-images
+    name: notebook-images
+  - kustomizeConfig:
+      repoRef:
+        name: manifests
+        path: odh-notebook-controller
+    name: odh-notebook-controller
+  repos:
+  - name: manifests
+    uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0

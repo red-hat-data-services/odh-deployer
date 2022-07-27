@@ -150,15 +150,33 @@ else
   exit 1
 fi
 
+oc apply -n ${ODH_PROJECT} -f rhods-dashboard.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Dashboard CR failed."
+  exit 1
+fi
+
 oc apply -n ${ODH_PROJECT} -f ${ODH_MANIFESTS}
 if [ $? -ne 0 ]; then
-  echo "ERROR: Attempt to create the ODH CR failed."
+  echo "ERROR: Attempt to create the JupyterHub CR failed."
   exit 1
 fi
 
 oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
 if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the RHODS Notebooks CR failed."
+  exit 1
+fi
+
+oc apply -n ${ODH_PROJECT} -f rhods-anaconda.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the anaconda CR failed."
+  exit 1
+fi
+
+oc apply -n ${ODH_PROJECT} -f rhods-nbc.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Notebook Controller CR failed."
   exit 1
 fi
 
