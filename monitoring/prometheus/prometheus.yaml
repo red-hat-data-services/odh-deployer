@@ -345,15 +345,6 @@ metadata:
   name: prometheus-reader
   namespace: redhat-ods-monitoring
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: prometheus-secret
-  namespace: redhat-ods-monitoring
-  annotations:
-    kubernetes.io/service-account.name: prometheus
-type: kubernetes.io/service-account-token
----
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
