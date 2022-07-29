@@ -197,7 +197,7 @@ data:
 
       - name: Availability Metrics
         rules:
-        - expr: min(probe_success)
+        - expr: ((min(probe_success{instance=~"jupyterhub-redhat-ods-applications.*|rhods-dashboard-redhat-ods-applications.*"}) by (instance) or on() vector(0)) or label_replace(min(probe_success{instance=~"jupyterhub-redhat-ods-applications.*|rhods-dashboard-redhat-ods-applications.*"}), "instance", "combined", "instance", ".*"))
           record: rhods_aggregate_availability
 
   alerting.rules: |
