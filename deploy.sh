@@ -177,27 +177,8 @@ sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/promet
 sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
 oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
 
-if [ $(oc get clusterversion -o jsonpath='{.items[0].status.desired.version}' | cut -d '.' -f 1) -gt 4 ]; then
-    route="prometheus-k8s-federate"
-    echo "On OpenShift 5 or higher"
-else
-    if [ $(oc get clusterversion -o jsonpath='{.items[0].status.desired.version}' | cut -d '.' -f 1) -eq 4 ]; then
-        if [ $(oc get clusterversion -o jsonpath='{.items[0].status.desired.version}' | cut -d '.' -f 2) -ge 11 ]; then
-            route="prometheus-k8s-federate"
-            echo "On OpenShift 4.11 or higher"
-        else
-            route="prometheus-k8s"
-            echo "Version of OpenShift is older than 4.11"
-        fi
-    else
-        route="prometheus-k8s"
-        echo "Version of OpenShift is older than 4.11"
-    fi
-fi
-ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route $route -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
 sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
-sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus-configs.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
