@@ -5,11 +5,6 @@ metadata:
 spec:
   applications:
   - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: odh-common
-    name: odh-common
-  - kustomizeConfig:
       parameters:
         - name: jupyterhub_groups_config
           value: rhods-groups-config
@@ -30,30 +25,6 @@ spec:
         name: manifests
         path: jupyterhub/jupyterhub/overrides
     name: jupyterhub
-  - kustomizeConfig:
-      overlays:
-      - additional
-      repoRef:
-        name: manifests
-        path: jupyterhub/notebook-images
-    name: notebook-images
-  - kustomizeConfig:
-      overlays:
-        - authentication
-      repoRef:
-        name: manifests
-        path: odh-dashboard
-    name: odh-dashboard
-  - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: odh-notebook-controller
-    name: odh-notebook-controller
-  - kustomizeConfig:
-      repoRef:
-        name: manifests
-        path: partners/anaconda
-    name: anaconda-ce
   repos:
   - name: manifests
     uri: file:///opt/manifests/odh-manifests.tar.gz

@@ -25,11 +25,14 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
 
 COPY deploy.sh $HOME
 COPY buildchain.sh $HOME
-COPY opendatahub.yaml $HOME
-COPY opendatahub-osd.yaml $HOME
-COPY rhods-monitoring.yaml $HOME
-COPY rhods-notebooks.yaml $HOME
-COPY rhods-osd-configs.yaml $HOME
+COPY kfdefs/opendatahub.yaml $HOME
+COPY kfdefs/opendatahub-osd.yaml $HOME
+COPY kfdefs/rhods-anaconda.yaml $HOME
+COPY kfdefs/rhods-dashboard.yaml $HOME
+COPY kfdefs/rhods-monitoring.yaml $HOME
+COPY kfdefs/rhods-nbc.yaml $HOME
+COPY kfdefs/rhods-notebooks.yaml $HOME
+COPY kfdefs/rhods-osd-configs.yaml $HOME
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
 ADD groups $HOME/groups
