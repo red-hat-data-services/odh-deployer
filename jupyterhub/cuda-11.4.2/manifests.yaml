@@ -120,7 +120,7 @@ items:
     - annotations:
         opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8"},{"name":"TensorFlow","version":"2.7"},{"name":"CUDA","version":"11.4"}]'
         opendatahub.io/notebook-python-dependencies: '[{"name":"TensorFlow","version":"2.7"},{"name":"Tensorboard","version":"2.6"},{"name":"Boto3","version":"1.17"},{"name":"Kafka-Python","version":"2.0"},{"name":"Matplotlib","version":"3.4"},{"name":"Numpy","version":"1.19"},{"name":"Pandas","version":"1.2"},{"name":"Scikit-learn","version":"0.24"},{"name":"Scipy","version":"1.6"}]'
-      name: "py3.8-cuda-11.4.2-1"
+      name: "py3.8-cuda-11.4.2-2"
       referencePolicy:
         type: Local
 - kind: ImageStream
@@ -144,7 +144,7 @@ items:
     - annotations:
         opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8"},{"name":"PyTorch","version":"1.8"},{"name":"CUDA","version":"11.4"}]'
         opendatahub.io/notebook-python-dependencies: '[{"name":"PyTorch","version":"1.8"},{"name":"Tensorboard","version":"2.6"},{"name":"Boto3","version":"1.17"},{"name":"Kafka-Python","version":"2.0"},{"name":"Matplotlib","version":"3.4"},{"name":"Numpy","version":"1.19"},{"name":"Pandas","version":"1.2"},{"name":"Scikit-learn","version":"0.24"},{"name":"Scipy","version":"1.6"}]'
-      name: "py3.8-cuda-11.4.2-1"
+      name: "py3.8-cuda-11.4.2-2"
       referencePolicy:
         type: Local
 
@@ -370,7 +370,7 @@ items:
     output:
       to:
         kind: ImageStreamTag
-        name: 'tensorflow:py3.8-cuda-11.4.2-1'
+        name: 'tensorflow:py3.8-cuda-11.4.2-2'
     resources:
       limits:
         cpu: "4"
@@ -392,7 +392,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-tensorflow-gpu-notebook'
-        ref: nb-5
+        ref: nb-6
     triggers:
       - type: ImageChange
         imageChange: {}
@@ -410,7 +410,7 @@ items:
     output:
       to:
         kind: ImageStreamTag
-        name: 'pytorch:py3.8-cuda-11.4.2-1'
+        name: 'pytorch:py3.8-cuda-11.4.2-2'
     resources:
       limits:
         cpu: "4"
@@ -432,7 +432,7 @@ items:
       type: Git
       git:
         uri: 'https://github.com/red-hat-data-services/s2i-pytorch-notebook'
-        ref: nb-4
+        ref: nb-5
     triggers:
       - type: ImageChange
         imageChange: {}
