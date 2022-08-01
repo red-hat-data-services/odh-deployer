@@ -1,3 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-service-ca
+  namespace: redhat-ods-monitoring
+  annotations:
+    service.beta.openshift.io/inject-cabundle: "true"
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -197,7 +205,7 @@ data:
 
       - name: Availability Metrics
         rules:
-        - expr: min(probe_success)
+        - expr: ((min(probe_success{instance=~"jupyterhub-redhat-ods-applications.*|rhods-dashboard-redhat-ods-applications.*"}) by (instance) or on() vector(0)) or label_replace(min(probe_success{instance=~"jupyterhub-redhat-ods-applications.*|rhods-dashboard-redhat-ods-applications.*"}), "instance", "combined", "instance", ".*"))
           record: rhods_aggregate_availability
 
   alerting.rules: |
@@ -434,9 +442,9 @@ data:
       scrape_interval: 30s
       scheme: https
       tls_config:
-        server_name: <federate_target>
-        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      bearer_token: "<prom_bearer_token>"
+        server_name: prometheus-k8s.openshift-monitoring.svc
+        ca_file: /etc/prometheus/ca/service-ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       honor_labels: true
       metrics_path: '/federate'
 
@@ -455,7 +463,7 @@ data:
 
       static_configs:
         - targets:
-          - "<federate_target>"
+          - "prometheus-k8s.openshift-monitoring.svc.cluster.local:9091"
 
     - job_name: 'JupyterHub Metrics'
       honor_labels: true

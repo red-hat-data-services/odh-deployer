@@ -196,12 +196,7 @@ sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prom
 oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
 
 
-prometheus_token=$(oc::wait::object::availability "oc sa -n $ODH_MONITORING_PROJECT get-token prometheus" 2 30)
-ocp_federate_target=$(oc::wait::object::availability "oc get -n openshift-monitoring route prometheus-k8s -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
-
 sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
-sed -i "s/<prom_bearer_token>/$prometheus_token/g" monitoring/prometheus/prometheus-configs.yaml
-sed -i "s/<federate_target>/$ocp_federate_target/g" monitoring/prometheus/prometheus-configs.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
