@@ -13,6 +13,8 @@ spec:
     disableSupport: false
     disableTracking: false
     enablement: true
+  notebookController:
+    notebookNamespace: rhods-notebooks
   notebookSizes:
   - name: Small
     resources:
