@@ -13,6 +13,9 @@ spec:
     disableSupport: false
     disableTracking: false
     enablement: true
+  groupsConfig:
+    admin_groups: "<admin_groups>"
+    allowed_groups: "<allowed_groups>"
   notebookController:
     notebookNamespace: rhods-notebooks
   notebookSizes:
