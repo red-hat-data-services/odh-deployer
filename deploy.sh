@@ -403,10 +403,6 @@ if [ "$exists" == "false" ]; then
   fi
 fi
 
-# TODO: Remove when https://github.com/opendatahub-io/odh-dashboard/issues/290
-# is fixed
-oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-rbac.yaml
-
 ####################################################################################################
 # END RHODS DASHBOARD
 ####################################################################################################
