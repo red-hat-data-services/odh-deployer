@@ -95,61 +95,39 @@ else
     echo no ${READER_SECRET} secret, default SA unchanged
 fi
 
-export jupyterhub_prometheus_api_token=$(openssl rand -hex 32)
-sed -i "s/<jupyterhub_prometheus_api_token>/$jupyterhub_prometheus_api_token/g" monitoring/jupyterhub-prometheus-token-secrets.yaml
-oc create -n ${ODH_PROJECT} -f monitoring/jupyterhub-prometheus-token-secrets.yaml || echo "INFO: Jupyterhub scrape token already exist."
+## To be removed in 1.17 or greater
+kfnbc_migration=1
+oc get dc jupyterhub -n ${ODH_PROJECT} &> /dev/null || kfnbc_migration=0
+if [ "$kfnbc_migration" -eq 0 ]; then
+  echo "INFO: Fresh Installation, proceeding normally"
+else
+  echo "INFO: Migrating from JupyterHub to KFNBC, deleting old JupyterHub artifacts"
 
-sed -i "s/<notebook_destination>/$ODH_NOTEBOOK_PROJECT/g" jupyterhub/jupyterhub-configmap.yaml
-# Requires oc create instead of apply to prevent overwriting.
-oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-configmap.yaml || echo "INFO: Jupyterhub ConfigMap already created "
+  oc delete -n ${ODH_PROJECT} kfdef opendatahub --wait=false
 
-infrastructure=$(oc get infrastructure cluster -o jsonpath='{.spec.platformSpec.type}')
-# Check if the installation target is AWS to determine the deployment manifest path
-if [ $infrastructure = "AWS" ]; then
-  # On AWS OpenShift Dedicated, deploy with CRO
-  echo "INFO: Deploying on AWS. Creating CRO for deployment of RDS Instance"
-  ODH_MANIFESTS="opendatahub-osd.yaml"
+  oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets
+  oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret
+  oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg # We need to grab values from here
+  oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile # We need to grab values from here
+  oc delete -n ${ODH_PROJECT} secret rhods-jupyterhub-sizes # We need to grab values from here
 
-  # Install CRO
-  oc new-project ${CRO_PROJECT} || echo "INFO: ${CRO_PROJECT} project already exists."
-  oc label namespace $CRO_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
-  oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/crds
-  oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
-  oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds
-  oc apply -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
-  oc apply -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/crds
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
+  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds
+  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
+fi
 
-  jupyterhubsecret=$(oc::wait::object::availability "oc get secret jupyterhub-rds-secret -n $ODH_PROJECT" 30 60)
-  if [ -z "$jupyterhubsecret" ];then
-    echo "ERROR: Jupyterhub RDS secret does not exist."
+
+# Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
+for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
+  oc apply -n $target_project -f rhods-osd-configs.yaml
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Attempt to create the RBAC policy for dedicated admins group in $target_project failed."
     exit 1
   fi
+done
 
-
-  sed -i '/tlsSkipVerify/d' monitoring/grafana/grafana-secrets.yaml
-
-  # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
-  for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
-    oc apply -n $target_project -f rhods-osd-configs.yaml
-    if [ $? -ne 0 ]; then
-      echo "ERROR: Attempt to create the RBAC policy for dedicated admins group in $target_project failed."
-      exit 1
-    fi
-  done
-elif [ $infrastructure = "OpenStack" ]; then
-  # On PSI, deploy local
-  echo "INFO: Deploying on PSI. Creating local database"
-  ODH_MANIFESTS="opendatahub.yaml"
-
-  # Create Postgres Secret
-  export jupyterhub_postgresql_password=$(openssl rand -hex 32)
-  sed -i "s/<jupyterhub_postgresql_password>/$jupyterhub_postgresql_password/g" jupyterhub/jupyterhub-database-password.yaml
-  oc create -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-database-password.yaml || echo "INFO: Jupyterhub Password already exist."
-else
-  # Not on PSI or AWS, Fail Installation
-  echo "ERROR: Deploying on $infrastructure, which is not supported. Failing Installation"
-  exit 1
-fi
 
 oc apply -n ${ODH_PROJECT} -f rhods-dashboard.yaml
 if [ $? -ne 0 ]; then
@@ -157,11 +135,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-oc apply -n ${ODH_PROJECT} -f ${ODH_MANIFESTS}
-if [ $? -ne 0 ]; then
-  echo "ERROR: Attempt to create the JupyterHub CR failed."
-  exit 1
-fi
 
 oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
 if [ $? -ne 0 ]; then
@@ -196,8 +169,6 @@ sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/promet
 sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
 oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
 
-
-sed -i "s/<jupyterhub_prometheus_api_token>/$(oc::wait::object::availability "oc get secret -n $ODH_PROJECT jupyterhub-prometheus-token-secrets -o jsonpath='{.data.PROMETHEUS_API_TOKEN}'" 2 30 | tr -d "'"  | base64 --decode)/g" monitoring/prometheus/prometheus-configs.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
@@ -214,13 +185,10 @@ fi
 pagerduty_service_token=$(oc::wait::object::availability "oc get secret redhat-rhods-pagerduty -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.PAGERDUTY_KEY}'" 5 10)
 pagerduty_service_token=$(echo -ne "$pagerduty_service_token" | tr -d "'" | base64 --decode)
 
-oc apply -f monitoring/jupyterhub-route.yaml -n $ODH_PROJECT
 oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
 
-jupyterhub_host=$(oc::wait::object::availability "oc get route jupyterhub -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-sed -i "s/<jupyterhub_host>/$jupyterhub_host/g" monitoring/prometheus/prometheus-configs.yaml
 sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus-configs.yaml
 sed -i "s/<pagerduty_token>/$pagerduty_service_token/g" monitoring/prometheus/prometheus-configs.yaml
 sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
@@ -317,24 +285,6 @@ cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec
 odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
-
-kind="configmap"
-resource="odh-jupyterhub-global-profile"
-
-if oc::object::safe::to::apply ${kind} ${resource}; then
-  oc apply -n ${ODH_PROJECT} -f jupyterhub/jupyterhub-singleuser-profiles-global-profile-configmap.yaml
-else
-  echo "The JH singleuser global profile ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
-fi
-
-kind="configmap"
-resource="rhods-jupyterhub-sizes"
-
-if oc::object::safe::to::apply ${kind} ${resource}; then
-  oc apply -n ${ODH_PROJECT} -f jupyterhub/sizes/jupyterhub-singleuser-profiles-sizes-configmap.yaml
-else
-  echo "The sizes ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
-fi
 
 kind="configmap"
 resource="rhods-groups-config"

@@ -485,45 +485,6 @@ data:
         - targets:
           - "prometheus-k8s.openshift-monitoring.svc.cluster.local:9091"
 
-    - job_name: 'JupyterHub Metrics'
-      honor_labels: true
-      metrics_path: /hub/metrics
-      scheme: http
-      bearer_token: <jupyterhub_prometheus_api_token>
-      kubernetes_sd_configs:
-        - role: endpoints
-          namespaces:
-            names:
-              - redhat-ods-applications
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_service_name]
-          regex: ^(jupyterhub)$
-          target_label: kubernetes_name
-          action: keep
-        - source_labels: [__address__]
-          regex: (.+):(\d+)
-          target_label: __address__
-          replacement: ${1}:8081
-
-    - job_name: 'Traefik Proxy Metrics'
-      honor_labels: true
-      metrics_path: /metrics
-      scheme: http
-      kubernetes_sd_configs:
-        - role: endpoints
-          namespaces:
-            names:
-              - redhat-ods-applications
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_service_name]
-          regex: ^(traefik-proxy)$
-          target_label: kubernetes_name
-          action: keep
-        - source_labels: [__address__]
-          regex: (.+):(\d+)
-          target_label: __address__
-          replacement: ${1}:8082
-
     - job_name: 'user_facing_endpoints_status'
       scrape_interval: 10s
       metrics_path: /probe
@@ -536,7 +497,6 @@ data:
         credentials_file: /run/secrets/kubernetes.io/serviceaccount/token
       static_configs:
       - targets:
-        - <jupyterhub_host>
         - <rhods_dashboard_host>
       relabel_configs:
       - source_labels: [__address__]
