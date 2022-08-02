@@ -357,5 +357,5 @@ fi
 oc apply -f network/
 
 # Create the runtime buildchain if the rhods-buildchain configmap is missing,
-# otherwise recreate it if the stored hecksum does not match
+# otherwise recreate it if the stored checksum does not match
 $HOME/buildchain.sh
