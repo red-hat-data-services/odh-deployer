@@ -116,13 +116,23 @@ else
   CULLER_TIMEOUT=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.culler_timeout}")
   DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}")
 
+  oc get cm -n ${ODH_PROJECT} odh-jupyterhub-global-profile -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" > tmp.yaml
+
+  sed -i "s/profiles/notebookSizes/g" tmp.yaml
+  sed -i "s/name: globals/name: Default/g" tmp.yaml
+  sed -i "s/^/  /" tmp.yaml
+  sed -i '1s/^/spec:\n/' tmp.yaml
+  sed -i 's/^\(\s*\)cpu:\s\([0-9]\+\)/\1cpu: \"\2\"/' tmp.yaml
+  yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp.yaml
+  rm tmp.yaml
+
   oc delete -n ${ODH_PROJECT} configmap rhods-groups-config
 
   oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets
   oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret
   oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg
-  oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile # We need to grab values from here
-  oc delete -n ${ODH_PROJECT} secret rhods-jupyterhub-sizes # We need to grab values from here
+  oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile
+  oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes
 
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/crds
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
@@ -345,6 +355,9 @@ if [ "$exists" == "false" ]; then
     sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
     sed -i "s|<timeout>|$CULLER_TIMEOUT|g" odh-dashboard/configs/odh-dashboard-config.yaml
     sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
+
+    oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml -
+
     oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
   else
     echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."
