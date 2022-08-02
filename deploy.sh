@@ -72,6 +72,8 @@ ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
 CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"}
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
+ADMIN_GROUPS="dedicated-admins"
+ALLOWED_GROUPS="system:authenticated"
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
@@ -105,6 +107,11 @@ else
 
   oc delete -n ${ODH_PROJECT} kfdef opendatahub --wait=false
 
+  ADMIN_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.admin_groups}")
+  ALLOWED_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.allowed_groups}")
+
+  oc delete -n ${ODH_PROJECT} configmap rhods-groups-config
+
   oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets
   oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret
   oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg # We need to grab values from here
@@ -118,6 +125,8 @@ else
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
 fi
 
+sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
+sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
 
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
 for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
@@ -286,20 +295,6 @@ odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
 
-kind="configmap"
-resource="rhods-groups-config"
-object="rhods-groups-config"
-exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
-# If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the groups configmap
-# This is part of RHODS-2442 where we are changing the default groups.  The idea is for it to
-# not affect any pre-exisitng clusters that have already set up their access as they see fit.
-if [ "$exists" == "false" ]; then
-  if oc::object::safe::to::apply ${kind} ${resource}; then
-    oc apply -n ${ODH_PROJECT} -f groups/groups.configmap.yaml
-  else
-    echo "The groups ConfigMap (${kind}/${resource}) has been modified. Skipping apply."
-  fi
-fi
 
 kind="secret"
 resource="anaconda-ce-access"

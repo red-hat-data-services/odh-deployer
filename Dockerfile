@@ -28,7 +28,6 @@ COPY buildchain.sh $HOME
 ADD kfdefs $HOME/kfdefs
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
-ADD groups $HOME/groups
 ADD kfnbc $HOME/kfnbc
 ADD partners $HOME/partners
 ADD network $HOME/network
@@ -39,7 +38,6 @@ RUN chmod 755 $HOME/deploy.sh && \
     chmod 755 $HOME/buildchain.sh && \
     chmod 644 -R $HOME/kfdefs && \
     chmod 644 -R $HOME/monitoring && \
-    chmod 644 -R $HOME/groups && \
     chmod 644 -R $HOME/kfnbc && \
     chmod 644 -R $HOME/network && \
     chmod 644 -R $HOME/cloud-resource-operator && \
