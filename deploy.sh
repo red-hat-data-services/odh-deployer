@@ -72,8 +72,12 @@ ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
 CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"}
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
+
+# ODH Dashboard Defaults
 ADMIN_GROUPS="dedicated-admins"
 ALLOWED_GROUPS="system:authenticated"
+CULLER_TIMEOUT="31536000" # 1 Year in seconds
+DEFAULT_PVC_SIZE="20Gi"
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
@@ -109,12 +113,14 @@ else
 
   ADMIN_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.admin_groups}")
   ALLOWED_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.allowed_groups}")
+  CULLER_TIMEOUT=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.culler_timeout}")
+  DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}")
 
   oc delete -n ${ODH_PROJECT} configmap rhods-groups-config
 
   oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets
   oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret
-  oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg # We need to grab values from here
+  oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg
   oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile # We need to grab values from here
   oc delete -n ${ODH_PROJECT} secret rhods-jupyterhub-sizes # We need to grab values from here
 
@@ -124,9 +130,6 @@ else
   oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
 fi
-
-sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
 
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
 for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
@@ -338,6 +341,10 @@ exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || ec
 #TODO: This controls feature flags and notebook controller presets like Notebook size. Confirm that notebook sizes can be configured external to the ODHDashboardConfig CR
 if [ "$exists" == "false" ]; then
   if oc::object::safe::to::apply ${kind} ${resource}; then
+    sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
+    sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
+    sed -i "s|<timeout>|$CULLER_TIMEOUT|g" odh-dashboard/configs/odh-dashboard-config.yaml
+    sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
     oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
   else
     echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."

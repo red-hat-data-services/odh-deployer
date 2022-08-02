@@ -17,6 +17,9 @@ spec:
     admin_groups: "<admin_groups>"
     allowed_groups: "<allowed_groups>"
   notebookController:
+    cullerTimeout: <timeout>
+    defaultPersistentVolumeClaimSize: <size>
+    enabled: true
     notebookNamespace: rhods-notebooks
   notebookSizes:
   - name: Small
