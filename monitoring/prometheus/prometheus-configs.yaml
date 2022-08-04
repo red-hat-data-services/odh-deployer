@@ -280,7 +280,7 @@ data:
             message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 90% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit.'
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: User notebook pvc usage above 90%
-          expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
+          expr: kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.9 and kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*jupyterhub-nb-.*"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"jupyterhub-nb-.*"} < 0.99
           for: 2m
           labels:
             severity: warning
@@ -290,7 +290,7 @@ data:
             message: 'The user notebook {{ $labels.persistentvolumeclaim }} is using 100% of its Volume. You might want to decrease the amount of data stored on the server or you can reach out to your cluster admin to increase the storage capacity to prevent disruptions and loss of data. Please back up your data before increasing the storage limit.'
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/tree/main/RHODS"
             summary: User notebook pvc usage at 100%
-          expr: kubelet_volume_stats_used_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~".*jupyterhub-nb-.*"}/kubelet_volume_stats_capacity_bytes{prometheus_replica="prometheus-k8s-0",persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.99
+          expr: kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*jupyterhub-nb-.*"}/kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"jupyterhub-nb-.*"} > 0.99
           for: 2m
           labels:
             severity: warning
