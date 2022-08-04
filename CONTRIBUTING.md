@@ -21,6 +21,10 @@ When contributing to this repository, please first discuss the change you wish t
 - Sign off your commit using the -s, --signoff option. Write a good commit message (see [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/))
 - Push your changes
 - Send a PR to odh-deployer using GitHub's web interface
+- We are using the tide plugin (Openshift CI), so please follow the next steps
+- Be sure that you got a `/lgmt` tag from a reviewer and a `/approved` tag from an approver (see [the OWNERS file of the repo](https://github.com/red-hat-data-services/odh-deployer/blob/main/OWNERS))
+- When your PR is ready to be tested comment a Quality Engineer using the label '/cc qe_github_user'. Here is a list with QE contacts [pablofelix, tarukumar]. When the test is done you should get an `qe-approved` tag
+- Your PR is ready to be automerged
 
 ### Testing the PR
 
