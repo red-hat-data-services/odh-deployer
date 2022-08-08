@@ -429,6 +429,26 @@ data:
           labels:
             severity: warning
 
+      - name: RHODS Notebook controllers
+        rules:
+        - alert: Kubeflow notebook controller pod is not running
+          annotations:
+            message: 'Kubeflow Notebook controller is down!'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-kfnbc-notebook-controller-alert.md"
+            summary: Kubeflow notebook controller pod is not running
+          expr: sum(up{job=~'Kubeflow Notebook Controller Service Metrics'})
+          for: 5m
+          labels:
+            severity: warning
+        - alert: ODH notebook controller pod is not running
+          annotations:
+            message: 'ODH notebook controller is down!'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-odh-notebook-controller-alert.md"
+            summary: ODH notebook controller pod is not running
+          expr: sum(up{job=~'ODH Notebook Controller Service Metrics'})
+          for: 5m
+          labels:
+            severity: warning
 
   prometheus.yml: |
     rule_files:
@@ -525,6 +545,44 @@ data:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter.redhat-ods-monitoring.svc.cluster.local:9114
+
+    - job_name: 'Kubeflow Notebook Controller Service Metrics'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(notebook-controller-service)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
+
+    - job_name: 'ODH Notebook Controller Service Metrics'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(odh-notebook-controller-service)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
 
     - job_name: 'RHODS Metrics'
       honor_labels: true
