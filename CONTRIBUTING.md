@@ -21,6 +21,12 @@ When contributing to this repository, please first discuss the change you wish t
 - Sign off your commit using the -s, --signoff option. Write a good commit message (see [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/))
 - Push your changes
 - Send a PR to odh-deployer using GitHub's web interface
+- We are using OpenShift CI to control merges to the deployer repository. PRs will automatically be merged when the following conditions are met:
+  - A `lgtm` label has been added by a reviewer
+  - An `approved` label has been added by an approver
+  - A `qe-approved` label has been added by a QE member
+  - The [OWNERS_ALIASES](https://github.com/red-hat-data-services/odh-deployer/blob/main/OWNERS_ALIASES) file of the repository has a list of the people who can review, approve, and qe-approve PRs.
+
 
 ### Testing the PR
 
