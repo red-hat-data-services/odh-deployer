@@ -1,12 +1,5 @@
 approvers:
-  - crobby
-  - anishasthana
-  - LaVLaS
-  - VaishnaviHire
-  - lucferbux
+  - dev-approvers
 reviewers:
-  - crobby
-  - anishasthana
-  - LaVLaS
-  - VaishnaviHire
-  - lucferbux
+  - dev-reviewers
+  - qe-approvers
