@@ -14,10 +14,9 @@ spec:
     disableTracking: false
     enablement: true
   groupsConfig:
-    admin_groups: "<admin_groups>"
-    allowed_groups: "<allowed_groups>"
+    adminGroups: "<admin_groups>"
+    allowedGroups: "<allowed_groups>"
   notebookController:
-    cullerTimeout: <timeout>
     defaultPersistentVolumeClaimSize: <size>
     enabled: true
     notebookNamespace: rhods-notebooks
