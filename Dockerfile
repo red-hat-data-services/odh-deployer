@@ -32,7 +32,7 @@ COPY buildchain.sh $HOME
 ADD kfdefs $HOME/kfdefs
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
-ADD kfnbc $HOME/kfnbc
+ADD nbc $HOME/nbc
 ADD partners $HOME/partners
 ADD network $HOME/network
 ADD cloud-resource-operator $HOME/cloud-resource-operator
@@ -42,7 +42,7 @@ RUN chmod 755 $HOME/deploy.sh && \
     chmod 755 $HOME/buildchain.sh && \
     chmod 644 -R $HOME/kfdefs && \
     chmod 644 -R $HOME/monitoring && \
-    chmod 644 -R $HOME/kfnbc && \
+    chmod 644 -R $HOME/nbc && \
     chmod 644 -R $HOME/network && \
     chmod 644 -R $HOME/cloud-resource-operator && \
     chmod 644 -R $HOME/odh-dashboard && \
@@ -53,11 +53,11 @@ RUN chmod 755 $HOME/deploy.sh && \
 # This checksum will be deployed in a configmap in a running deployment and so
 # if the content other than the rhods/buildchain label value changes, the
 # checksum will match
-RUN sha256sum $HOME/kfnbc/cuda-11.4.2/manifests.yaml > $HOME/manifest-checksum
+RUN sha256sum $HOME/nbc/cuda-11.4.2/manifests.yaml > $HOME/manifest-checksum
 
 # Update the labels with the specific version value
 RUN sed -i 's,rhods/buildchain:.*,rhods/buildchain: cuda-'"${version}"',g' \
-       $HOME/kfnbc/cuda-11.4.2/manifests.yaml
+       $HOME/nbc/cuda-11.4.2/manifests.yaml
 
 
 LABEL org.label-schema.build-date="$builddate" \
