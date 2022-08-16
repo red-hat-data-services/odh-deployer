@@ -76,7 +76,7 @@ NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 # ODH Dashboard Defaults
 ADMIN_GROUPS="dedicated-admins"
 ALLOWED_GROUPS="system:authenticated"
-CULLER_TIMEOUT="31536000" # 1 Year in seconds
+OLD_CULLER_DEFAULT_TIMEOUT="31536000" # 1 Year in seconds
 DEFAULT_PVC_SIZE="20Gi"
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
@@ -102,12 +102,12 @@ else
 fi
 
 ## To be removed in 1.17 or greater
-kfnbc_migration=1
-oc get dc jupyterhub -n ${ODH_PROJECT} &> /dev/null || kfnbc_migration=0
-if [ "$kfnbc_migration" -eq 0 ]; then
+nbc_migration=1
+oc get dc jupyterhub -n ${ODH_PROJECT} &> /dev/null || nbc_migration=0
+if [ "$nbc_migration" -eq 0 ]; then
   echo "INFO: Fresh Installation, proceeding normally"
 else
-  echo "INFO: Migrating from JupyterHub to KFNBC, deleting old JupyterHub artifacts"
+  echo "INFO: Migrating from JupyterHub to NBC, deleting old JupyterHub artifacts"
 
   oc delete -n ${ODH_PROJECT} kfdef opendatahub --wait=false
 
@@ -353,7 +353,7 @@ if [ "$exists" == "false" ]; then
   if oc::object::safe::to::apply ${kind} ${resource}; then
     sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
     sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-    sed -i "s|<timeout>|$CULLER_TIMEOUT|g" odh-dashboard/configs/odh-dashboard-config.yaml
+    # sed -i "s|<timeout>|$CULLER_TIMEOUT|g" odh-dashboard/configs/odh-dashboard-config.yaml
     sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
 
     oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml -

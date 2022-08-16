@@ -67,7 +67,7 @@ if [ "$checksum" == "true" ]; then
     echo recreating the runtime buildchain
     oc delete buildconfig -l rhods/buildchain -n $ODH_PROJECT
     oc delete is -l rhods/buildchain -n $ODH_PROJECT
-    oc apply -f $HOME/kfnbc/cuda-11.4.2/manifests.yaml -n $ODH_PROJECT
+    oc apply -f $HOME/nbc/cuda-11.4.2/manifests.yaml -n $ODH_PROJECT
 
 elif [ "$version" == "true" ]; then
     echo relabeling build objects with "$RHODS_VERSION"
