@@ -101,7 +101,7 @@ else
     echo no ${READER_SECRET} secret, default SA unchanged
 fi
 
-## To be removed in 1.17 or greater
+## To be removed in 1.17 or greater. Make sure that all referenced files in here are deleted as well.
 nbc_migration=1
 oc get dc jupyterhub -n ${ODH_PROJECT} &> /dev/null || nbc_migration=0
 if [ "$nbc_migration" -eq 0 ]; then
@@ -115,6 +115,11 @@ else
   ALLOWED_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.allowed_groups}")
   CULLER_TIMEOUT=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.culler_timeout}")
   DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}")
+
+  if [ $OLD_CULLER_DEFAULT_TIMEOUT -ne $CULLER_TIMEOUT ]; then
+    sed -i "s/<culling_time>/$CULLER_TIMEOUT" nbc/notebook-controller-culler-config.yaml
+    oc apply -f ${ODH_PROJECT} nbc/notebook-controller-culler-config.yaml
+  fi
 
   oc get cm -n ${ODH_PROJECT} odh-jupyterhub-global-profile -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" > tmp.yaml
 
@@ -353,7 +358,6 @@ if [ "$exists" == "false" ]; then
   if oc::object::safe::to::apply ${kind} ${resource}; then
     sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
     sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-    # sed -i "s|<timeout>|$CULLER_TIMEOUT|g" odh-dashboard/configs/odh-dashboard-config.yaml
     sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
 
     oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml -
