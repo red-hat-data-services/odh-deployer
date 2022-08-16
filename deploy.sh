@@ -139,11 +139,39 @@ else
   oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile
   oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes
 
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
+  jj=0
+  while [ $jj -le 361 ]
+  do
+    echo "Waiting for postgres object to be deleted"
+    oc get postgres -n ${ODH_PROJECT} jupyterhub-db-rds -o yaml && postgresreturncode=$? || postgresreturncode=$?
+    if [ $postgresreturncode -eq 1 ]; then
+        break
+    fi
+    # Wait for 30 minutes
+    ((jj=jj+1))
+    if [ $jj -eq 360 ]; then
+      echo "Postgress deletion failed. Manual intervention may be required."
+      exit 1
+    fi
+    sleep 5
+  done
+
+  while [  -eq 0]
+  do
+    
+    ((jj=jj+1))
+    if [ $jj -eq 360 ]; then
+        echo "Postgress deletion failed"
+        exit 1
+    fi
+    sleep 5
+  done
+
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/crds
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
   oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds
   oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
 fi
 
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
