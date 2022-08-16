@@ -278,9 +278,11 @@ alertmanager_config=$(oc get cm alertmanager -n $ODH_MONITORING_PROJECT -o jsonp
 
 sed -i "s#<prometheus_config_hash>#$prometheus_config#g" monitoring/prometheus/prometheus.yaml
 sed -i "s#<alertmanager_config_hash>#$alertmanager_config#g" monitoring/prometheus/prometheus.yaml
+sed -i "s#<odh_monitoring_project>#$ODH_MONITORING_PROJECT#g" monitoring/prometheus/prometheus-viewer-rolebinding.yaml
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
+oc apply -n $ODH_PROJECT -f monitoring/prometheus/prometheus-viewer-rolebinding.yaml
 
 
 prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
