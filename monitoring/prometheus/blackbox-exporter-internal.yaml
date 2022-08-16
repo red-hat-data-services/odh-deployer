@@ -12,7 +12,7 @@ data:
         http:
           valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
           method: GET
-          valid_status_codes: [200, 201, 202, 203, 204, 205, 206, 207, 208, 403]
+          valid_status_codes: [200, 201, 202, 203, 204, 205, 206, 207, 208]
           bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
           tls_config:
             insecure_skip_verify: true
