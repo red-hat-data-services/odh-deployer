@@ -23,9 +23,8 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
     rm $TMPDIR/oc.tar.gz &&\
     mkdir -p $HOME
 
-ADD https://github.com/mikefarah/yq/releases/download/v4.27.2/yq_linux_amd64 /usr/local/bin/
-RUN mv /usr/local/bin/yq_linux_amd64 /usr/local/bin/yq && \
-    chmod +x /usr/local/bin/yq
+COPY bin/yq /usr/local/bin  # We need to remove the yq binary in 1.17
+RUN chmod +x /usr/local/bin/yq
 
 COPY deploy.sh $HOME
 COPY buildchain.sh $HOME
