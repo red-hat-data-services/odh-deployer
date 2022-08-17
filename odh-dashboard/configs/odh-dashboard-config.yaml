@@ -17,8 +17,12 @@ spec:
     adminGroups: "<admin_groups>"
     allowedGroups: "<allowed_groups>"
   notebookController:
-    defaultPersistentVolumeClaimSize: <size>
     enabled: true
+    envVarConfig:
+        enabled: true
+    gpuConfig:
+        enabled: true
+    pvcSize: <size>
     notebookNamespace: rhods-notebooks
   notebookSizes:
   - name: Small

@@ -137,7 +137,6 @@ else
   oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret
   oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg
   oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile
-  oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes
 
   oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
   jj=0
@@ -162,7 +161,7 @@ else
     
     ((jj=jj+1))
     if [ $jj -eq 360 ]; then
-        echo "Postgress deletion failed"
+        echo "Postgress deletion failed. Manual intervention may be required."
         exit 1
     fi
     sleep 5
@@ -173,6 +172,7 @@ else
   oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds
   oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
 fi
+# End Migration code block
 
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
 for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
@@ -379,21 +379,31 @@ fi
 kind="odhdashboardconfigs"
 resource="odh-dashboard-config"
 object="odh-dashboard-config"
+
+# Delete these seds in 1.17, change dashboard config yaml to have the value by default
+sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
+sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
+sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
+## Eng Migration Code
+
 exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
 # If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the ODHDashboardConfig resource
 #TODO: This controls feature flags and notebook controller presets like Notebook size. Confirm that notebook sizes can be configured external to the ODHDashboardConfig CR
 if [ "$exists" == "false" ]; then
   if oc::object::safe::to::apply ${kind} ${resource}; then
-    sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-    sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-    sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
-
-    oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml -
-
     oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
   else
     echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."
   fi
+else # Migration code for 1.16
+  nbc_enabled=$(oc get -n $ODH_PROJECT ${kind} ${object} -o jsonpath="{.spec.notebookController.enabled}" | grep true || echo "false")
+  if [ "$nbc_enabled" == "false"]; then
+      oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml -
+      oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes
+      oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
+  else
+    echo "Notebook Controller was already enabled. Skipping migration of old jupyterhub configs."
+  fi # End Migration code for 1.16
 fi
 
 ####################################################################################################
