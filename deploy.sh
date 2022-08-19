@@ -111,10 +111,10 @@ else
 
   oc delete -n ${ODH_PROJECT} kfdef opendatahub --wait=false
 
-  ADMIN_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.admin_groups}")
-  ALLOWED_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.allowed_groups}")
-  CULLER_TIMEOUT=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.culler_timeout}")
-  DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}")
+  ADMIN_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.admin_groups}") || echo "rhods-groups-config not found"
+  ALLOWED_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.allowed_groups}") || echo "rhods-groups-config not found"
+  CULLER_TIMEOUT=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.culler_timeout}") || echo "jupyterhub-cfg not found"
+  DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}") || echo "jupyterhub-cfgs not found"
 
   if [ $OLD_CULLER_DEFAULT_TIMEOUT -ne $CULLER_TIMEOUT ]; then
     sed -i "s/<culling_time>/$CULLER_TIMEOUT" nbc/notebook-controller-culler-config.yaml
@@ -131,46 +131,20 @@ else
   yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp.yaml
   rm tmp.yaml
 
-  oc delete -n ${ODH_PROJECT} configmap rhods-groups-config
+  oc delete -n ${ODH_PROJECT} configmap rhods-groups-config || echo "rhods-groups-config not found"
 
-  oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets
-  oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret
-  oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg
-  oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile
+  oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets || echo "jupyterhub-prometheus-token-secrets not found"
+  oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret || echo "jupyterhub-database-secret not found "
+  oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg || echo "Jupyterhub-cfg not found"
+  oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile || echo "odh-jupyterhub-global-profile not found"
 
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml
-  jj=0
-  while [ $jj -le 361 ]
-  do
-    echo "Waiting for postgres object to be deleted"
-    oc get postgres -n ${ODH_PROJECT} jupyterhub-db-rds -o yaml && postgresreturncode=$? || postgresreturncode=$?
-    if [ $postgresreturncode -eq 1 ]; then
-        break
-    fi
-    # Wait for 30 minutes
-    ((jj=jj+1))
-    if [ $jj -eq 360 ]; then
-      echo "Postgress deletion failed. Manual intervention may be required."
-      exit 1
-    fi
-    sleep 5
-  done
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml || echo "postgres object not found"
+  # By default, oc will block on the delete until completion
 
-  while [  -eq 0]
-  do
-    
-    ((jj=jj+1))
-    if [ $jj -eq 360 ]; then
-        echo "Postgress deletion failed. Manual intervention may be required."
-        exit 1
-    fi
-    sleep 5
-  done
-
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/crds
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/rbac
-  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds
-  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/crds || echo "CRO crds not found"
+  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/rbac || echo "CRO rbac not found"
+  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds || echo "CRO rds rbac not found"
+  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment || echo "CRO deployment not found"
 fi
 # End Migration code block
 
@@ -397,9 +371,9 @@ if [ "$exists" == "false" ]; then
   fi
 else # Migration code for 1.16
   nbc_enabled=$(oc get -n $ODH_PROJECT ${kind} ${object} -o jsonpath="{.spec.notebookController.enabled}" | grep true || echo "false")
-  if [ "$nbc_enabled" == "false"]; then
-      oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml -
-      oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes
+  if [ "$nbc_enabled" == "false" ]; then
+      oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml - || echo "rhods-jupyterhub-sizes not found"
+      oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes || echo "rhods-jupyterhub-sizes not found"
       oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
   else
     echo "Notebook Controller was already enabled. Skipping migration of old jupyterhub configs."
