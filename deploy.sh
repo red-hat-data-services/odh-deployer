@@ -69,7 +69,7 @@ function oc::object::safe::to::apply() {
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
-CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"}
+CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"} # Delete this in 1.17
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 
@@ -138,13 +138,27 @@ else
   oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg || echo "Jupyterhub-cfg not found"
   oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile || echo "odh-jupyterhub-global-profile not found"
 
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/postgres.yaml || echo "postgres object not found"
-  # By default, oc will block on the delete until completion
+  oc delete -n ${ODH_PROJECT} postgres jupyterhub-db-rds --wait=false || echo "postgres object not found"
 
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/crds || echo "CRO crds not found"
-  oc delete -n ${ODH_PROJECT} -f cloud-resource-operator/rbac || echo "CRO rbac not found"
-  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/rbac-rds || echo "CRO rds rbac not found"
-  oc delete -n ${CRO_PROJECT} -f cloud-resource-operator/deployment || echo "CRO deployment not found"
+  ## Uncomment this code block in 1.17. Leaving it in so that the change is easier to determine for next release
+
+  # oc delete -n ${ODH_PROJECT} crd blobstorages.integreatly.org || echo "CRO crd deletion failed"
+  # oc delete -n ${ODH_PROJECT} crd postgres.integreatly.org || echo "CRO crd deletion failed"
+  # oc delete -n ${ODH_PROJECT} crd postgressnapshots.integreatly.org || echo "CRO crd deletion failed"
+  # oc delete -n ${ODH_PROJECT} crd redis.integreatly.org || echo "CRO crd deletion failed"
+  # oc delete -n ${ODH_PROJECT} crd redissnapshots.integreatly.org || echo "CRO crd deletion failed"
+
+  # oc delete -n ${ODH_PROJECT} clusterrole cloud-resource-operator-cluster-role || echo "CRO rbac deletion failed"
+  # oc delete -n ${ODH_PROJECT} clusterrolebinding cloud-resource-operator-cluster-rolebinding || echo "CRO rbac deletion failed"
+  # oc delete -n ${ODH_PROJECT} role cloud-resource-operator-role || echo "CRO rbac deletion failed"
+  # oc delete -n ${ODH_PROJECT} rolebinding cloud-resource-operator-rolebinding || echo "CRO rbac deletion failed"
+
+  # oc delete -n ${CRO_PROJECT} role cloud-resource-operator-rds-role || echo "CRO rds rbac deletion failed"
+  # oc delete -n ${CRO_PROJECT} rolebinding cloud-resource-operator-rds-rolebinding || echo "CRO rds rbac deletion failed"
+
+  # oc delete -n ${CRO_PROJECT} deployment cloud-resource-operator || echo "CRO deployment deletion failed"
+  # oc delete -n ${CRO_PROJECT} serviceaccount cloud-resource-operator || echo "CRO SA deletion failed"
+
 fi
 # End Migration code block
 
