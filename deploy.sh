@@ -384,6 +384,7 @@ if [ "$exists" == "false" ]; then
     echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."
   fi
 else # Migration code for 1.16
+  oc delete -n ${ODH_NOTEBOOK_PROJECT} pods --all
   nbc_enabled=$(oc get -n $ODH_PROJECT ${kind} ${object} -o jsonpath="{.spec.notebookController.enabled}" | grep true || echo "false")
   if [ "$nbc_enabled" == "false" ]; then
       oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml - || echo "rhods-jupyterhub-sizes not found"
