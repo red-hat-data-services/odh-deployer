@@ -128,8 +128,6 @@ else
   sed -i "s/^/  /" tmp.yaml
   sed -i '1s/^/spec:\n/' tmp.yaml
   sed -i 's/^\(\s*\)cpu:\s\([0-9]\+\)/\1cpu: \"\2\"/' tmp.yaml
-  yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp.yaml
-  rm tmp.yaml
 
   oc delete -n ${ODH_PROJECT} configmap rhods-groups-config || echo "rhods-groups-config not found"
 
@@ -384,12 +382,23 @@ if [ "$exists" == "false" ]; then
     echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."
   fi
 else # Migration code for 1.16
-  oc delete -n ${ODH_NOTEBOOK_PROJECT} pods --all
   nbc_enabled=$(oc get -n $ODH_PROJECT ${kind} ${object} -o jsonpath="{.spec.notebookController.enabled}" | grep true || echo "false")
   if [ "$nbc_enabled" == "false" ]; then
-      oc get cm rhods-jupyterhub-sizes -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" | yq '.sizes' | yq -i eval-all 'select(fileIndex==0).spec.notebookSizes = select(fileIndex==1) | select(fileIndex==0)' odh-dashboard/configs/odh-dashboard-config.yaml - || echo "rhods-jupyterhub-sizes not found"
+
+      oc delete -n ${ODH_NOTEBOOK_PROJECT} pods --all || echo "No notebook pods found"
+      oc get cm rhods-jupyterhub-sizes -n ${ODH_PROJECT} -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}"  > tmp_jsp.yaml || echo "rhods-jupyterhub-sizes not found"
+      sed -i "s/^/  /" tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
+      sed -i '1s/^/spec:\n/' tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
+      sed -i "s/sizes/notebookSizes/" tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
+      sed -i 's/^\(\s*\)cpu:\s\([0-9]\+\)/\1cpu: \"\2\"/' tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
+
+      yq -i 'del(.spec.notebookSizes)' odh-dashboard/configs/odh-dashboard-config.yaml
+      yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp_jsp.yaml || echo "Issue copying notebook sizes from rhods-jupyterhub-sizes"
+      yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp.yaml || echo "Issue copying notebook sizes from global profiles"
+
       oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes || echo "rhods-jupyterhub-sizes not found"
       oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
+      rm tmp.yaml tmp_jsp.yaml || echo "tmp notebooksize files not found"
   else
     echo "Notebook Controller was already enabled. Skipping migration of old jupyterhub configs."
   fi # End Migration code for 1.16
