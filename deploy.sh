@@ -399,6 +399,10 @@ else # Migration code for 1.16
       oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes || echo "rhods-jupyterhub-sizes not found"
       oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
       rm tmp.yaml tmp_jsp.yaml || echo "tmp notebooksize files not found"
+
+      oc delete -n ${ODH_PROJECT} configmap traefik-rules || "Could not delete traefik-rules configmap"
+      oc delete -n ${ODH_PROJECT} secret jupyterhub-idle-culler || "Could not delete jupyterhub idle culler secret"
+
   else
     echo "Notebook Controller was already enabled. Skipping migration of old jupyterhub configs."
   fi # End Migration code for 1.16
