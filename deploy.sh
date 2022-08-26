@@ -117,7 +117,7 @@ else
   DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}") || echo "jupyterhub-cfgs not found"
 
   if [ $OLD_CULLER_DEFAULT_TIMEOUT -ne $CULLER_TIMEOUT ]; then
-    sed -i "s/<culling_time>/$CULLER_TIMEOUT" nbc/notebook-controller-culler-config.yaml
+    sed -i "s/<culling_time>/$CULLER_TIMEOUT/g" nbc/notebook-controller-culler-config.yaml
     oc apply -f ${ODH_PROJECT} nbc/notebook-controller-culler-config.yaml
   fi
 
