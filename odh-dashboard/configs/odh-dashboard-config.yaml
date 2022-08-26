@@ -18,34 +18,38 @@ spec:
     allowedGroups: "<allowed_groups>"
   notebookController:
     enabled: true
-    envVarConfig:
-        enabled: true
-    gpuConfig:
-        enabled: true
     pvcSize: <size>
     notebookNamespace: rhods-notebooks
   notebookSizes:
-  - name: Small
-    resources:
-      limits:
-        cpu: "2"
-        memory: 2Gi
-      requests:
-        cpu: "1"
-        memory: 1Gi
-  - name: Medium
-    resources:
-      limits:
-        cpu: "4"
-        memory: 4Gi
-      requests:
-        cpu: "2"
-        memory: 2Gi
-  - name: Large
-    resources:
-      limits:
-        cpu: "8"
-        memory: 8Gi
-      requests:
-        cpu: "4"
-        memory: 4Gi
+    - name: Small
+      resources:
+        requests:
+          memory: 8Gi
+          cpu: "1"
+        limits:
+          memory: 8Gi
+          cpu: "2"
+    - name: Medium
+      resources:
+        requests:
+          memory: 24Gi
+          cpu: "3"
+        limits:
+          memory: 24Gi
+          cpu: "6"
+    - name: Large
+      resources:
+        requests:
+          memory: 56Gi
+          cpu: "7"
+        limits:
+          memory: 56Gi
+          cpu: "14"
+    - name: X Large
+      resources:
+        requests:
+          memory: 120Gi
+          cpu: "15"
+        limits:
+          memory: 120Gi
+          cpu: "30"
