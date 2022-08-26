@@ -92,10 +92,10 @@ spec:
                     notebookTolerationSettings:
                       type: object
                       properties:
-                        enabled:
-                          type: boolean
-                        key:
-                          type: string
+                          enabled:
+                            type: boolean
+                          key:
+                            type: string
             status:
               type: object
               properties:
