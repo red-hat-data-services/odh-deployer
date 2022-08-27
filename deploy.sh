@@ -118,7 +118,7 @@ else
 
   if [ $OLD_CULLER_DEFAULT_TIMEOUT -ne $CULLER_TIMEOUT ]; then
     sed -i "s/<culling_time>/$CULLER_TIMEOUT/g" nbc/notebook-controller-culler-config.yaml
-    oc apply -f ${ODH_PROJECT} nbc/notebook-controller-culler-config.yaml
+    oc apply -f nbc/notebook-controller-culler-config.yaml -n ${ODH_PROJECT}
   fi
 
   oc get cm -n ${ODH_PROJECT} odh-jupyterhub-global-profile -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" > tmp.yaml
