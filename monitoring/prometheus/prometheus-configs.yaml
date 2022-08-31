@@ -15,90 +15,6 @@ metadata:
 data:
   recording.rules: |
     groups:
-      - name: SLOs - JupyterHub
-        rules:
-        # The haproxy errors SLO for JupyterHub is disabled. Context at https://issues.redhat.com/browse/RHODS-2101
-
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[1d])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate1d
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[1h])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate1h
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[2h])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate2h
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[30m])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate30m
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[3d])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate3d
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[5m])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate5m
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"jupyterhub-.*", job="user_facing_endpoints_status"}[6h])
-          labels:
-            instance: jupyterhub
-          record: probe_success:burnrate6h
-
-      - name: SLOs - Traefik Proxy
-        rules:
-        - expr: min(up{job="Traefik Proxy Metrics"})
-          labels:
-            instance: traefik
-            job: user_facing_endpoints_status
-          record:
-            probe_success
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[1d])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate1d
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[1h])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate1h
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[2h])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate2h
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[30m])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate30m
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[3d])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate3d
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[5m])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate5m
-        - expr: |
-            1 - avg_over_time(probe_success{instance=~"traefik", job="user_facing_endpoints_status"}[6h])
-          labels:
-            instance: traefik
-          record: probe_success:burnrate6h
-
       - name: SLOs - ODH Dashboard
         rules:
         - expr: |
@@ -198,14 +114,18 @@ data:
 
       - name: Usage Metrics
         rules:
-        - expr: max(jupyterhub_total_users)
-          labels:
-            instance: jupyterhub
+        - expr: count(kube_statefulset_replicas{namespace=~"rhods-notebooks", statefulset=~"jupyter-nb-.*"})
           record: rhods_total_users
+          labels:
+            instance: jupyter-notebooks
+        - expr: count(kube_statefulset_replicas{namespace=~"rhods-notebooks", statefulset=~"jupyter-nb-.*"} ==1)
+          record: rhods_active_users
+          labels:
+            instance: jupyter-notebooks
 
       - name: Availability Metrics
         rules:
-        - expr: ((min(probe_success{instance=~"jupyterhub-redhat-ods-applications.*|rhods-dashboard-redhat-ods-applications.*"}) by (instance) or on() vector(0)) or label_replace(min(probe_success{instance=~"jupyterhub-redhat-ods-applications.*|rhods-dashboard-redhat-ods-applications.*"}), "instance", "combined", "instance", ".*"))
+        - expr: ((min(probe_success{name=~"rhods-dashboard|notebook-spawner"}) by (name) or on() vector(0)) or label_replace(min(probe_success{name=~"rhods-dashboard|notebook-spawner"}), "name", "combined", "name", ".*"))
           record: rhods_aggregate_availability
 
   alerting.rules: |
@@ -298,111 +218,111 @@ data:
 
       - name: SLOs-probe_success
         rules:
-        - alert: RHODS JupyterHub Probe Success Burn Rate
+        - alert: RHODS Jupyter Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS JupyterHub Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate5m{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate5m{name=~"notebook-spawner"}) by (name) > (14.40 * (1-0.98000))
             and
-            sum(probe_success:burnrate1h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate1h{name=~"notebook-spawner"}) by (name) > (14.40 * (1-0.98000))
           for: 2m
           labels:
             severity: critical
-        - alert: RHODS JupyterHub Probe Success Burn Rate
+        - alert: RHODS Jupyter Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS JupyterHub Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate30m{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate30m{name=~"notebook-spawner"}) by (name) > (6.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{name=~"notebook-spawner"}) by (name) > (6.00 * (1-0.98000))
           for: 15m
           labels:
             severity: critical
-        - alert: RHODS JupyterHub Probe Success Burn Rate
+        - alert: RHODS Jupyter Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS JupyterHub Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate2h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate2h{name=~"notebook-spawner"}) by (name) > (3.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate1d{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate1d{name=~"notebook-spawner"}) by (name) > (3.00 * (1-0.98000))
           for: 1h
           labels:
             severity: warning
-        - alert: RHODS JupyterHub Probe Success Burn Rate
+        - alert: RHODS Jupyter Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS JupyterHub Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate6h{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{name=~"notebook-spawner"}) by (name) > (1.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate3d{instance=~"jupyterhub|jupyterhub-db"}) by (instance) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate3d{name=~"notebook-spawner"}) by (name) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
-        - alert: RHODS Probe Success Burn Rate
+        - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate5m{instance=~"rhods-dashboard|traefik"}) by (instance) > (14.40 * (1-0.99950))
+            sum(probe_success:burnrate5m{name=~"rhods-dashboard"}) by (name) > (14.40 * (1-0.99950))
             and
-            sum(probe_success:burnrate1h{instance=~"rhods-dashboard|traefik"}) by (instance) > (14.40 * (1-0.99950))
+            sum(probe_success:burnrate1h{name=~"rhods-dashboard"}) by (name) > (14.40 * (1-0.99950))
           for: 2m
           labels:
-            severity: warning
-        - alert: RHODS Probe Success Burn Rate
+            severity: critical
+        - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate30m{instance=~"rhods-dashboard|traefik"}) by (instance) > (6.00 * (1-0.99950))
+            sum(probe_success:burnrate30m{name=~"rhods-dashboard"}) by (name) > (6.00 * (1-0.99950))
             and
-            sum(probe_success:burnrate6h{instance=~"rhods-dashboard|traefik"}) by (instance) > (6.00 * (1-0.99950))
+            sum(probe_success:burnrate6h{name=~"rhods-dashboard"}) by (name) > (6.00 * (1-0.99950))
           for: 15m
           labels:
-            severity: warning
-        - alert: RHODS Probe Success Burn Rate
+            severity: critical
+        - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate2h{instance=~"rhods-dashboard|traefik"}) by (instance) > (3.00 * (1-0.99950))
+            sum(probe_success:burnrate2h{name=~"rhods-dashboard"}) by (name) > (3.00 * (1-0.99950))
             and
-            sum(probe_success:burnrate1d{instance=~"rhods-dashboard|traefik"}) by (instance) > (3.00 * (1-0.99950))
+            sum(probe_success:burnrate1d{name=~"rhods-dashboard"}) by (name) > (3.00 * (1-0.99950))
           for: 1h
           labels:
             severity: warning
-        - alert: RHODS Probe Success Burn Rate
+        - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/rhods-probe-success-burn-rate.md"
-            summary: RHODS Probe Success Burn Rate
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate6h{instance=~"rhods-dashboard|traefik"}) by (instance) > (1.00 * (1-0.99950))
+            sum(probe_success:burnrate6h{name=~"rhods-dashboard"}) by (name) > (1.00 * (1-0.99950))
             and
-            sum(probe_success:burnrate3d{instance=~"rhods-dashboard|traefik"}) by (instance) > (1.00 * (1-0.99950))
+            sum(probe_success:burnrate3d{name=~"rhods-dashboard"}) by (name) > (1.00 * (1-0.99950))
           for: 3h
           labels:
             severity: warning
 
       - name: Builds
         rules:
-        - alert: JupyterHub image builds are failing
+        - alert: Jupyter image builds are failing
           annotations:
-            message: 'A JupyterHub image build is in a failed state.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/JupyterHub/spawner-greyed-images.md"
+            message: 'A Jupyter image build is in a failed state.'
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/spawner-greyed-images.md"
             build: "{{ $labels.buildconfig }}"
-            summary: JupyterHub image builds are failing
+            summary: Jupyter image builds are failing
           expr: |
             (
               clamp( 1 - sum by (buildconfig) (openshift_build_status_phase_total{build_phase=~"running",namespace="redhat-ods-applications"}),0,1)  # Do not alert if is a build currently running(this will make the left-hand side of the GT operator 0 and therefore always false)
@@ -436,7 +356,7 @@ data:
             message: 'Kubeflow Notebook controller is down!'
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-kfnbc-notebook-controller-alert.md"
             summary: Kubeflow notebook controller pod is not running
-          expr: sum(up{job=~'Kubeflow Notebook Controller Service Metrics'})
+          expr: absent(up{job=~'Kubeflow Notebook Controller Service Metrics'})
           for: 5m
           labels:
             severity: warning
@@ -445,7 +365,7 @@ data:
             message: 'ODH notebook controller is down!'
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-odh-notebook-controller-alert.md"
             summary: ODH notebook controller pod is not running
-          expr: sum(up{job=~'ODH Notebook Controller Service Metrics'})
+          expr: absent(up{job=~'ODH Notebook Controller Service Metrics'})
           for: 5m
           labels:
             severity: warning
@@ -480,49 +400,12 @@ data:
           - '{__name__= "kube_pod_container_status_restarts_total"}'
           - '{__name__= "kube_pod_container_status_terminated_reason"}'
           - '{__name__= "openshift_build_status_phase_total"}'
+          - '{__name__= "kube_statefulset_replicas"}'
+
 
       static_configs:
         - targets:
           - "prometheus-k8s.openshift-monitoring.svc.cluster.local:9091"
-
-    - job_name: 'JupyterHub Metrics'
-      honor_labels: true
-      metrics_path: /hub/metrics
-      scheme: http
-      bearer_token: <jupyterhub_prometheus_api_token>
-      kubernetes_sd_configs:
-        - role: endpoints
-          namespaces:
-            names:
-              - redhat-ods-applications
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_service_name]
-          regex: ^(jupyterhub)$
-          target_label: kubernetes_name
-          action: keep
-        - source_labels: [__address__]
-          regex: (.+):(\d+)
-          target_label: __address__
-          replacement: ${1}:8081
-
-    - job_name: 'Traefik Proxy Metrics'
-      honor_labels: true
-      metrics_path: /metrics
-      scheme: http
-      kubernetes_sd_configs:
-        - role: endpoints
-          namespaces:
-            names:
-              - redhat-ods-applications
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_service_name]
-          regex: ^(traefik-proxy)$
-          target_label: kubernetes_name
-          action: keep
-        - source_labels: [__address__]
-          regex: (.+):(\d+)
-          target_label: __address__
-          replacement: ${1}:8082
 
     - job_name: 'user_facing_endpoints_status'
       scrape_interval: 10s
@@ -535,9 +418,12 @@ data:
       authorization:
         credentials_file: /run/secrets/kubernetes.io/serviceaccount/token
       static_configs:
-      - targets:
-        - <jupyterhub_host>
-        - <rhods_dashboard_host>
+      - targets: [<rhods_dashboard_host>]
+        labels:
+          name: rhods-dashboard
+      - targets: [<notebook_spawner_host>]
+        labels:
+          name: notebook-spawner
       relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

@@ -23,26 +23,25 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
     rm $TMPDIR/oc.tar.gz &&\
     mkdir -p $HOME
 
+COPY bin/yq /usr/local/bin  # We need to remove the yq binary in 1.17
+RUN chmod +x /usr/local/bin/yq
+
 COPY deploy.sh $HOME
 COPY buildchain.sh $HOME
 ADD kfdefs $HOME/kfdefs
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
-ADD groups $HOME/groups
-ADD jupyterhub $HOME/jupyterhub
+ADD nbc $HOME/nbc
 ADD partners $HOME/partners
 ADD network $HOME/network
-ADD cloud-resource-operator $HOME/cloud-resource-operator
 ADD odh-dashboard $HOME/odh-dashboard
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 755 $HOME/buildchain.sh && \
     chmod 644 -R $HOME/kfdefs && \
     chmod 644 -R $HOME/monitoring && \
-    chmod 644 -R $HOME/groups && \
-    chmod 644 -R $HOME/jupyterhub && \
+    chmod 644 -R $HOME/nbc && \
     chmod 644 -R $HOME/network && \
-    chmod 644 -R $HOME/cloud-resource-operator && \
     chmod 644 -R $HOME/odh-dashboard && \
     chown 1001:0 -R $HOME &&\
     chmod ug+rwx -R $HOME
@@ -51,11 +50,11 @@ RUN chmod 755 $HOME/deploy.sh && \
 # This checksum will be deployed in a configmap in a running deployment and so
 # if the content other than the rhods/buildchain label value changes, the
 # checksum will match
-RUN sha256sum $HOME/jupyterhub/cuda-11.4.2/manifests.yaml > $HOME/manifest-checksum
+RUN sha256sum $HOME/nbc/cuda-11.4.2/manifests.yaml > $HOME/manifest-checksum
 
 # Update the labels with the specific version value
 RUN sed -i 's,rhods/buildchain:.*,rhods/buildchain: cuda-'"${version}"',g' \
-       $HOME/jupyterhub/cuda-11.4.2/manifests.yaml
+       $HOME/nbc/cuda-11.4.2/manifests.yaml
 
 
 LABEL org.label-schema.build-date="$builddate" \
