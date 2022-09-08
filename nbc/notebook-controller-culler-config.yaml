@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: notebook-controller-culler-config
-data:
-  ENABLE_CULLING: "true"
-  CULL_IDLE_TIME: "<culling_time>"
-  IDLENESS_CHECK_PERIOD: "5"
