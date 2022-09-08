@@ -14,11 +14,11 @@ spec:
     disableTracking: false
     enablement: true
   groupsConfig:
-    adminGroups: "<admin_groups>"
-    allowedGroups: "<allowed_groups>"
+    adminGroups: "dedicated-admins"
+    allowedGroups: "system:authenticated"
   notebookController:
     enabled: true
-    pvcSize: <size>
+    pvcSize: "20Gi"
     notebookNamespace: rhods-notebooks
   notebookSizes:
     - name: Small
