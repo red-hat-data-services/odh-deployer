@@ -69,15 +69,9 @@ function oc::object::safe::to::apply() {
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
-CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"} # Delete this in 1.17
+CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"} # Delete this in 1.18
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
-
-# ODH Dashboard Defaults
-ADMIN_GROUPS="dedicated-admins"
-ALLOWED_GROUPS="system:authenticated"
-OLD_CULLER_DEFAULT_TIMEOUT="31536000" # 1 Year in seconds
-DEFAULT_PVC_SIZE="20Gi"
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
@@ -101,62 +95,31 @@ else
     echo no ${READER_SECRET} secret, default SA unchanged
 fi
 
-## To be removed in 1.17 or greater. Make sure that all referenced files in here are deleted as well.
+## To be removed in 1.18 or greater. Make sure that all referenced files in here are deleted as well.
+## Delete if cluster has CRO resources.
 nbc_migration=1
-oc get dc jupyterhub -n ${ODH_PROJECT} &> /dev/null || nbc_migration=0
+oc get -n ${CRO_PROJECT} deployment cloud-resource-operator &> /dev/null || nbc_migration=0
 if [ "$nbc_migration" -eq 0 ]; then
-  echo "INFO: Fresh Installation, proceeding normally"
+  echo "INFO: No CRO resources found, proceeding normally"
 else
   echo "INFO: Migrating from JupyterHub to NBC, deleting old JupyterHub artifacts"
+  ## Remove this code block in 1.18.
+  oc delete -n ${ODH_PROJECT} crd blobstorages.integreatly.org || echo "CRO crd deletion failed"
+  oc delete -n ${ODH_PROJECT} crd postgres.integreatly.org || echo "CRO crd deletion failed"
+  oc delete -n ${ODH_PROJECT} crd postgressnapshots.integreatly.org || echo "CRO crd deletion failed"
+  oc delete -n ${ODH_PROJECT} crd redis.integreatly.org || echo "CRO crd deletion failed"
+  oc delete -n ${ODH_PROJECT} crd redissnapshots.integreatly.org || echo "CRO crd deletion failed"
 
-  oc delete -n ${ODH_PROJECT} kfdef opendatahub --wait=false
+  oc delete -n ${ODH_PROJECT} clusterrole cloud-resource-operator-cluster-role || echo "CRO rbac deletion failed"
+  oc delete -n ${ODH_PROJECT} clusterrolebinding cloud-resource-operator-cluster-rolebinding || echo "CRO rbac deletion failed"
+  oc delete -n ${ODH_PROJECT} role cloud-resource-operator-role || echo "CRO rbac deletion failed"
+  oc delete -n ${ODH_PROJECT} rolebinding cloud-resource-operator-rolebinding || echo "CRO rbac deletion failed"
 
-  ADMIN_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.admin_groups}") || echo "rhods-groups-config not found"
-  ALLOWED_GROUPS=$(oc get cm -n ${ODH_PROJECT} rhods-groups-config -o jsonpath="{.data.allowed_groups}") || echo "rhods-groups-config not found"
-  CULLER_TIMEOUT=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.culler_timeout}") || echo "jupyterhub-cfg not found"
-  DEFAULT_PVC_SIZE=$(oc get cm -n ${ODH_PROJECT} jupyterhub-cfg -o jsonpath="{.data.singleuser_pvc_size}") || echo "jupyterhub-cfgs not found"
+  oc delete -n ${CRO_PROJECT} role cloud-resource-operator-rds-role || echo "CRO rds rbac deletion failed"
+  oc delete -n ${CRO_PROJECT} rolebinding cloud-resource-operator-rds-rolebinding || echo "CRO rds rbac deletion failed"
 
-  if [ $OLD_CULLER_DEFAULT_TIMEOUT -ne $CULLER_TIMEOUT ]; then
-    sed -i "s/<culling_time>/$CULLER_TIMEOUT/g" nbc/notebook-controller-culler-config.yaml
-    oc apply -f nbc/notebook-controller-culler-config.yaml -n ${ODH_PROJECT}
-  fi
-
-  oc get cm -n ${ODH_PROJECT} odh-jupyterhub-global-profile -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}" > tmp.yaml
-
-  sed -i "s/profiles/notebookSizes/g" tmp.yaml
-  sed -i "s/name: globals/name: Default/g" tmp.yaml
-  sed -i "s/^/  /" tmp.yaml
-  sed -i '1s/^/spec:\n/' tmp.yaml
-  sed -i 's/^\(\s*\)cpu:\s\([0-9]\+\)/\1cpu: \"\2\"/' tmp.yaml
-
-  oc delete -n ${ODH_PROJECT} configmap rhods-groups-config || echo "rhods-groups-config not found"
-
-  oc delete -n ${ODH_PROJECT} secret jupyterhub-prometheus-token-secrets || echo "jupyterhub-prometheus-token-secrets not found"
-  oc delete -n ${ODH_PROJECT} secret jupyterhub-database-secret || echo "jupyterhub-database-secret not found "
-  oc delete -n ${ODH_PROJECT} configmap jupyterhub-cfg || echo "Jupyterhub-cfg not found"
-  oc delete -n ${ODH_PROJECT} configmap odh-jupyterhub-global-profile || echo "odh-jupyterhub-global-profile not found"
-
-  oc delete -n ${ODH_PROJECT} postgres jupyterhub-db-rds --wait=false || echo "postgres object not found"
-
-  ## Uncomment this code block in 1.17. Leaving it in so that the change is easier to determine for next release
-
-  # oc delete -n ${ODH_PROJECT} crd blobstorages.integreatly.org || echo "CRO crd deletion failed"
-  # oc delete -n ${ODH_PROJECT} crd postgres.integreatly.org || echo "CRO crd deletion failed"
-  # oc delete -n ${ODH_PROJECT} crd postgressnapshots.integreatly.org || echo "CRO crd deletion failed"
-  # oc delete -n ${ODH_PROJECT} crd redis.integreatly.org || echo "CRO crd deletion failed"
-  # oc delete -n ${ODH_PROJECT} crd redissnapshots.integreatly.org || echo "CRO crd deletion failed"
-
-  # oc delete -n ${ODH_PROJECT} clusterrole cloud-resource-operator-cluster-role || echo "CRO rbac deletion failed"
-  # oc delete -n ${ODH_PROJECT} clusterrolebinding cloud-resource-operator-cluster-rolebinding || echo "CRO rbac deletion failed"
-  # oc delete -n ${ODH_PROJECT} role cloud-resource-operator-role || echo "CRO rbac deletion failed"
-  # oc delete -n ${ODH_PROJECT} rolebinding cloud-resource-operator-rolebinding || echo "CRO rbac deletion failed"
-
-  # oc delete -n ${CRO_PROJECT} role cloud-resource-operator-rds-role || echo "CRO rds rbac deletion failed"
-  # oc delete -n ${CRO_PROJECT} rolebinding cloud-resource-operator-rds-rolebinding || echo "CRO rds rbac deletion failed"
-
-  # oc delete -n ${CRO_PROJECT} deployment cloud-resource-operator || echo "CRO deployment deletion failed"
-  # oc delete -n ${CRO_PROJECT} serviceaccount cloud-resource-operator || echo "CRO SA deletion failed"
-
+  oc delete -n ${CRO_PROJECT} deployment cloud-resource-operator || echo "CRO deployment deletion failed"
+  oc delete -n ${CRO_PROJECT} serviceaccount cloud-resource-operator || echo "CRO SA deletion failed"
 fi
 # End Migration code block
 
@@ -320,7 +283,6 @@ oc::wait::object::availability "oc get secret grafana-config -n $ODH_MONITORING_
 oc::wait::object::availability "oc get secret grafana-proxy-config -n $ODH_MONITORING_PROJECT" 2 30
 oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITORING_PROJECT" 2 30
 
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana-dashboards
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
 # Add segment.io secret key & configmap
@@ -372,12 +334,6 @@ kind="odhdashboardconfigs"
 resource="odh-dashboard-config"
 object="odh-dashboard-config"
 
-# Delete these seds in 1.17, change dashboard config yaml to have the value by default
-sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-sed -i "s|<allowed_groups>|$ALLOWED_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
-sed -i "s|<size>|$DEFAULT_PVC_SIZE|g" odh-dashboard/configs/odh-dashboard-config.yaml
-## Eng Migration Code
-
 exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
 # If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the ODHDashboardConfig resource
 #TODO: This controls feature flags and notebook controller presets like Notebook size. Confirm that notebook sizes can be configured external to the ODHDashboardConfig CR
@@ -387,31 +343,8 @@ if [ "$exists" == "false" ]; then
   else
     echo "The ODHDashboardConfig (${kind}/${resource}) has been modified. Skipping apply."
   fi
-else # Migration code for 1.16
-  nbc_enabled=$(oc get -n $ODH_PROJECT ${kind} ${object} -o jsonpath="{.spec.notebookController.enabled}" | grep true || echo "false")
-  if [ "$nbc_enabled" == "false" ]; then
-
-      oc delete -n ${ODH_NOTEBOOK_PROJECT} pods --all || echo "No notebook pods found"
-      oc get cm rhods-jupyterhub-sizes -n ${ODH_PROJECT} -o jsonpath="{.data.jupyterhub-singleuser-profiles\.yaml}"  > tmp_jsp.yaml || echo "rhods-jupyterhub-sizes not found"
-      sed -i "s/^/  /" tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
-      sed -i '1s/^/spec:\n/' tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
-      sed -i "s/sizes/notebookSizes/" tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
-      sed -i 's/^\(\s*\)cpu:\s\([0-9]\+\)/\1cpu: \"\2\"/' tmp_jsp.yaml || echo "Issues modifying jsp profiles for migration"
-
-      yq -i 'del(.spec.notebookSizes)' odh-dashboard/configs/odh-dashboard-config.yaml
-      yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp_jsp.yaml || echo "Issue copying notebook sizes from rhods-jupyterhub-sizes"
-      yq -i eval-all '. as $item ireduce ({}; . *+ $item)' odh-dashboard/configs/odh-dashboard-config.yaml tmp.yaml || echo "Issue copying notebook sizes from global profiles"
-
-      oc delete -n ${ODH_PROJECT} configmap rhods-jupyterhub-sizes || echo "rhods-jupyterhub-sizes not found"
-      oc apply -n ${ODH_PROJECT} -f odh-dashboard/configs/odh-dashboard-config.yaml
-      rm tmp.yaml tmp_jsp.yaml || echo "tmp notebooksize files not found"
-
-      oc delete -n ${ODH_PROJECT} configmap traefik-rules || "Could not delete traefik-rules configmap"
-      oc delete -n ${ODH_PROJECT} secret jupyterhub-idle-culler || "Could not delete jupyterhub idle culler secret"
-
-  else
-    echo "Notebook Controller was already enabled. Skipping migration of old jupyterhub configs."
-  fi # End Migration code for 1.16
+else
+   echo "The ODHDashboardConfig (${kind}/${resource}) already exists"
 fi
 
 ####################################################################################################

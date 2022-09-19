@@ -130,8 +130,6 @@ spec:
               name: grafana-config
             - mountPath: /grafana-dashboard-definitions
               name: grafana-dashboard-definitions
-            - mountPath: /grafana-dashboard-definitions/0
-              name: grafana-dashboard-jupyterhub-slis
         - args:
             - '-provider=openshift'
             - '-https-address=:8443'
@@ -222,11 +220,6 @@ spec:
           secret:
             defaultMode: 420
             secretName: grafana-tls
-        - configMap:
-            defaultMode: 420
-            name: grafana-dashboard-jupyterhub-slis
-          name: grafana-dashboard-jupyterhub-slis
-
   test: false
   triggers:
     - type: ConfigChange

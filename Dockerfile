@@ -23,9 +23,6 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
     rm $TMPDIR/oc.tar.gz &&\
     mkdir -p $HOME
 
-COPY bin/yq /usr/local/bin  # We need to remove the yq binary in 1.17
-RUN chmod +x /usr/local/bin/yq
-
 COPY deploy.sh $HOME
 COPY buildchain.sh $HOME
 ADD kfdefs $HOME/kfdefs
