@@ -69,7 +69,6 @@ function oc::object::safe::to::apply() {
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
-CRO_PROJECT=${CRO_NAMESPACE:-"redhat-ods-operator"} # Delete this in 1.18
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
 
@@ -94,34 +93,6 @@ if [ "$linkdefault" -eq 0 ]; then
 else
     echo no ${READER_SECRET} secret, default SA unchanged
 fi
-
-## To be removed in 1.18 or greater. Make sure that all referenced files in here are deleted as well.
-## Delete if cluster has CRO resources.
-nbc_migration=1
-oc get -n ${CRO_PROJECT} deployment cloud-resource-operator &> /dev/null || nbc_migration=0
-if [ "$nbc_migration" -eq 0 ]; then
-  echo "INFO: No CRO resources found, proceeding normally"
-else
-  echo "INFO: Migrating from JupyterHub to NBC, deleting old JupyterHub artifacts"
-  ## Remove this code block in 1.18.
-  oc delete -n ${ODH_PROJECT} crd blobstorages.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd postgres.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd postgressnapshots.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd redis.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd redissnapshots.integreatly.org || echo "CRO crd deletion failed"
-
-  oc delete -n ${ODH_PROJECT} clusterrole cloud-resource-operator-cluster-role || echo "CRO rbac deletion failed"
-  oc delete -n ${ODH_PROJECT} clusterrolebinding cloud-resource-operator-cluster-rolebinding || echo "CRO rbac deletion failed"
-  oc delete -n ${ODH_PROJECT} role cloud-resource-operator-role || echo "CRO rbac deletion failed"
-  oc delete -n ${ODH_PROJECT} rolebinding cloud-resource-operator-rolebinding || echo "CRO rbac deletion failed"
-
-  oc delete -n ${CRO_PROJECT} role cloud-resource-operator-rds-role || echo "CRO rds rbac deletion failed"
-  oc delete -n ${CRO_PROJECT} rolebinding cloud-resource-operator-rds-rolebinding || echo "CRO rds rbac deletion failed"
-
-  oc delete -n ${CRO_PROJECT} deployment cloud-resource-operator || echo "CRO deployment deletion failed"
-  oc delete -n ${CRO_PROJECT} serviceaccount cloud-resource-operator || echo "CRO SA deletion failed"
-fi
-# End Migration code block
 
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
 for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
