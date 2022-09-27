@@ -191,10 +191,9 @@ pagerduty_service_token=$(echo -ne "$pagerduty_service_token" | tr -d "'" | base
 
 oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
 
-rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
 
-NOTEBOOK_SUFFIX="\/notebookController\/spawner"
-notebook_spawner_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'$NOTEBOOK_SUFFIX'" 2 30 | tr -d "'")
+rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+notebook_spawner_host="notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics,odh-notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics"
 
 sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus-configs.yaml
 sed -i "s/<notebook_spawner_host>/$notebook_spawner_host/g" monitoring/prometheus/prometheus-configs.yaml

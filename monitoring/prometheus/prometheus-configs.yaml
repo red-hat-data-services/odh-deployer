@@ -103,6 +103,44 @@ data:
             instance: rhods-dashboard
           record: probe_success:burnrate6h
 
+      - name: SLOs - Notebook Controller
+        rules:
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner", job="user_facing_endpoints_status"}[1d]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner",job="user_facing_endpoints_status"}[1h]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner", job="user_facing_endpoints_status"}[2h]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner",job="user_facing_endpoints_status"}[30m]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner", job="user_facing_endpoints_status"}[3d]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner", job="user_facing_endpoints_status"}[5m]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - min(avg_over_time(probe_success{name=~"notebook-spawner",job="user_facing_endpoints_status"}[6h]))
+          labels:
+            instance: notebook-spawner
+          record: probe_success:burnrate6h
+
       - name: SLOs - RHODS Operator
         interval: 15m
         rules:
@@ -224,9 +262,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
             summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate5m{name=~"notebook-spawner"}) by (name) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate5m{instance=~"notebook-spawner"}) by (instance) > (14.40 * (1-0.98000))
             and
-            sum(probe_success:burnrate1h{name=~"notebook-spawner"}) by (name) > (14.40 * (1-0.98000))
+            sum(probe_success:burnrate1h{instance=~"notebook-spawner"}) by (instance) > (14.40 * (1-0.98000))
           for: 2m
           labels:
             severity: critical
@@ -236,9 +274,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
             summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate30m{name=~"notebook-spawner"}) by (name) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate30m{instance=~"notebook-spawner"}) by (instance) > (6.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate6h{name=~"notebook-spawner"}) by (name) > (6.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{instance=~"notebook-spawner"}) by (instance) > (6.00 * (1-0.98000))
           for: 15m
           labels:
             severity: critical
@@ -248,9 +286,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
             summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate2h{name=~"notebook-spawner"}) by (name) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate2h{instance=~"notebook-spawner"}) by (instance) > (3.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate1d{name=~"notebook-spawner"}) by (name) > (3.00 * (1-0.98000))
+            sum(probe_success:burnrate1d{instance=~"notebook-spawner"}) by (instance) > (3.00 * (1-0.98000))
           for: 1h
           labels:
             severity: warning
@@ -260,9 +298,9 @@ data:
             triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
             summary: RHODS Jupyter Probe Success Burn Rate
           expr: |
-            sum(probe_success:burnrate6h{name=~"notebook-spawner"}) by (name) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate6h{instance=~"notebook-spawner"}) by (instance) > (1.00 * (1-0.98000))
             and
-            sum(probe_success:burnrate3d{name=~"notebook-spawner"}) by (name) > (1.00 * (1-0.98000))
+            sum(probe_success:burnrate3d{instance=~"notebook-spawner"}) by (instance) > (1.00 * (1-0.98000))
           for: 3h
           labels:
             severity: warning
@@ -506,7 +544,7 @@ data:
         {{ if gt (len .Alerts.Firing) 1 }}
             Red Hat OpenShift Data Science Notifications
         {{ else }}
-            {{ (index .Alerts.Firing 0).Annotations.summary }} 
+            {{ (index .Alerts.Firing 0).Annotations.summary }}
         {{ end }}
     {{ end }}
     {{ define "email.rhods.html" }}
