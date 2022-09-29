@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+  app: odh-dashboard
+  app.kubernetes.io/part-of: odh-dashboard
+resources:
+- seldon-app.yaml
+- seldon-docs.yaml
+- seldon-deploy-canary-quickstart.yaml
+- seldon-deploy-drift-quickstart.yaml
+- seldon-deploy-explainer-quickstart.yaml
+- seldon-deploy-outlier-quickstart.yaml

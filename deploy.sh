@@ -45,6 +45,20 @@ function oc::wait::object::availability() {
     echo $token
 }
 
+function oc::dashboard::apply::isvs() {
+  local IS_SELF_MANAGED=$(oc get catalogsource -n openshift-marketplace self-managed-rhods)
+  oc apply -n ${ODH_PROJECT} -k odh-dashboard/crds
+  oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-on-prem
+  echo "Installed ISVs for on-prem services."
+
+  if [[ "$?" -ne 0 ]]; then
+    # Managed services has both the on prem and managed service additons.
+    oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-managed-service
+    echo "Installed ISVs for managed services."
+    exit 1
+  fi
+}
+
 function oc::object::safe::to::apply() {
   local kind=$1
   local resource=$2
@@ -65,7 +79,6 @@ function oc::object::safe::to::apply() {
   return 0
 }
 
-
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
@@ -82,6 +95,12 @@ oc label namespace $ODH_NOTEBOOK_PROJECT  $NAMESPACE_LABEL --overwrite=true || e
 oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT project already exists."
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
 oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+
+# If rhodsquickstart CRD is found, delete it. Note: Remove this code in 1.19
+oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: Unable to delete Rhodsquickstart CRD"
+
+# Apply isvs for dashboard
+oc::dashboard::apply::isvs
 
 # If a reader secret has been created, link it to the default SA
 # This is so that private images in quay.io/modh can be loaded into imagestreams
