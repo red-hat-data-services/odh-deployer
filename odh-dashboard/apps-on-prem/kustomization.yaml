@@ -9,7 +9,6 @@ bases:
   - ./jupyter
   - ./openvino
   - ./pachyderm
-  - ./percepti-labs
   - ./rhosak
   - ./seldon
   - ./watson
