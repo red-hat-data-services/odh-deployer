@@ -46,16 +46,38 @@ function oc::wait::object::availability() {
 }
 
 function oc::dashboard::apply::isvs() {
-  local IS_SELF_MANAGED=$(oc get catalogsource -n openshift-marketplace self-managed-rhods)
-  oc apply -n ${ODH_PROJECT} -k odh-dashboard/crds
-  oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-on-prem
-  echo "Installed ISVs for on-prem services."
+  local crd_arr=(
+    "odhapplications.dashboard.opendatahub.io"
+    "odhdocuments.dashboard.opendatahub.io"
+    "odhquickstarts.console.openshift.io"
+  )
 
-  if [[ "$?" -ne 0 ]]; then
+  oc apply -n ${ODH_PROJECT} -k odh-dashboard/crds
+  for crd_name in ${crd_arr[@]}
+  do
+    dashboard_crd=$(oc::wait::object::availability "oc get crd $crd_name" 30 60)
+    if [ -z "$dashboard_crd" ];then
+      echo "ERROR: $crd_name CRD does not exist."
+      exit 1
+    fi
+  done
+
+  oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-on-prem
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Attempt to install the default Dashboard ISVs application tiles failed"
+    exit 1
+  fi
+
+  # Embedding the command in the IF statement since bash SHELLOPT "errexit" is enabled
+  #    and the script will exit immediately when this command fails
+  if [ ! $(oc get catalogsource -n openshift-marketplace self-managed-rhods) ]; then
     # Managed services has both the on prem and managed service additons.
     oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-managed-service
-    echo "Installed ISVs for managed services."
-    exit 1
+
+    if [ $? -ne 0 ]; then
+      echo "ERROR: Attempt to install the Dashaboard ISVs application tiles for managed services failed"
+      exit 1
+    fi
   fi
 }
 
