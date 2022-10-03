@@ -70,7 +70,7 @@ function oc::dashboard::apply::isvs() {
 
   # Embedding the command in the IF statement since bash SHELLOPT "errexit" is enabled
   #    and the script will exit immediately when this command fails
-  if [ ! $(oc get catalogsource -n openshift-marketplace self-managed-rhods) ]; then
+  if [[ ! $(oc get catalogsource -n openshift-marketplace self-managed-rhods) ]]; then
     # Managed services has both the on prem and managed service additons.
     oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-managed-service
 

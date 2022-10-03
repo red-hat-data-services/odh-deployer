@@ -131,6 +131,9 @@ spec:
     Documentation on the Seldon Deploy Red Hat marketplace install is at [https://deploy.seldon.io/en/v1.2/contents/getting-started/openshift-installation/index.html](https://deploy.seldon.io/en/v1.2/contents/getting-started/openshift-installation/index.html)
 
     ### Subscribe to the operator on Marketplace
+
     - [https://marketplace.redhat.com/en-us/products/seldon-deploy](https://marketplace.redhat.com/en-us/products/seldon-deploy)
+
     ### Install the operator and validate
+    
     - [https://marketplace.redhat.com/en-us/documentation/operators](https://marketplace.redhat.com/en-us/documentation/operators)
