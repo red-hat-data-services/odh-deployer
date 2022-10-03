@@ -70,7 +70,7 @@ function oc::dashboard::apply::isvs() {
 
   # Embedding the command in the IF statement since bash SHELLOPT "errexit" is enabled
   #    and the script will exit immediately when this command fails
-  if [[ ! $(oc get catalogsource -n openshift-marketplace self-managed-rhods) ]]; then
+  if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
     # Managed services has both the on prem and managed service additons.
     oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-managed-service
 
@@ -120,6 +120,10 @@ oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true ||
 
 # If rhodsquickstart CRD is found, delete it. Note: Remove this code in 1.19
 oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: Unable to delete Rhodsquickstart CRD"
+
+# Set RHODS_SELF_MANAGED to 0, if catalogsource not found.
+RHODS_SELF_MANAGED=1
+oc get catalogsource -n openshift-marketplace self-managed-rhods &> /dev/null || RHODS_SELF_MANAGED=0
 
 # Apply isvs for dashboard
 oc::dashboard::apply::isvs
@@ -374,6 +378,12 @@ fi
 kind="odhdashboardconfigs"
 resource="odh-dashboard-config"
 object="odh-dashboard-config"
+ADMIN_GROUPS="dedicated-admins"
+
+if [ "$RHODS_SELF_MANAGED" -eq 1 ]; then
+  ADMIN_GROUPS="rhods-admins"
+fi
+sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
 
 exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
 # If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the ODHDashboardConfig resource
