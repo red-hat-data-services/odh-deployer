@@ -6,3 +6,4 @@ commonLabels:
 resources:
 - nvidia-app.yaml
 - gpu-quickstart.yaml
+- gpu-enabled-notebook-quickstart.yaml

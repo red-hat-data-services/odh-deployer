@@ -6,3 +6,4 @@ commonLabels:
 resources:
 - pachyderm-app.yaml
 - pachyderm-docs.yaml
+- pachyderm-beginner-tutorial-notebook.yaml

@@ -5,3 +5,4 @@ commonLabels:
   app.kubernetes.io/part-of: odh-dashboard
 resources:
 - rhoam-app.yaml
+- deploy-model-rhoam-quickstart.yaml
