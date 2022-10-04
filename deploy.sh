@@ -163,6 +163,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Create KfDef for RHODS Model Mesh monitoring stack
+oc apply -n ${ODH_MONITORING_PROJECT} -f rhods-modelmesh-monitoring.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the RHODS monitoring stack failed."
+  exit 1
+fi
+
 # Create KfDef for Anaconda
 oc apply -n ${ODH_PROJECT} -f rhods-anaconda.yaml
 if [ $? -ne 0 ]; then
