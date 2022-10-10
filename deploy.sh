@@ -45,6 +45,42 @@ function oc::wait::object::availability() {
     echo $token
 }
 
+function oc::dashboard::apply::isvs() {
+  local crd_arr=(
+    "odhapplications.dashboard.opendatahub.io"
+    "odhdocuments.dashboard.opendatahub.io"
+    "odhquickstarts.console.openshift.io"
+  )
+
+  oc apply -n ${ODH_PROJECT} -k odh-dashboard/crds
+  for crd_name in ${crd_arr[@]}
+  do
+    dashboard_crd=$(oc::wait::object::availability "oc get crd $crd_name" 30 60)
+    if [ -z "$dashboard_crd" ];then
+      echo "ERROR: $crd_name CRD does not exist."
+      exit 1
+    fi
+  done
+
+  oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-on-prem
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Attempt to install the default Dashboard ISVs application tiles failed"
+    exit 1
+  fi
+
+  # Embedding the command in the IF statement since bash SHELLOPT "errexit" is enabled
+  #    and the script will exit immediately when this command fails
+  if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
+    # Managed services has both the on prem and managed service additons.
+    oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-managed-service
+
+    if [ $? -ne 0 ]; then
+      echo "ERROR: Attempt to install the Dashaboard ISVs application tiles for managed services failed"
+      exit 1
+    fi
+  fi
+}
+
 function oc::object::safe::to::apply() {
   local kind=$1
   local resource=$2
@@ -65,7 +101,6 @@ function oc::object::safe::to::apply() {
   return 0
 }
 
-
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
@@ -81,6 +116,16 @@ oc label namespace $ODH_NOTEBOOK_PROJECT  $NAMESPACE_LABEL --overwrite=true || e
 oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT project already exists."
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
 oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+
+# If rhodsquickstart CRD is found, delete it. Note: Remove this code in 1.19
+oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: Unable to delete Rhodsquickstart CRD"
+
+# Set RHODS_SELF_MANAGED to 0, if catalogsource not found.
+RHODS_SELF_MANAGED=1
+oc get catalogsource -n openshift-marketplace self-managed-rhods &> /dev/null || RHODS_SELF_MANAGED=0
+
+# Apply isvs for dashboard
+oc::dashboard::apply::isvs
 
 # If a reader secret has been created, link it to the default SA
 # This is so that private images in quay.io/modh can be loaded into imagestreams
@@ -303,6 +348,12 @@ fi
 kind="odhdashboardconfigs"
 resource="odh-dashboard-config"
 object="odh-dashboard-config"
+ADMIN_GROUPS="dedicated-admins"
+
+if [ "$RHODS_SELF_MANAGED" -eq 1 ]; then
+  ADMIN_GROUPS="rhods-admins"
+fi
+sed -i "s|<admin_groups>|$ADMIN_GROUPS|g" odh-dashboard/configs/odh-dashboard-config.yaml
 
 exists=$(oc get -n $ODH_PROJECT ${kind} ${object} -o name | grep ${object} || echo "false")
 # If this is a pre-existing cluster (ie: we are upgrading), then we will not touch the ODHDashboardConfig resource

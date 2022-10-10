@@ -14,7 +14,7 @@ spec:
     disableTracking: false
     enablement: true
   groupsConfig:
-    adminGroups: "dedicated-admins"
+    adminGroups: "<admin_groups>"
     allowedGroups: "system:authenticated"
   notebookController:
     enabled: true
