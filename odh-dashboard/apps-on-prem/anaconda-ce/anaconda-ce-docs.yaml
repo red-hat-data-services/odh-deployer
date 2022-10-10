@@ -57,7 +57,6 @@ spec:
     Learn how to create GPU accelerated functions using Numba.
   url: https://github.com/ContinuumIO/gtc2018-numba
   durationMinutes: 90
-  featureFlag: gpu-computing
 ---
 apiVersion: dashboard.opendatahub.io/v1
 kind: OdhDocument
