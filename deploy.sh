@@ -102,19 +102,12 @@ oc get -n ${CRO_PROJECT} deployment cloud-resource-operator &> /dev/null || nbc_
 if [ "$nbc_migration" -eq 0 ]; then
   echo "INFO: No CRO resources found, proceeding normally"
 else
-  echo "INFO: Migrating from JupyterHub to NBC, deleting old JupyterHub artifacts"
+  echo "INFO: Deleting CRO artifacts in ${ODH_PROJECT} namespace"
   ## Remove this code block in 1.18.
-  oc delete -n ${ODH_PROJECT} crd blobstorages.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd postgres.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd postgressnapshots.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd redis.integreatly.org || echo "CRO crd deletion failed"
-  oc delete -n ${ODH_PROJECT} crd redissnapshots.integreatly.org || echo "CRO crd deletion failed"
-
-  oc delete -n ${ODH_PROJECT} clusterrole cloud-resource-operator-cluster-role || echo "CRO rbac deletion failed"
-  oc delete -n ${ODH_PROJECT} clusterrolebinding cloud-resource-operator-cluster-rolebinding || echo "CRO rbac deletion failed"
   oc delete -n ${ODH_PROJECT} role cloud-resource-operator-role || echo "CRO rbac deletion failed"
   oc delete -n ${ODH_PROJECT} rolebinding cloud-resource-operator-rolebinding || echo "CRO rbac deletion failed"
 
+  echo "INFO: Deleting CRO artifacts in ${CRO_PROJECT} namespace"
   oc delete -n ${CRO_PROJECT} role cloud-resource-operator-rds-role || echo "CRO rds rbac deletion failed"
   oc delete -n ${CRO_PROJECT} rolebinding cloud-resource-operator-rds-rolebinding || echo "CRO rds rbac deletion failed"
 
