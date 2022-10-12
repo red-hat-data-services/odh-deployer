@@ -65,6 +65,25 @@ function oc::object::safe::to::apply() {
   return 0
 }
 
+# This function is only responsible for patching the rhods-dashboard livenessProbe to replace the httpGet handler with tcpSocket
+#  This is a workaround for the upgrade is where the operator is unable to update the deployment/rhods-dashboard due to the error
+#  Code 500 with message: Apply.Run : Deployment.apps \"rhods-dashboard\" is invalid: spec.template.spec.containers[0].livenessProbe.tcpSocket: Forbidden: may not specify more than 1 handler type"
+function patch_dashboard_livenessProbe() {
+  local object=deployment/rhods-dashboard
+
+  dashboard_deployment=$(oc::wait::object::availability "oc get $object -n $ODH_PROJECT" 5 60 )
+
+  # Apply 3 patch operations to run only IF spec.livenesProbe.httpGet.port == 8080 THEN delete httpGet and set tcpSocket
+  # This should prevent the operator from reconciling the deployment back to httpGet and continue with the upgrade to 1.17+
+  test_patch='{"op": "test", "path": "/spec/template/spec/containers/0/livenessProbe/httpGet/port", "value": 8080}'
+  remove_patch='{"op": "remove", "path": "/spec/template/spec/containers/0/livenessProbe/httpGet"}'
+  add_patch='{"op": "add", "path": "/spec/template/spec/containers/0/livenessProbe/tcpSocket", "value": {"port":8080}}'
+
+  patch_result=$(oc patch $object -n $ODH_PROJECT --type json -p="[${test_patch},${add_patch},${remove_patch}]" || echo "jsonPatch of $object not applied")
+
+  echo $patch_result
+}
+
 
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
@@ -301,6 +320,9 @@ fi
 ####################################################################################################
 # RHODS DASHBOARD
 ####################################################################################################
+
+# Check and patch of teh rhods-dashboard deployment to manually change the livenessProbe to tcpSocket
+patch_dashboard_livenessProbe
 
 # Deploying the ODHDashboardConfig CRD
 oc apply -n ${ODH_PROJECT} -f odh-dashboard/crds/odh-dashboard-crd.yaml
