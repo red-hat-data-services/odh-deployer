@@ -28,7 +28,7 @@ spec:
             requests:
               cpu: 200m
               memory: 512Mi
-          image: 'registry.access.redhat.com/ubi8/ubi-minimal:8.4-208'
+          image: 'registry.access.redhat.com/ubi8/ubi-minimal@sha256:31ccb79b1b2c2d6eff1bee0db23d5b8ab598eafd6238417d9813f1346f717c11'
           command:
             - /bin/sh
             - '-c'
@@ -54,7 +54,7 @@ spec:
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
-        image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
+        image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4bef31eb993feb6f1096b51b4876c65a6fb1f4401fee97fa4f4542b6b7c9bc46
         ports:
         - containerPort: 9091
           name: https
@@ -94,7 +94,7 @@ spec:
           readOnly: false
 
       - name: prometheus
-        image: registry.redhat.io/openshift4/ose-prometheus
+        image: registry.redhat.io/openshift4/ose-prometheus@sha256:62c89e82fdf9639eace286d11c91e6d1c3fdd3437e081ed9dce6f5ea783c660f
         args:
           - --storage.tsdb.retention.time=6h
           - --storage.tsdb.min-block-duration=2h
@@ -167,7 +167,7 @@ spec:
         - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - -client-id=system:serviceaccount:redhat-ods-monitoring:prometheus
         - -skip-auth-regex=^/metrics
-        image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
+        image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4bef31eb993feb6f1096b51b4876c65a6fb1f4401fee97fa4f4542b6b7c9bc46
         imagePullPolicy: Always
         ports:
         - containerPort: 10443
@@ -220,7 +220,7 @@ spec:
           - --storage.path=/alertmanager
           - --config.file=/etc/alertmanager/alertmanager.yml
           - --web.external-url=https://<set_alertmanager_host>
-        image: registry.redhat.io/openshift4/ose-prometheus-alertmanager
+        image: registry.redhat.io/openshift4/ose-prometheus-alertmanager@sha256:b180f86ebeccbab28b05f75a570ead59fc1462a77dde648b2b1d1ebe9e33cbdb
         imagePullPolicy: Always
         ports:
           - containerPort: 9093
