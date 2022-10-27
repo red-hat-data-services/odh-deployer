@@ -148,7 +148,6 @@ for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
   fi
 done
 
-
 oc apply -n ${ODH_PROJECT} -f rhods-dashboard.yaml
 if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the Dashboard CR failed."

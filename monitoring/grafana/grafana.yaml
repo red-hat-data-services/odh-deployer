@@ -87,7 +87,7 @@ spec:
           env:
             - name: GF_INSTALL_PLUGINS
               value: grafana-piechart-panel
-          image: registry.redhat.io/rhel8/grafana:7
+          image: registry.redhat.io/rhel8/grafana@sha256:4190d55ee0c4574d3a630cf5df1555ac502cb22470ee388dbd9e3daa813a85ba
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
@@ -148,7 +148,7 @@ spec:
             - '-skip-auth-regex=^/metrics'
           env:
             - name: redhat-ods-monitoring
-          image: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
+          image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4bef31eb993feb6f1096b51b4876c65a6fb1f4401fee97fa4f4542b6b7c9bc46
           imagePullPolicy: IfNotPresent
           name: auth-proxy
           ports:
