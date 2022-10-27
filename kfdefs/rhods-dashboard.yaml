@@ -10,6 +10,9 @@ spec:
         path: odh-common
     name: odh-common
   - kustomizeConfig:
+      parameters:
+      - name: odh-dashboard-image
+        value: ${ODH_DASHBOARD_IMAGE}
       overlays:
         - authentication
       repoRef:

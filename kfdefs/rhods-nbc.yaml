@@ -17,6 +17,11 @@ spec:
         path: jupyterhub/notebook-images
     name: notebook-images
   - kustomizeConfig:
+      parameters:
+      - name: odh-notebook-controller-image
+        value: ${ODH_NOTEBOOK_CONTROLLER_IMAGE}
+      - name: odh-kf-notebook-controller-image
+        value: ${ODH_KF_NOTEBOOK_CONTROLLER_IMAGE}
       repoRef:
         name: manifests
         path: odh-notebook-controller
