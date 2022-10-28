@@ -149,6 +149,12 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+oc apply -n ${ODH_PROJECT} -f rhods-model-mesh.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Model Mesh CR failed."
+  exit 1
+fi
+
 # Create KfDef for RHODS Notebooks ImageStreams
 oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
 if [ $? -ne 0 ]; then
