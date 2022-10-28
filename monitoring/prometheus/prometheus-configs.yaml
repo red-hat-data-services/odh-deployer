@@ -473,6 +473,44 @@ data:
           regex: (.+):(\d+)
           target_label: __address__
           replacement: ${1}:8080
+    
+    - job_name: 'ODH Model Controller'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(odh-model-controller-metrics-service)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
+
+    - job_name: 'Modelmesh Controller'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(modelmesh-controller)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
 
     - job_name: 'RHODS Metrics'
       honor_labels: true
