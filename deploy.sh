@@ -173,6 +173,19 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Uncomment when Data Science Pipelines kfdef is added
+# oc apply -n ${ODH_PROJECT} -f rhods-data-science-pipelines.yaml
+# if [ $? -ne 0 ]; then
+#   echo "ERROR: Attempt to create the Data Science Pipelines CR failed."
+#   exit 1
+# fi
+
+oc apply -n ${ODH_PROJECT} -f rhods-model-mesh.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Model Mesh CR failed."
+  exit 1
+fi
+
 deadmanssnitch=$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 4 90 | tr -d "'"  | base64 --decode)
 
 if [ -z "$deadmanssnitch" ];then
