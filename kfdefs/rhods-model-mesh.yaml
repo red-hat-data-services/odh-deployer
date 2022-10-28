@@ -1,0 +1,17 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+  name: rhods-model-mesh
+spec:
+  applications:
+    - kustomizeConfig:
+        overlays:
+          - odh-model-controller
+        repoRef:
+          name: manifests
+          path: model-mesh
+      name: model-mesh
+  repos:
+    - name: manifests
+      uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0
