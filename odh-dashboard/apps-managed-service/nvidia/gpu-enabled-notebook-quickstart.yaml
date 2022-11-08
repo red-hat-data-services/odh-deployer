@@ -10,36 +10,55 @@ spec:
   durationMinutes: 5
   icon: 'images/nvidia.svg'
   description: Install GPU add-on
+  prerequisites: [You have completed the "Installing and verifying NVIDIA GPU add-on" quick start.]
   introduction: |-
-    ### This quick start shows you how to run a JupyterHub Notebook that uses the available GPUs.
+    This quick start shows you how to run a notebook that uses a GPU available in your cluster.
   tasks:
-    - title: Import a JupyterHub Notebook into JupyterLab
+    - title: Import the notebook repository into Jupyter
       description: |-
-        Prerequisite: User must know how to spawn a Notebook with at least 1 GPU attached. Complete the "Installing and verifying NVIDIA GPU add-on" if not completed already.
+        ### Prerequisites
 
-        1. In the top navigation panel click **Git**
+        - You have launched a notebook server with at least 1 GPU attached. For help, run the "Installing and verifying NVIDIA GPU add-on" quick start.
+
+        ### Procedure
+
+        1. In Jupyter, click the **Git** menu.
         2. Click **Clone a repository**.
         3. Enter URL of the repository to be cloned : **https://github.com/rh-aiservices-bu/getting-started-with-gpus** and click **Clone**.
 
       review:
         instructions: |-
-          #### To verify you have installed the GPU add-on:
-          Can you see the "Getting started with GPUs" repository in the file navigation pane in JupyterHub?
+          Can you see a getting-started-with-gpus directory in the file navigation pane in Jupyter?
         failedTaskHelp: This task is not verified yet. Try the task again.
       summary:
-        success: You have successfully cloned the git repository and imported the notebook into JupyterHub.
-        failed: Ensure you have met the prerequisites for the GPU add on and try the steps again.
-    - title: Run the JupyterHub Notebook
+        success: You have successfully cloned the notebook repository into your notebook server environment.
+        failed: Ensure you have met the prerequisites for the GPU add-on and try the steps again.
+    - title: Run the "Using GPU resources with PyTorch" notebook
       description: |-
-        1. Double click the **torch-use-gpu.ipynb** file.
-        2. Run the notebook. Each step within the notebook is explained within the notebook itself. The notebook has steps to verify existence of a GPU, as well as use the GPU for creating a model.
+        1. Double click the **torch-use-gpu.ipynb** file to open the "Using GPU resources with PyTorch" notebook.
+        2. Read through and run each step in the notebook file to learn how to check for an available GPU and use the GPU to train a simple model. Detailed explanations of each step are provided in the notebook.
 
       review:
         instructions: |-
-          #### To verify that you have the available GPUs for use:
-          Can you run the **torch-use-gpu.ipynb** file?
-        failedTaskHelp: This task is not verified yet. Try the task again.
+          Were you able to run all steps in the **torch-use-gpu.ipynb** file?
+        failedTaskHelp: Ensure that you have at least one GPU node available in your cluster and then try the task again.
       summary:
-        success: You have successfully created a model while using a GPU.
+        success: You have successfully trained a model while using a GPU.
+        failed: Try the steps again.
+    - title: Run the "Loading and running a trained model with PyTorch" notebook
+      description: |-
+        1. Double click the **torch-test-model.ipynb** file to open the "Loading and running a trained model with PyTorch" notebook.
+        2. Read through and run each step in the notebook file to learn how to check for an available GPU and use it to run a trained model. Detailed explanations of each step are provided in the notebook.
+
+      review:
+        instructions: |-
+          Were you able to run the **torch-use-gpu.ipynb** file?
+        failedTaskHelp: Ensure that you have at least one GPU node available in your cluster and then try the task again.
+      summary:
+        success: You have successfully run a trained model while using a GPU.
         failed: Try the steps again.
   nextQuickStart: []
+  conclusion: >-
+    Congratulations!
+
+    You have successfully used a GPU to train and run a model.
