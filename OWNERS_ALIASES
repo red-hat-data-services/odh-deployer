@@ -2,14 +2,12 @@ aliases:
   # folks who can approve and APPROVED any PRs in the repo
   dev-approvers:
     - anishasthana
-    - crobby
     - LaVLaS
     - lucferbux
     - VaishnaviHire
   # folks who can review and LGTM any PRs in the repo
   dev-reviewers:
     - anishasthana
-    - crobby
     - LaVLaS
     - lucferbux
     - VaishnaviHire
