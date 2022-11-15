@@ -120,9 +120,9 @@ oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true ||
 # If rhodsquickstart CRD is found, delete it. Note: Remove this code in 1.19
 oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: Unable to delete Rhodsquickstart CRD"
 
-# Set RHODS_SELF_MANAGED to 0, if catalogsource not found.
-RHODS_SELF_MANAGED=1
-oc get catalogsource -n openshift-marketplace self-managed-rhods &> /dev/null || RHODS_SELF_MANAGED=0
+# Set RHODS_SELF_MANAGED to 1, if addon installation not found.
+RHODS_SELF_MANAGED=0
+oc get catalogsource -n ${OPERATOR_NAMESPACE} addon-managed-odh-catalog &> /dev/null || RHODS_SELF_MANAGED=1
 
 # Apply isvs for dashboard
 oc::dashboard::apply::isvs
