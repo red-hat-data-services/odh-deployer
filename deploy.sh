@@ -127,18 +127,6 @@ oc get catalogsource -n ${OPERATOR_NAMESPACE} addon-managed-odh-catalog &> /dev/
 # Apply isvs for dashboard
 oc::dashboard::apply::isvs
 
-# If a reader secret has been created, link it to the default SA
-# This is so that private images in quay.io/modh can be loaded into imagestreams
-READER_SECRET="addon-managed-odh-pullsecret"
-linkdefault=0
-oc get secret ${READER_SECRET} &> /dev/null || linkdefault=1
-if [ "$linkdefault" -eq 0 ]; then
-    echo Linking ${READER_SECRET} to default SA
-    oc secret link default ${READER_SECRET} --for=pull -n ${ODH_PROJECT}
-else
-    echo no ${READER_SECRET} secret, default SA unchanged
-fi
-
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
 for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
   oc apply -n $target_project -f rhods-osd-configs.yaml
