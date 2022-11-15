@@ -173,6 +173,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+
+oc apply -n ${ODH_PROJECT} -f rhods-model-mesh.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Model Mesh CR failed."
+  exit 1
+fi
+
+sed -i "s/<etcd_password>/$(openssl rand -hex 32)/g" model-mesh/etcd-secrets.yaml
+oc create -n ${ODH_PROJECT} -f model-mesh/etcd-secrets.yaml || echo "INFO: Etcd secrets already exist."
+
 deadmanssnitch=$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 4 90 | tr -d "'"  | base64 --decode)
 
 if [ -z "$deadmanssnitch" ];then
