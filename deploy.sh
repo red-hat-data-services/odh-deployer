@@ -127,6 +127,50 @@ oc get catalogsource -n ${OPERATOR_NAMESPACE} addon-managed-odh-catalog &> /dev/
 # Apply isvs for dashboard
 oc::dashboard::apply::isvs
 
+# Create KfDef for RHODS Dashboard
+oc apply -n ${ODH_PROJECT} -f rhods-dashboard.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Dashboard CR failed."
+  exit 1
+fi
+
+# Create KfDef for RHODS Notebook Controller
+oc apply -n ${ODH_PROJECT} -f rhods-nbc.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the Notebook Controller CR failed."
+  exit 1
+fi
+
+# Create KfDef for RHODS Notebooks ImageStreams
+oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the RHODS Notebooks CR failed."
+  exit 1
+fi
+
+# Create KfDef for RHODS monitoring stack
+oc apply -n ${ODH_MONITORING_PROJECT} -f rhods-monitoring.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the RHODS monitoring stack failed."
+  exit 1
+fi
+
+# Create KfDef for Anaconda
+oc apply -n ${ODH_PROJECT} -f rhods-anaconda.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the anaconda CR failed."
+  exit 1
+fi
+
+kind="secret"
+resource="anaconda-ce-access"
+
+if oc::object::safe::to::apply secret anaconda-ce-access; then
+  oc apply -n ${ODH_PROJECT} -f partners/anaconda/anaconda-ce-access.yaml
+else
+  echo "The Anaconda base secret (secret/anaconda-ce-access) has been modified. Skipping apply."
+fi
+
 # Give dedicated-admins group CRUD access to ConfigMaps, Secrets, ImageStreams, Builds and BuildConfigs in select namespaces
 for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
   oc apply -n $target_project -f rhods-osd-configs.yaml
@@ -136,31 +180,6 @@ for target_project in ${ODH_PROJECT} ${ODH_NOTEBOOK_PROJECT}; do
   fi
 done
 
-oc apply -n ${ODH_PROJECT} -f rhods-dashboard.yaml
-if [ $? -ne 0 ]; then
-  echo "ERROR: Attempt to create the Dashboard CR failed."
-  exit 1
-fi
-
-
-oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
-if [ $? -ne 0 ]; then
-  echo "ERROR: Attempt to create the RHODS Notebooks CR failed."
-  exit 1
-fi
-
-oc apply -n ${ODH_PROJECT} -f rhods-anaconda.yaml
-if [ $? -ne 0 ]; then
-  echo "ERROR: Attempt to create the anaconda CR failed."
-  exit 1
-fi
-
-oc apply -n ${ODH_PROJECT} -f rhods-nbc.yaml
-if [ $? -ne 0 ]; then
-  echo "ERROR: Attempt to create the Notebook Controller CR failed."
-  exit 1
-fi
-
 deadmanssnitch=$(oc::wait::object::availability "oc get secret -n $ODH_MONITORING_PROJECT redhat-rhods-deadmanssnitch -o jsonpath='{.data.SNITCH_URL}'" 4 90 | tr -d "'"  | base64 --decode)
 
 if [ -z "$deadmanssnitch" ];then
@@ -169,8 +188,6 @@ if [ -z "$deadmanssnitch" ];then
 fi
 
 sed -i "s#<snitch_url>#$deadmanssnitch#g" monitoring/prometheus/prometheus-configs.yaml
-
-oc apply -n ${ODH_MONITORING_PROJECT} -f rhods-monitoring.yaml
 
 sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
 sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
@@ -296,16 +313,6 @@ cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec
 odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
-
-
-kind="secret"
-resource="anaconda-ce-access"
-
-if oc::object::safe::to::apply ${kind} ${resource}; then
-  oc apply -n ${ODH_PROJECT} -f partners/anaconda/anaconda-ce-access.yaml
-else
-  echo "The Anaconda base secret (${kind}/${resource}) has been modified. Skipping apply."
-fi
 
 ####################################################################################################
 # RHODS DASHBOARD
