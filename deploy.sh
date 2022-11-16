@@ -323,6 +323,19 @@ fi
 # RHODS DASHBOARD
 ####################################################################################################
 
+# Remove dashboard-oauth-config secret if upgrading from RHODS 1.18 (when
+# OAuthClient object does not exist yet)
+exists=$(oc get oauthclient dashboard-oauth-client -o name || echo "false")
+if [ "$exists" == "false" ]; then
+  echo "INFO: OAuthClient dashboard-oauth-client does not exist, upgrading from 1.18..."
+  oc delete secret dashboard-oauth-config -n ${ODH_PROJECT} --ignore-not-found=true
+# Remove dashboard-oauth-client if the dashboard-oauth-config secret does not
+# exist anymore because of uninstall
+else
+  oc get secret dashboard-oauth-config -o name -n ${ODH_PROJECT} || \
+    oc delete oauthclient dashboard-oauth-client
+fi
+
 # Deploying the ODHDashboardConfig CRD
 oc apply -n ${ODH_PROJECT} -f odh-dashboard/crds/odh-dashboard-crd.yaml
 odhdashboardconfigcrd=$(oc::wait::object::availability "oc get crd odhdashboardconfigs.opendatahub.io" 30 60)
