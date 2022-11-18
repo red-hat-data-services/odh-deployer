@@ -297,31 +297,35 @@ else
   oc apply -f monitoring/prometheus/blackbox-exporter-external.yaml -n $ODH_MONITORING_PROJECT
 fi
 
-# Configure Grafana
-prometheus_route=$(oc::wait::object::availability "oc get route prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-sa.yaml
-grafana_token=$(oc::wait::object::availability "oc sa get-token grafana -n $ODH_MONITORING_PROJECT" 2 30)
-grafana_proxy_secret=$(oc get -n $ODH_MONITORING_PROJECT secret grafana-proxy-config -o jsonpath='{.data.session_secret}') && returncode=$? || returncode=$?
 
-if [[ $returncode == 0 ]]
-then
-    echo "INFO: Grafana secrets already exist"
-    grafana_proxy_secret_token=$(echo $grafana_proxy_secret | base64 --decode)
+# Grafana Deletion block for migration. Remove this in 1.20
+delete_grafana=1
+oc get -n $ODH_MONITORING_PROJECT deployment grafana &> /dev/null || delete_grafana=0
+
+if [ "$delete_grafana" -eq 0 ]; then
+  echo "INFO: No Grafana resources found, proceeding normally"
 else
-    echo "INFO: Grafana secrets did not exist. Generating new proxy token"
-    grafana_proxy_secret_token=$(openssl rand -hex 32)
+  # Contents of grafana.yaml
+  oc delete -n $ODH_MONITORING_PROJECT service grafana || echo "Core Grafana deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT route grafana || echo "Core Grafana deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT configmap grafana || echo "Core Grafana deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT deployment grafana || echo "Core Grafana deletion failed"
+
+  # Contents of grafana-secrets.yaml
+  oc delete -n $ODH_MONITORING_PROJECT secret grafana-config || echo "Grafana secret deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT secret grafana-proxy-config || echo "Grafana secret deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT secret grafana-datasources || echo "Grafana secret deletion failed"
+
+  # Contents of grafana-sa.yaml
+  oc delete -n $ODH_MONITORING_PROJECT serviceaccount grafana || echo "Grafana SA deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT role grafana || echo "Grafana SA deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT role use-anyuid-scc || echo "Grafana SA deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana-sa-anyuid || echo "Grafana SA deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana-rb || echo "Grafana SA deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana grafana-auth-rb || echo "Grafana SA deletion failed"
+  oc delete -n $ODH_MONITORING_PROJECT clusterrolebinding grafana-auth-rb || echo "Grafana SA deletion failed"
 fi
-sed -i "s/<change_proxy_secret>/$grafana_proxy_secret_token/g" monitoring/grafana/grafana-secrets.yaml
-sed -i "s/<change_route>/$prometheus_route/g" monitoring/grafana/grafana-secrets.yaml
-sed -i "s/<change_token>/$grafana_token/g" monitoring/grafana/grafana-secrets.yaml
-
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana-secrets.yaml
-
-oc::wait::object::availability "oc get secret grafana-config -n $ODH_MONITORING_PROJECT" 2 30
-oc::wait::object::availability "oc get secret grafana-proxy-config -n $ODH_MONITORING_PROJECT" 2 30
-oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITORING_PROJECT" 2 30
-
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
+# End Grafana deletion block
 
 # Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
