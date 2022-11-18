@@ -353,40 +353,6 @@ data:
           labels:
             severity: warning
 
-      - name: Builds
-        rules:
-        - alert: Jupyter image builds are failing
-          annotations:
-            message: 'A Jupyter image build is in a failed state.'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/spawner-greyed-images.md"
-            build: "{{ $labels.buildconfig }}"
-            summary: Jupyter image builds are failing
-          expr: |
-            (
-              clamp( 1 - sum by (buildconfig) (openshift_build_status_phase_total{build_phase=~"running",namespace="redhat-ods-applications"}),0,1)  # Do not alert if is a build currently running(this will make the left-hand side of the GT operator 0 and therefore always false)
-              *
-              (
-                sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"})  # Get the current number of historical build failures at current time.  If its greater than the historical low water mark, then a build failure has happened
-                -
-                (
-                  sum by(buildconfig) (openshift_build_status_phase_total{build_phase=~"complete",namespace="redhat-ods-applications"})  # Subtract the value of the increase (over last 30m) in successful builds
-                  -
-                  sum by(buildconfig) (min_over_time(openshift_build_status_phase_total{build_phase=~"complete",namespace="redhat-ods-applications"}[30m]))
-                )
-              )
-            )
-            >
-            (
-              sum by(buildconfig) (
-                (min_over_time(openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"}[30m]))  # Compare this value (the lowest number of historical build failures $offset time BEFORE current) against the current historical build failure count
-                or
-                (0 * openshift_build_status_phase_total{build_phase=~"error|failed",namespace="redhat-ods-applications"})  # This 'defaults' the historical build count above to 0, needed in case a the build label did not exist yet at that time.
-              )
-            )
-          for: 2m
-          labels:
-            severity: warning
-
       - name: RHODS Notebook controllers
         rules:
         - alert: Kubeflow notebook controller pod is not running

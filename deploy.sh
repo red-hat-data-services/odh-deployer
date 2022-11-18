@@ -124,6 +124,14 @@ oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: U
 RHODS_SELF_MANAGED=1
 oc get catalogsource -n openshift-marketplace self-managed-rhods &> /dev/null || RHODS_SELF_MANAGED=0
 
+# TODO: Remove in 1.21
+# If buildconfigs with label rhods/buildchain=cuda-* found, delete them (replaced by pre-build notebooks).
+oc delete buildconfig -n redhat-ods-applications -l rhods/buildchain
+
+# TODO: Remove in 1.21
+# If imagestreams with label rhods/buildchain=cuda-* found, delete them (replaced by pre-build notebooks).
+oc delete imagestreams -n redhat-ods-applications -l rhods/buildchain
+
 # Apply isvs for dashboard
 oc::dashboard::apply::isvs
 
@@ -373,7 +381,3 @@ fi
 
 # Add network policies
 oc apply -f network/
-
-# Create the runtime buildchain if the rhods-buildchain configmap is missing,
-# otherwise recreate it if the stored checksum does not match
-$HOME/buildchain.sh

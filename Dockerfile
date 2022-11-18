@@ -24,20 +24,16 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
     mkdir -p $HOME
 
 COPY deploy.sh $HOME
-COPY buildchain.sh $HOME
 ADD kfdefs $HOME/kfdefs
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
-ADD nbc $HOME/nbc
 ADD partners $HOME/partners
 ADD network $HOME/network
 ADD odh-dashboard $HOME/odh-dashboard
 
 RUN chmod 755 $HOME/deploy.sh && \
-    chmod 755 $HOME/buildchain.sh && \
     chmod 644 -R $HOME/kfdefs && \
     chmod 644 -R $HOME/monitoring && \
-    chmod 644 -R $HOME/nbc && \
     chmod 644 -R $HOME/network && \
     chmod 644 -R $HOME/odh-dashboard && \
     chown 1001:0 -R $HOME &&\
