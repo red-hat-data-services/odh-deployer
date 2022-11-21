@@ -299,6 +299,29 @@ oc::wait::object::availability "oc get secret grafana-datasources -n $ODH_MONITO
 
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/grafana/grafana.yaml
 
+# Seldon Deletion block for migration. Remove this in 1.20 too
+delete_seldon=1
+oc get -n ${ODH_PROJECT} OdhApplication seldon-deploy &> /dev/null || delete_seldon=0
+
+if [ "$delete_seldon" -eq 0 ]; then
+  echo "INFO: No Seldon resources found, proceeding normally"
+else
+  # Contents of seldon-app.yaml
+  oc delete -n ${ODH_PROJECT} OdhApplication seldon-deploy || echo "Seldon app tile deletion failed"
+  # Contents of seldon-deploy-canary-quick.yaml
+  oc delete -n ${ODH_PROJECT} OdhQuickStart seldon-deploy-model-canary || echo "Seldon seldon-deploy-model-canary quickstart deletion failed"
+  # Contents of seldon-deploy-drift-quickstart.yaml
+  oc delete -n ${ODH_PROJECT} OdhQuickStart seldon-deploy-model-drift || echo "Seldon seldon-deploy-model-drift quickstart deletion failed"
+  # Contents of seldon-deploy-explainer-quickstart.yaml
+  oc delete -n ${ODH_PROJECT} OdhQuickStart seldon-deploy-model-explainer || echo "Seldon seldon-deploy-model-explainer quickstart deletion failed"
+  # Contents of seldon-deploy-outlier-quickstart.yaml
+  oc delete -n ${ODH_PROJECT} OdhQuickStart seldon-deploy-model-outlier || echo "Seldon seldon-deploy-model-outlier quickstart deletion failed"
+  # Contents of seldon-docs.yaml
+  oc delete -n ${ODH_PROJECT} OdhDocument seldon-model-servings-tutorial || echo "Seldon document deletion failed"
+  oc delete -n ${ODH_PROJECT} OdhDocument seldon-operation-tasks-how-to || echo "Seldon document deletion failed"
+fi
+# End Seldon Deletion block
+
 # Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-config.yaml

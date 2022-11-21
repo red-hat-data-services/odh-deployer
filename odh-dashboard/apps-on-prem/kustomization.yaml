@@ -10,5 +10,4 @@ bases:
   - ./openvino
   - ./pachyderm
   - ./rhosak
-  - ./seldon
   - ./watson
