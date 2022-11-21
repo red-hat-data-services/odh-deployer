@@ -1,0 +1,30 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+  name: rhods-model-mesh
+spec:
+  applications:
+    - kustomizeConfig:
+        parameters:
+        - name: odh-mm-rest-proxy
+          value: ${ODH_MM_REST_PROXY_IMAGE}
+        - name: odh-modelmesh-runtime-adapter
+          value: ${ODH_MODELMESH_RUNTIME_ADAPTER_IMAGE}
+        - name: odh-modelmesh
+          value: ${ODH_MODELMESH_IMAGE}
+        - name: odh-openvino
+          value: ${ODH_OPENVINO_IMAGE}
+        - name: odh-modelmesh-controller
+          value: ${ODH_MODELMESH_CONTROLLER_IMAGE}
+        - name: odh-model-controller
+          value: ${ODH_MODEL_CONTROLLER_IMAGE}
+        overlays:
+          - odh-model-controller
+        repoRef:
+          name: manifests
+          path: model-mesh
+      name: model-mesh
+  repos:
+    - name: manifests
+      uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0
