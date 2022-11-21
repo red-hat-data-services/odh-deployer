@@ -272,6 +272,13 @@ else
     sed -i "s/receiver: user-notifications/receiver: alerts-sink/g" monitoring/prometheus/prometheus-configs.yaml
 fi
 
+# Configure Etcd Auth
+ETC_ROOT_PSW=$(openssl rand -hex 32)
+sed -i "s/<etcd_password>/${ETC_ROOT_PSW}/g" model-mesh/etcd-secrets.yaml
+sed -i "s/<etcd_password>/${ETC_ROOT_PSW}/g" model-mesh/etcd-users.yaml
+oc create -n ${ODH_PROJECT} -f model-mesh/etcd-secrets.yaml || echo "WARN: Model Mesh serving etcd connection secret was not created successfully."
+oc create -n ${ODH_PROJECT} -f model-mesh/etcd-users.yaml || echo "WARN: Etcd user secret was not created successfully."
+
 # Configure Prometheus
 oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
 alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
