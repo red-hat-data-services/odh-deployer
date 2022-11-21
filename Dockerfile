@@ -25,6 +25,7 @@ RUN tar -C /usr/local/bin -xvf $TMPDIR/oc.tar.gz && \
 
 COPY deploy.sh $HOME
 ADD kfdefs $HOME/kfdefs
+ADD model-mesh $HOME/model-mesh
 ADD monitoring $HOME/monitoring
 ADD consolelink $HOME/consolelink
 ADD partners $HOME/partners
@@ -33,6 +34,7 @@ ADD odh-dashboard $HOME/odh-dashboard
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 -R $HOME/kfdefs && \
+    chmod 644 -R $HOME/model-mesh && \
     chmod 644 -R $HOME/monitoring && \
     chmod 644 -R $HOME/network && \
     chmod 644 -R $HOME/odh-dashboard && \
