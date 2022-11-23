@@ -440,7 +440,7 @@ data:
         - alert: ODH Model Controller Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/ModelMesh-Serving/rhods-odh-controller-probe-success-burn-rate.md"
             summary: ODH Model Controller Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate5m{instance=~"odh-model-controller"}) by (instance) > (14.40 * (1-0.98000))
@@ -452,7 +452,7 @@ data:
         - alert: ODH Model Controller Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/ModelMesh-Serving/rhods-odh-controller-probe-success-burn-rate.md"
             summary: ODH Model Controller Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate30m{instance=~"odh-model-controller"}) by (instance) > (6.00 * (1-0.98000))
@@ -464,7 +464,7 @@ data:
         - alert: ODH Model Controller Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/ModelMesh-Serving/rhods-odh-controller-probe-success-burn-rate.md"
             summary: ODH Model Controller Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate2h{instance=~"odh-model-controller"}) by (instance) > (3.00 * (1-0.98000))
@@ -476,7 +476,7 @@ data:
         - alert: Modelmesh Controller Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/ModelMesh-Serving/rhods-modelmesh-controller-probe-success-burn-rate.md"
             summary: Modelmesh Controller Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate5m{instance=~"modelmesh-controller"}) by (instance) > (14.40 * (1-0.98000))
@@ -488,7 +488,7 @@ data:
         - alert: Modelmesh Controller Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/ModelMesh-Serving/rhods-modelmesh-controller-probe-success-burn-rate.md"
             summary: Modelmesh Controller Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate30m{instance=~"modelmesh-controller"}) by (instance) > (6.00 * (1-0.98000))
@@ -500,7 +500,7 @@ data:
         - alert: Modelmesh Controller Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-jupyter-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/ModelMesh-Serving/rhods-modelmesh-controller-probe-success-burn-rate.md"
             summary: Modelmesh Controller Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate2h{instance=~"modelmesh-controller"}) by (instance) > (3.00 * (1-0.98000))
