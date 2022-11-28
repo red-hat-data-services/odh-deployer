@@ -12,7 +12,7 @@ spec:
   - kustomizeConfig:
       parameters:
       - name: odh-dashboard-image
-        value: ${ODH_DASHBOARD_IMAGE}
+        value: ${RELATED_IMAGE_ODH_DASHBOARD_IMAGE}
       overlays:
         - authentication
       repoRef:
