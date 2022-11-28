@@ -41,17 +41,6 @@ RUN chmod 755 $HOME/deploy.sh && \
     chown 1001:0 -R $HOME &&\
     chmod ug+rwx -R $HOME
 
-# Generate the checksum before we modify the manifest to be version specific.
-# This checksum will be deployed in a configmap in a running deployment and so
-# if the content other than the rhods/buildchain label value changes, the
-# checksum will match
-RUN sha256sum $HOME/nbc/cuda-11.4.2/manifests.yaml > $HOME/manifest-checksum
-
-# Update the labels with the specific version value
-RUN sed -i 's,rhods/buildchain:.*,rhods/buildchain: cuda-'"${version}"',g' \
-       $HOME/nbc/cuda-11.4.2/manifests.yaml
-
-
 LABEL org.label-schema.build-date="$builddate" \
       org.label-schema.description="Pod to deploy the CR for Open Data Hub" \
       org.label-schema.license="Apache-2.0" \

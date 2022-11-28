@@ -7,17 +7,17 @@ spec:
     - kustomizeConfig:
         parameters:
         - name: odh-mm-rest-proxy
-          value: ${ODH_MM_REST_PROXY_IMAGE}
+          value: ${RELATED_IMAGE_ODH_MM_REST_PROXY_IMAGE}
         - name: odh-modelmesh-runtime-adapter
-          value: ${ODH_MODELMESH_RUNTIME_ADAPTER_IMAGE}
+          value: ${RELATED_IMAGE_ODH_MODELMESH_RUNTIME_ADAPTER_IMAGE}
         - name: odh-modelmesh
-          value: ${ODH_MODELMESH_IMAGE}
+          value: ${RELATED_IMAGE_ODH_MODELMESH_IMAGE}
         - name: odh-openvino
-          value: ${ODH_OPENVINO_IMAGE}
+          value: ${RELATED_IMAGE_ODH_OPENVINO_IMAGE}
         - name: odh-modelmesh-controller
-          value: ${ODH_MODELMESH_CONTROLLER_IMAGE}
+          value: ${RELATED_IMAGE_ODH_MODELMESH_CONTROLLER_IMAGE}
         - name: odh-model-controller
-          value: ${ODH_MODEL_CONTROLLER_IMAGE}
+          value: ${RELATED_IMAGE_ODH_MODEL_CONTROLLER_IMAGE}
         overlays:
           - odh-model-controller
         repoRef:
