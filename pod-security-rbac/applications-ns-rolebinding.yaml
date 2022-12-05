@@ -1,0 +1,25 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+ name: rhods-applications-scc
+subjects:
+# Add all application SA separately, since some of them require the restricted permissions
+ - kind: Group
+   apiGroup: rbac.authorization.k8s.io
+   name: 'system:serviceaccounts:redhat-ods-applications:modelmesh-controller'
+ - kind: Group
+   apiGroup: rbac.authorization.k8s.io
+   name: 'system:serviceaccounts:redhat-ods-applications:notebook-controller-service-account'
+ - kind: Group
+   apiGroup: rbac.authorization.k8s.io
+   name: 'system:serviceaccounts:redhat-ods-applications:odh-model-controller'
+ - kind: Group
+   apiGroup: rbac.authorization.k8s.io
+   name: 'system:serviceaccounts:redhat-ods-applications:rhods-dashboard'
+ - kind: Group
+   apiGroup: rbac.authorization.k8s.io
+   name: 'system:serviceaccounts:redhat-ods-applications:modelmesh'
+roleRef:
+ apiGroup: rbac.authorization.k8s.io
+ kind: ClusterRole
+ name: 'system:openshift:scc:anyuid'
