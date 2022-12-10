@@ -18,6 +18,8 @@ spec:
           value: ${RELATED_IMAGE_ODH_MODELMESH_CONTROLLER_IMAGE}
         - name: odh-model-controller
           value: ${RELATED_IMAGE_ODH_MODEL_CONTROLLER_IMAGE}
+        - name: monitoring-namespace
+          value: redhat-ods-monitoring
         overlays:
           - odh-model-controller
         repoRef:
