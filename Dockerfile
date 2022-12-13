@@ -31,6 +31,7 @@ ADD consolelink $HOME/consolelink
 ADD partners $HOME/partners
 ADD network $HOME/network
 ADD odh-dashboard $HOME/odh-dashboard
+ADD pod-security-rbac $HOME/pod-security-rbac
 
 RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 -R $HOME/kfdefs && \
@@ -38,6 +39,7 @@ RUN chmod 755 $HOME/deploy.sh && \
     chmod 644 -R $HOME/monitoring && \
     chmod 644 -R $HOME/network && \
     chmod 644 -R $HOME/odh-dashboard && \
+    chmod 644 -R $HOME/pod-security-rbac && \
     chown 1001:0 -R $HOME &&\
     chmod ug+rwx -R $HOME
 
