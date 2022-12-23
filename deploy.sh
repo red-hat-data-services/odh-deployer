@@ -106,9 +106,11 @@ ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
 ODH_OPERATOR_PROJECT=${OPERATOR_NAMESPACE:-"redhat-ods-operator"}
 NAMESPACE_LABEL="opendatahub.io/generated-namespace=true"
+POD_SECURITY_LABEL="pod-security.kubernetes.io/enforce=baseline"
 
 oc new-project ${ODH_PROJECT} || echo "INFO: ${ODH_PROJECT} project already exists."
 oc label namespace $ODH_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+oc label namespace $ODH_PROJECT  $POD_SECURITY_LABEL --overwrite=true || echo "INFO: ${POD_SECURITY_LABEL} label already exists."
 
 oc new-project ${ODH_NOTEBOOK_PROJECT} || echo "INFO: ${ODH_NOTEBOOK_PROJECT} project already exists."
 oc label namespace $ODH_NOTEBOOK_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
@@ -116,7 +118,11 @@ oc label namespace $ODH_NOTEBOOK_PROJECT  $NAMESPACE_LABEL --overwrite=true || e
 oc new-project $ODH_MONITORING_PROJECT || echo "INFO: $ODH_MONITORING_PROJECT project already exists."
 oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
 oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
+oc label namespace $ODH_MONITORING_PROJECT  $POD_SECURITY_LABEL --overwrite=true || echo "INFO: ${POD_SECURITY_LABEL} label already exists."
 
+# Create Rolebinding for baseline permissions
+oc apply -n ${ODH_PROJECT} -f pod-security-rbac/applications-ns-rolebinding.yaml
+oc apply -n ${ODH_MONITORING_PROJECT} -f pod-security-rbac/monitoring-ns-rolebinding.yaml
 # If rhodsquickstart CRD is found, delete it. Note: Remove this code in 1.19
 oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: Unable to delete Rhodsquickstart CRD"
 
