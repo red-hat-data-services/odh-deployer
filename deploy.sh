@@ -324,35 +324,6 @@ else
 fi
 
 
-# Grafana Deletion block for migration. Remove this in 1.20
-delete_grafana=1
-oc get -n $ODH_MONITORING_PROJECT deployment grafana &> /dev/null || delete_grafana=0
-
-if [ "$delete_grafana" -eq 0 ]; then
-  echo "INFO: No Grafana resources found, proceeding normally"
-else
-  # Contents of grafana.yaml
-  oc delete -n $ODH_MONITORING_PROJECT service grafana || echo "Core Grafana deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT route grafana || echo "Core Grafana deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT configmap grafana || echo "Core Grafana deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT deployment grafana || echo "Core Grafana deletion failed"
-
-  # Contents of grafana-secrets.yaml
-  oc delete -n $ODH_MONITORING_PROJECT secret grafana-config || echo "Grafana secret deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT secret grafana-proxy-config || echo "Grafana secret deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT secret grafana-datasources || echo "Grafana secret deletion failed"
-
-  # Contents of grafana-sa.yaml
-  oc delete -n $ODH_MONITORING_PROJECT serviceaccount grafana || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT role grafana || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT role use-anyuid-scc || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana-sa-anyuid || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana-rb || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana grafana-auth-rb || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT clusterrolebinding grafana-auth-rb || echo "Grafana SA deletion failed"
-fi
-# End Grafana deletion block
-
 # Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-config.yaml
