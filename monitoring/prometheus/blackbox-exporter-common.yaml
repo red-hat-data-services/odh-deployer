@@ -46,7 +46,7 @@ spec:
       serviceAccountName: prometheus
       initContainers:
         - name: wait-for-deployment
-          image: 'registry.access.redhat.com/ubi8/ubi-minimal@sha256:31ccb79b1b2c2d6eff1bee0db23d5b8ab598eafd6238417d9813f1346f717c11'
+          image: 'registry.redhat.io/ubi8/ubi-minimal@sha256:5d2d4d4dbec470f8ffb679915e2a8ae25ad754cd9193fa966deee1ecb7b3ee00'
           resources:
             limits:
               cpu: 150m
