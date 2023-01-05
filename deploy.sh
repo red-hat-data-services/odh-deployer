@@ -258,24 +258,47 @@ if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
     echo "Cluster is not for RHODS engineering or test purposes."
   fi
 
+  # Configure Prometheus
+  oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
+  alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+  sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
+
+  sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
+
+  sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
+  oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
+
+  oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
+  rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
+  sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus-configs.yaml
+
+  notebook_spawner_host="notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics,odh-notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics"
+  sed -i "s/<notebook_spawner_host>/$notebook_spawner_host/g" monitoring/prometheus/prometheus-configs.yaml
+
+  oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-configs.yaml
+
+  alertmanager_config=$(oc get cm alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.alertmanager\.yml}' | openssl dgst -binary -sha256 | openssl base64)
+  sed -i "s#<alertmanager_config_hash>#$alertmanager_config#g" monitoring/prometheus/prometheus.yaml
+
+  prometheus_config=$(oc get cm prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.data}' | openssl dgst -binary -sha256 | openssl base64)
+  sed -i "s#<prometheus_config_hash>#$prometheus_config#g" monitoring/prometheus/prometheus.yaml
+  oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
+
+  sed -i "s#<odh_monitoring_project>#$ODH_MONITORING_PROJECT#g" monitoring/prometheus/prometheus-viewer-rolebinding.yaml
+  oc apply -n $ODH_PROJECT -f monitoring/prometheus/prometheus-viewer-rolebinding.yaml
+
+  # Configure Blackbox exporter
+  oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/blackbox-exporter-common.yaml
+
+  if [[ "$(oc get route -n openshift-console console --template={{.spec.host}})" =~ .*"redhat.com".* ]]; then
+    oc apply -f monitoring/prometheus/blackbox-exporter-internal.yaml -n $ODH_MONITORING_PROJECT
+  else
+    oc apply -f monitoring/prometheus/blackbox-exporter-external.yaml -n $ODH_MONITORING_PROJECT
+  fi
+
 # Apply specific configuration for self-managed environments
 else
     echo "INFO: Applying specific configuration for self-managed environments."
-
-    # Disable Dead Man's Snitch alerting
-    sed -i "s/<snitch_url>/http:\/\/localhost:80/g" monitoring/prometheus/prometheus-configs.yaml
-    sed -i "s/receiver: deadman-snitch/receiver: alerts-sink/g" monitoring/prometheus/prometheus-configs.yaml
-
-    # Disable PagerDuty alerting
-    sed -i "s/receiver: PagerDuty/receiver: alerts-sink/g" monitoring/prometheus/prometheus-configs.yaml
-
-    # Disable SMTP alerting
-    sed -i "s/<user_emails>/rhods@noreply/g" monitoring/prometheus/prometheus-configs.yaml
-    sed -i "s/<smtp_host>/localhost/g" monitoring/prometheus/prometheus-configs.yaml
-    sed -i "s/<smtp_port>/587/g" monitoring/prometheus/prometheus-configs.yaml
-    sed -i "s/<smtp_username>/rhods/g" monitoring/prometheus/prometheus-configs.yaml
-    sed -i "s/<smtp_password>/rhods/g" monitoring/prometheus/prometheus-configs.yaml
-    sed -i "s/receiver: user-notifications/receiver: alerts-sink/g" monitoring/prometheus/prometheus-configs.yaml
 fi
 
 # Configure Etcd Auth
@@ -285,73 +308,6 @@ sed -i "s/<etcd_password>/${ETC_ROOT_PSW}/g" model-mesh/etcd-users.yaml
 oc create -n ${ODH_PROJECT} -f model-mesh/etcd-secrets.yaml || echo "WARN: Model Mesh serving etcd connection secret was not created successfully."
 oc create -n ${ODH_PROJECT} -f model-mesh/etcd-users.yaml || echo "WARN: Etcd user secret was not created successfully."
 
-# Configure Prometheus
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/alertmanager-svc.yaml
-alertmanager_host=$(oc::wait::object::availability "oc get route alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
-sed -i "s/<set_alertmanager_host>/$alertmanager_host/g" monitoring/prometheus/prometheus.yaml
-
-sed -i "s/<alertmanager_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
-
-sed -i "s/<prometheus_proxy_secret>/$(openssl rand -hex 32)/g" monitoring/prometheus/prometheus-secrets.yaml
-oc create -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-secrets.yaml || echo "INFO: Prometheus session secrets already exist."
-
-oc apply -f monitoring/rhods-dashboard-route.yaml -n $ODH_PROJECT
-rhods_dashboard_host=$(oc::wait::object::availability "oc get route rhods-dashboard -n $ODH_PROJECT -o jsonpath='{.spec.host}'" 2 30 | tr -d "'")
-sed -i "s/<rhods_dashboard_host>/$rhods_dashboard_host/g" monitoring/prometheus/prometheus-configs.yaml
-
-notebook_spawner_host="notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics,odh-notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics"
-sed -i "s/<notebook_spawner_host>/$notebook_spawner_host/g" monitoring/prometheus/prometheus-configs.yaml
-
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-configs.yaml
-
-alertmanager_config=$(oc get cm alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.alertmanager\.yml}' | openssl dgst -binary -sha256 | openssl base64)
-sed -i "s#<alertmanager_config_hash>#$alertmanager_config#g" monitoring/prometheus/prometheus.yaml
-
-prometheus_config=$(oc get cm prometheus -n $ODH_MONITORING_PROJECT -o jsonpath='{.data}' | openssl dgst -binary -sha256 | openssl base64)
-sed -i "s#<prometheus_config_hash>#$prometheus_config#g" monitoring/prometheus/prometheus.yaml
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus.yaml
-
-sed -i "s#<odh_monitoring_project>#$ODH_MONITORING_PROJECT#g" monitoring/prometheus/prometheus-viewer-rolebinding.yaml
-oc apply -n $ODH_PROJECT -f monitoring/prometheus/prometheus-viewer-rolebinding.yaml
-
-# Configure Blackbox exporter
-oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/blackbox-exporter-common.yaml
-
-if [[ "$(oc get route -n openshift-console console --template={{.spec.host}})" =~ .*"redhat.com".* ]]; then
-  oc apply -f monitoring/prometheus/blackbox-exporter-internal.yaml -n $ODH_MONITORING_PROJECT
-else
-  oc apply -f monitoring/prometheus/blackbox-exporter-external.yaml -n $ODH_MONITORING_PROJECT
-fi
-
-
-# Grafana Deletion block for migration. Remove this in 1.20
-delete_grafana=1
-oc get -n $ODH_MONITORING_PROJECT deployment grafana &> /dev/null || delete_grafana=0
-
-if [ "$delete_grafana" -eq 0 ]; then
-  echo "INFO: No Grafana resources found, proceeding normally"
-else
-  # Contents of grafana.yaml
-  oc delete -n $ODH_MONITORING_PROJECT service grafana || echo "Core Grafana deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT route grafana || echo "Core Grafana deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT configmap grafana || echo "Core Grafana deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT deployment grafana || echo "Core Grafana deletion failed"
-
-  # Contents of grafana-secrets.yaml
-  oc delete -n $ODH_MONITORING_PROJECT secret grafana-config || echo "Grafana secret deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT secret grafana-proxy-config || echo "Grafana secret deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT secret grafana-datasources || echo "Grafana secret deletion failed"
-
-  # Contents of grafana-sa.yaml
-  oc delete -n $ODH_MONITORING_PROJECT serviceaccount grafana || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT role grafana || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT role use-anyuid-scc || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana-sa-anyuid || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana-rb || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT rolebinding grafana grafana-auth-rb || echo "Grafana SA deletion failed"
-  oc delete -n $ODH_MONITORING_PROJECT clusterrolebinding grafana-auth-rb || echo "Grafana SA deletion failed"
-fi
-# End Grafana deletion block
 
 # Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
