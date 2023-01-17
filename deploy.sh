@@ -101,6 +101,25 @@ function oc::object::safe::to::apply() {
   return 0
 }
 
+function add_servingruntime_config() {
+  # Get OpenVino image from latest CSV
+  openvino_img=$(oc get csv -l operators.coreos.com/rhods-operator.redhat-ods-operator -n $ODH_OPERATOR_PROJECT -o=jsonpath='{.items[-1].spec.install.spec.deployments[?(@.name == "rhods-operator")].spec.template.spec.containers[?(@.name == "rhods-operator")].env[?(@.name == "RELATED_IMAGE_ODH_OPENVINO_IMAGE")].value}')
+  # Replace image
+  sed -i "s|<openvino_image>|${openvino_img}|g" model-mesh/serving_runtime_config.yaml
+
+  exists=$(oc get -n $ODH_PROJECT configmap/servingruntimes-config -o name | grep configmap/servingruntimes-config || echo "false")
+  if [ "$exists" == "false" ]; then
+    return 0
+  else
+    openvino_exists=$(oc get -n $ODH_PROJECT configmap/servingruntimes-config -o jsonpath='{.data}' | grep "default-config" || echo "false")
+    if [ "$openvino_exists" != "false" ]; then
+      return 0
+    fi
+  fi
+  return 1
+
+}
+
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
@@ -308,6 +327,10 @@ sed -i "s/<etcd_password>/${ETC_ROOT_PSW}/g" model-mesh/etcd-users.yaml
 oc create -n ${ODH_PROJECT} -f model-mesh/etcd-secrets.yaml || echo "WARN: Model Mesh serving etcd connection secret was not created successfully."
 oc create -n ${ODH_PROJECT} -f model-mesh/etcd-users.yaml || echo "WARN: Etcd user secret was not created successfully."
 
+# Configure Serving Runtime resources
+if add_servingruntime_config; then
+  oc apply -f model-mesh/serving_runtime_config.yaml -n $ODH_PROJECT
+fi
 
 # Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
