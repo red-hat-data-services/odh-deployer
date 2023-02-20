@@ -15,6 +15,7 @@ spec:
     enablement: true
     disableProjects: false
     disableModelServing: false
+    modelMetricsNamespace: ''
   groupsConfig:
     adminGroups: "<admin_groups>"
     allowedGroups: "system:authenticated"
