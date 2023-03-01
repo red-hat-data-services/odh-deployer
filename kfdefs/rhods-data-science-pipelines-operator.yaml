@@ -1,0 +1,15 @@
+apiVersion: kfdef.apps.kubeflow.org/v1
+kind: KfDef
+metadata:
+   name: data-science-pipelines-operator
+spec:
+   applications:
+      - kustomizeConfig:
+           repoRef:
+              name: manifests
+              path: data-science-pipelines-operator/
+        name: data-science-pipelines-operator
+  repos:
+    - name: manifests
+      uri: file:///opt/manifests/odh-manifests.tar.gz
+  version: v1.0.0
