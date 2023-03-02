@@ -330,13 +330,6 @@ else
     echo "INFO: Applying specific configuration for self-managed environments."
 fi
 
-# Configure Etcd Auth
-ETC_ROOT_PSW=$(openssl rand -hex 32)
-sed -i "s/<etcd_password>/${ETC_ROOT_PSW}/g" model-mesh/etcd-secrets.yaml
-sed -i "s/<etcd_password>/${ETC_ROOT_PSW}/g" model-mesh/etcd-users.yaml
-oc create -n ${ODH_PROJECT} -f model-mesh/etcd-secrets.yaml || echo "WARN: Model Mesh serving etcd connection secret was not created successfully."
-oc create -n ${ODH_PROJECT} -f model-mesh/etcd-users.yaml || echo "WARN: Etcd user secret was not created successfully."
-
 # Configure Serving Runtime resources
 echo "Creating Serving Runtime resources..."
 add_servingruntime_config
