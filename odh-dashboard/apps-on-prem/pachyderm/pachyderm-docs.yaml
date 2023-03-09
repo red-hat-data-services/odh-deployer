@@ -11,7 +11,7 @@ spec:
   description: |-
     Learn Pachyderm's main concepts by creating pipelines that perform edge detection on a few images. 
   
-  url: https://docs.pachyderm.com/latest/getting_started/beginner_tutorial/
+  url: https://docs.pachyderm.com/latest/getting-started/beginner-tutorial/
   durationMinutes: 15
 ---
 apiVersion: dashboard.opendatahub.io/v1
