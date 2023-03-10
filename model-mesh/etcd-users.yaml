@@ -1,8 +1,0 @@
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: etcd-passwords
-  namespace: redhat-ods-applications
-stringData:
-  root: <etcd_password>
