@@ -1,14 +1,33 @@
 apiVersion: kfdef.apps.kubeflow.org/v1
 kind: KfDef
 metadata:
-   name: data-science-pipelines-operator
+  name: rhods-data-science-pipelines-operator
 spec:
-   applications:
-      - kustomizeConfig:
-           repoRef:
-              name: manifests
-              path: data-science-pipelines-operator/
-        name: data-science-pipelines-operator
+  applications:
+    - kustomizeConfig:
+        parameters:
+          - name: IMAGES_APISERVER
+            value: ${RELATED_IMAGE_ODH_ML_PIPELINES_API_SERVER_IMAGE}
+          - name: IMAGES_ARTIFACT
+            value: ${RELATED_IMAGE_ODH_ML_PIPELINES_ARTIFACT_MANAGER_IMAGE}
+          - name: IMAGES_PERSISTENTAGENT
+            value: ${RELATED_IMAGE_ODH_ML_PIPELINES_PERSISTENCEAGENT_IMAGE}
+          - name: IMAGES_SCHEDULEDWORKFLOW
+            value: ${RELATED_IMAGE_ODH_ML_PIPELINES_SCHEDULEDWORKFLOW_IMAGE}
+          - name: IMAGES_VIEWERCRD
+            value: ${RELATED_IMAGE_ODH_ML_PIPELINES_VIEWERCONTROLLER_IMAGE}
+          - name: IMAGES_CACHE
+            value: ${RELATED_IMAGE_ODH_ML_PIPELINES_CACHE_IMAGE}
+          - name: IMAGES_DSPO
+            value: ${RELATED_IMAGE_ODH_DATA_SCIENCE_PIPELINES_OPERATOR_CONTROLLER_IMAGE}
+          - name: IMAGES_MOVERESULTSIMAGE
+            value: registry.redhat.io/ubi8/ubi-micro:8.7
+          - name: IMAGES_MARIADB
+            value: registry.redhat.io/rhel8/mariadb-103:1
+        repoRef:
+          name: manifests
+          path: data-science-pipelines-operator/
+      name: data-science-pipelines-operator
   repos:
     - name: manifests
       uri: file:///opt/manifests/odh-manifests.tar.gz
