@@ -311,6 +311,9 @@ if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
   notebook_spawner_host="notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics,odh-notebook-controller-service.$ODH_PROJECT.svc:8080\/metrics"
   sed -i "s/<notebook_spawner_host>/$notebook_spawner_host/g" monitoring/prometheus/prometheus-configs.yaml
 
+  data-science-pipelines-operator_host="data-science-pipelines-operator-service.$ODH_PROJECT.svc:8080\/metrics"
+  sed -i "s/<data-science-pipelines-operator_host>/$data-science-pipelines-operator_host/g" monitoring/prometheus/prometheus-configs.yaml
+
   oc apply -n $ODH_MONITORING_PROJECT -f monitoring/prometheus/prometheus-configs.yaml
 
   alertmanager_config=$(oc get cm alertmanager -n $ODH_MONITORING_PROJECT -o jsonpath='{.data.alertmanager\.yml}' | openssl dgst -binary -sha256 | openssl base64)
