@@ -392,7 +392,7 @@ data:
         - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-dashboard-probe-success-burn-rate.md"
             summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate5m{name=~"rhods-dashboard"}) by (name) > (14.40 * (1-0.99950))
@@ -404,7 +404,7 @@ data:
         - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-dashboard-probe-success-burn-rate.md"
             summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate30m{name=~"rhods-dashboard"}) by (name) > (6.00 * (1-0.99950))
@@ -416,7 +416,7 @@ data:
         - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-dashboard-probe-success-burn-rate.md"
             summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate2h{name=~"rhods-dashboard"}) by (name) > (3.00 * (1-0.99950))
@@ -428,7 +428,7 @@ data:
         - alert: RHODS Dashboard Probe Success Burn Rate
           annotations:
             message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
-            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Jupyter/rhods-dashboard-probe-success-burn-rate.md"
+            triage: "https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/RHODS-Dashboard/rhods-dashboard-probe-success-burn-rate.md"
             summary: RHODS Dashboard Probe Success Burn Rate
           expr: |
             sum(probe_success:burnrate6h{name=~"rhods-dashboard"}) by (name) > (1.00 * (1-0.99950))
