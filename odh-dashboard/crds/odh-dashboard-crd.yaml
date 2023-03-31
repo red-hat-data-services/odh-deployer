@@ -132,6 +132,8 @@ spec:
                             type: boolean
                           key:
                             type: string
+                    storageClassName:
+                      type: string
             status:
               type: object
               properties:
