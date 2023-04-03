@@ -623,7 +623,7 @@ data:
       - targets: [<notebook_spawner_host>]
         labels:
           name: notebook-spawner
-      - targets: [<data-science-pipelines-operator_host>]
+      - targets: [<data_science_pipelines_operator_host>]
         labels:
           name: data-science-pipelines-operator
       relabel_configs:
