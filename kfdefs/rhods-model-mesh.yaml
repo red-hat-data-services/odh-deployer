@@ -28,5 +28,5 @@ spec:
       name: model-mesh
   repos:
     - name: manifests
-      uri: file:///opt/manifests/odh-manifests.tar.gz
+      uri: https://github.com/VannTen/odh-manifests/archive/fix-service-monitor.tar.gz
   version: v1.0.0
