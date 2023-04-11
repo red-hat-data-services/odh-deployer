@@ -277,53 +277,53 @@ data:
       - name: SLOs - Data Science Pipelines Application
         rules:
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[1d]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[1d])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[1d]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[1d])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate1d
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[1h]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[1h])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[1h]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[1h])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate1h
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[2h]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[2h])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[2h]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[2h])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate2h
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[30m]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[30m])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[30m]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[30m])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate30m
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[3d]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[3d])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[3d]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[3d])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate3d
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[5m]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[5m])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[5m]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[5m])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate5m
         - expr: |
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[6h]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*",code=~"5.."}[6h])) by (exported_namespace)
             /
-            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[6h]))
+            sum(rate(haproxy_backend_http_responses_total{route=~"ds-pipeline-.*"}[6h])) by (exported_namespace)
           labels:
-            route: ds-pipeline-sample
+            component: dsp
           record: haproxy_backend_http_responses_total:burnrate6h
 
       - name: Usage Metrics
@@ -798,6 +798,10 @@ data:
           regex: (.+):8888
           target_label: __address__
           action: keep
+        - source_labels: [__meta_kubernetes_service_name]
+          target_label: dspa_service
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
 
     - job_name: 'RHODS Metrics'
       honor_labels: true
