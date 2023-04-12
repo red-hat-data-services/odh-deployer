@@ -1,5 +1,5 @@
 apiVersion: console.openshift.io/v1
-kind: ConsoleQuickStart
+kind: OdhQuickStart
 metadata:
   name: using-starburst-galaxy
   annotations:
