@@ -2,6 +2,7 @@ aliases:
   # folks who can approve and APPROVED any PRs in the repo
   dev-approvers:
     - anishasthana
+    - HumairAK
     - LaVLaS
     - lucferbux
     - VaishnaviHire
@@ -13,5 +14,5 @@ aliases:
     - VaishnaviHire
   # folks who can review/test and QE-APPROVED any PRs in the repo
   qe-approvers:
-    - pablofelix
+    - jgarciao
     - tarukumar
