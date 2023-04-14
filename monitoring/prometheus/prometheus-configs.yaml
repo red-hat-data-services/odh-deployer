@@ -236,6 +236,44 @@ data:
             instance: rhods-controller
           record: controller_runtime_reconcile_total:rate15m
 
+      - name: SLOs - Data Science Pipelines Operator
+        rules:
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"data-science-pipelines-operator-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: data-science-pipelines-operator
+          record: probe_success:burnrate6h
+
       - name: Usage Metrics
         rules:
         - expr: count(kube_statefulset_replicas{namespace=~"rhods-notebooks", statefulset=~"jupyter-nb-.*"})
@@ -585,6 +623,9 @@ data:
       - targets: [<notebook_spawner_host>]
         labels:
           name: notebook-spawner
+      - targets: [<data_science_pipelines_operator_host>]
+        labels:
+          name: data-science-pipelines-operator
       relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -668,6 +709,27 @@ data:
           regex: (.+):(\d+)
           target_label: __address__
           replacement: ${1}:8080
+
+    - job_name: 'Data Science Pipelines Operator'
+      honor_labels: true
+      metrics_path: /metrics
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(data-science-pipelines-operator-service)$
+          target_label: kubernetes_name
+          action: keep
+      metric_relabel_configs:
+        - target_label: namespace
+          replacement: redhat-ods-applications
 
     - job_name: 'RHODS Metrics'
       honor_labels: true
