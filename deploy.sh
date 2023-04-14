@@ -102,8 +102,8 @@ function oc::object::safe::to::apply() {
 }
 
 function add_servingruntime_config() {
-  # Get OpenVino image from latest CSV
-  openvino_img=$(oc get csv -l operators.coreos.com/rhods-operator.redhat-ods-operator -n $ODH_OPERATOR_PROJECT -o=jsonpath='{.items[-1].spec.install.spec.deployments[?(@.name == "rhods-operator")].spec.template.spec.containers[?(@.name == "rhods-operator")].env[?(@.name == "RELATED_IMAGE_ODH_OPENVINO_IMAGE")].value}')
+  # Replace OpenVINO Model Server image in servingruntime config
+  openvino_img='quay.io/modh/openvino-model-server@sha256:c89f76386bc8b59f0748cf173868e5beef21ac7d2f78dada69089c4d37c44116'
     
   # Replace image
   sed -i "s|<openvino_image>|${openvino_img}|g" model-mesh/serving_runtime_config.yaml

@@ -12,8 +12,6 @@ spec:
           value: ${RELATED_IMAGE_ODH_MODELMESH_RUNTIME_ADAPTER_IMAGE}
         - name: odh-modelmesh
           value: ${RELATED_IMAGE_ODH_MODELMESH_IMAGE}
-        - name: odh-openvino
-          value: ${RELATED_IMAGE_ODH_OPENVINO_IMAGE}
         - name: odh-modelmesh-controller
           value: ${RELATED_IMAGE_ODH_MODELMESH_CONTROLLER_IMAGE}
         - name: odh-model-controller
