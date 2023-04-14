@@ -46,7 +46,11 @@ spec:
               
               mm_svc_exists=false &&
               for i in `seq 1 230`; do sleep 10; echo "Waiting for modelmesh-controller service to become available..."; if curl -I http://modelmesh-controller.redhat-ods-applications.svc:8080/metrics; then mm_svc_exists=true; break; fi; done &&
-              if [ $mm_svc_exists = false ]; then exit 1; fi; exit 0
+              if [ $mm_svc_exists = false ]; then exit 1; fi &&
+
+              dspo_svc_exists=false &&
+              for i in `seq 1 230`; do sleep 10; echo "Waiting for Data Science Pipelines Operator service to become available..."; if curl -sS -I http://data-science-pipelines-operator-service.redhat-ods-applications.svc:8080/metrics; then dspo_svc_exists=true; break; fi; done &&
+              if [ $dspo_svc_exists = false ]; then exit 1; fi; exit 0
 
       containers:
       - name: oauth-proxy
