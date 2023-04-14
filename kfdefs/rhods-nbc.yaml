@@ -12,6 +12,29 @@ spec:
   - kustomizeConfig:
       overlays:
       - additional
+      parameters:
+      - name: odh-minimal-notebook-image-n
+        value: ${RELATED_IMAGE_ODH_MINIMAL_NOTEBOOK_IMAGE_N}
+      - name: odh-minimal-notebook-image-n-1
+        value: ${RELATED_IMAGE_ODH_MINIMAL_NOTEBOOK_IMAGE_N_1}
+      - name: odh-minimal-gpu-notebook-image-n
+        value: ${RELATED_IMAGE_ODH_MINIMAL_GPU_NOTEBOOK_IMAGE_N}
+      - name: odh-minimal-gpu-notebook-image-n-1
+        value: ${RELATED_IMAGE_ODH_MINIMAL_GPU_NOTEBOOK_IMAGE_N_1}
+      - name: odh-pytorch-gpu-notebook-image-n
+        value: ${RELATED_IMAGE_ODH_PYTORCH_GPU_NOTEBOOK_IMAGE_N}
+      - name: odh-pytorch-gpu-notebook-image-n-1
+        value: ${RELATED_IMAGE_ODH_PYTORCH_GPU_NOTEBOOK_IMAGE_N_1}
+      - name: odh-generic-data-science-notebook-image-n
+        value:  ${RELATED_IMAGE_ODH_GENERIC_DATA_SCIENCE_NOTEBOOK_IMAGE_N}
+      - name: odh-generic-data-science-notebook-image-n-1
+        value:  ${RELATED_IMAGE_ODH_GENERIC_DATA_SCIENCE_NOTEBOOK_IMAGE_N_1}
+      - name: odh-tensorflow-gpu-notebook-image-n
+        value: ${RELATED_IMAGE_ODH_TENSORFLOW_GPU_NOTEBOOK_IMAGE_N}
+      - name: odh-tensorflow-gpu-notebook-image-n-1
+        value: ${RELATED_IMAGE_ODH_TENSORFLOW_GPU_NOTEBOOK_IMAGE_N_1}
+      - name: odh-trustyai-notebook-image-n
+        value: ${RELATED_IMAGE_ODH_TRUSTYAI_NOTEBOOK_IMAGE_N}
       repoRef:
         name: manifests
         path: jupyterhub/notebook-images
