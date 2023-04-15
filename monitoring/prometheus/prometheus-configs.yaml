@@ -406,6 +406,55 @@ data:
           labels:
             severity: warning
 
+        - alert: Data Science Pipelines Application Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-error-burn-rate.md'
+            summary: Data Science Pipelines Application Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate5m{component="dsp"}) by (exported_namespace) > (14.40 * (1-0.99950))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate1h{component="dsp"}) by (exported_namespace) > (14.40 * (1-0.99950))
+          for: 2m
+          labels:
+            severity: info
+        - alert: Data Science Pipelines Application Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-error-burn-rate.md'
+            summary: Data Science Pipelines Application Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate30m{component="dsp"}) by (exported_namespace) > (6.00 * (1-0.99950))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate6h{component="dsp"}) by (exported_namespace) > (6.00 * (1-0.99950))
+          for: 15m
+          labels:
+            severity: info
+        - alert: Data Science Pipelines Application Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-error-burn-rate.md'
+            summary: Data Science Pipelines Application Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate2h{component="dsp"}) by (exported_namespace) > (3.00 * (1-0.99950))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate1d{component="dsp"}) by (exported_namespace) > (3.00 * (1-0.99950))
+          for: 1h
+          labels:
+            severity: info
+        - alert: Data Science Pipelines Application Route Error Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.route }} (current value: {{ $value }}).'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-error-burn-rate.md'
+            summary: Data Science Pipelines Application Route Error Burn Rate
+          expr: |
+            sum(haproxy_backend_http_responses_total:burnrate6h{component="dsp"}) by (exported_namespace) > (1.00 * (1-0.99950))
+            and
+            sum(haproxy_backend_http_responses_total:burnrate3d{component="dsp"}) by (exported_namespace) > (1.00 * (1-0.99950))
+          for: 3h
+          labels:
+            severity: info
+
       - name: RHODS-PVC-Usage
         rules:
         - alert: User notebook pvc usage above 90%
