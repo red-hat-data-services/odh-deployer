@@ -21,9 +21,9 @@ spec:
           - name: IMAGES_DSPO
             value: ${RELATED_IMAGE_ODH_DATA_SCIENCE_PIPELINES_OPERATOR_CONTROLLER_IMAGE}
           - name: IMAGES_MOVERESULTSIMAGE
-            value: registry.redhat.io/ubi8/ubi-micro:8.7
+            value: registry.redhat.io/ubi8/ubi-micro@sha256:6a56010de933f172b195a1a575855d37b70a4968be8edb35157f6ca193969ad2
           - name: IMAGES_MARIADB
-            value: registry.redhat.io/rhel8/mariadb-103:1
+            value: registry.redhat.io/rhel8/mariadb-103@sha256:08c90a8f133b4cdb1477a742bc44be4d8fc4e88153b8bc2a2a148cbdf19f4e7d
         repoRef:
           name: manifests
           path: data-science-pipelines-operator/
