@@ -2,7 +2,6 @@ apiVersion: kfdef.apps.kubeflow.org/v1
 kind: KfDef
 metadata:
   name: modelmesh-monitoring
-  namespace: redhat-ods-monitoring
 spec:
   applications:
   - kustomizeConfig:

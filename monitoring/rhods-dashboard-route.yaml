@@ -4,7 +4,6 @@ metadata:
   labels:
     app: rhods-dashboard
   name: rhods-dashboard
-  namespace: redhat-ods-applications
 spec:
   port:
     targetPort: 8443

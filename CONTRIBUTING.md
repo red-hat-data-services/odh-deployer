@@ -11,7 +11,7 @@ It's a quick read, and it's a great way to introduce yourself to how things work
 
 If you want to update documentation, [README.md](README.md) is the file you're looking for.
 
-When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+When contributing to this repository, please first discuss the change you wish to make via GitHub issue, email, or any other method with the owners of this repository before making a change.
 
 ## How to contribute code to odh-deployer
 
@@ -19,18 +19,17 @@ When contributing to this repository, please first discuss the change you wish t
 - Fork this repo
 - In your fork, create a branch for your feature
 - Sign off your commit using the -s, --signoff option. Write a good commit message (see [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/))
-- Push your changes
-- Send a PR to odh-deployer using GitHub's web interface
+- Push your changes to your forked repo
+- Create a PR to odh-deployer using GitHub's web interface
 - We are using OpenShift CI to control merges to the deployer repository. PRs will automatically be merged when the following conditions are met:
   - A `lgtm` label has been added by a reviewer
   - An `approved` label has been added by an approver
   - The [OWNERS_ALIASES](https://github.com/red-hat-data-services/odh-deployer/blob/main/OWNERS_ALIASES) file of the repository has a list of the people who can review, approve, and qe-approve PRs.
 
-
 ## Testing the PR
 
 - Test the changes locally, by manually running the [deploy.sh](deploy.sh) script from the terminal. This definitely helps in that initial rapid iteration phase.
-- Create a RHODS-live image based on the changes made. (See steps on how to [build a RHODS image using rhods-live-builder](https://gitlab.cee.redhat.com/data-hub/rhods-live-builder))
+- Create a RHODS live image based on the changes made. (See steps on how to [build a RHODS image using rhods-live-builder](https://gitlab.cee.redhat.com/data-hub/rhods-live-builder))
 - Use the image to install RHODS operator on an OpenShift cluster (See steps on how to [install a RHODS instance on an OpenShift cluster](https://gitlab.cee.redhat.com/data-hub/olminstall))
 - Test the changes over this installed RHODS operator to see if they work as expected.
 
