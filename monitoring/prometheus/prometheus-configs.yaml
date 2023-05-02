@@ -706,6 +706,14 @@ data:
           for: 5m
           labels:
             severity: warning
+        - alert: Controller rollout is stuck
+          annotations:
+            message: 'Rollout of controller {{ $labels.deployment }} is stuck.'
+            summary: A RHODS controller deployment upgrade is stuck.
+          expr: sum(kube_deployment_status_condition{condition="Progressing", status="false"}) by (deployment) != 0
+          for: 30m
+          labels:
+            severity: warning
 
   prometheus.yml: |
     rule_files:
