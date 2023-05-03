@@ -707,6 +707,44 @@ data:
           labels:
             severity: warning
 
+      - name: RHODS Data Science Pipelines
+        rules:
+        - alert: Data Science Pipeline Application Unavailable
+          annotations:
+            message: 'Data Science Pipelines Application is down!'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-component-readiness-status.md'
+            summary: The Data Science Pipelines Application CustomResource "{{ $labels.dspa_name }}" in namespace "{{ $labels.dspa_namespace }}" has been NotReady for more than 5 minutes
+          expr: min(max_over_time(data_science_pipelines_application_ready[3m])) by (dspa_name, dspa_namespace) == 0
+          for: 2m
+          labels:
+            severity: info
+        - alert: Data Science Pipeline APIServer Unavailable
+          annotations:
+            message: 'Data Science Pipelines APIServer component is down!'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-component-readiness-status.md'
+            summary: A Data Science Pipelines APIServer pod owned by DSPA "{{ $labels.dspa_name }}" in namespace "{{ $labels.dspa_namespace }}" has been NotReady for more than 5 minutes
+          expr: min(max_over_time(data_science_pipelines_application_apiserver_ready[3m])) by (dspa_name, dspa_namespace) == 0
+          for: 2m
+          labels:
+            severity: info
+        - alert: Data Science Pipeline PersistenceAgent Unavailable
+          annotations:
+            message: 'Data Science Pipelines PersistenceAgent component is down!'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-component-readiness-status.md'
+            summary: A Data Science Pipelines PersistenceAgent pod owned by DSPA "{{ $labels.dspa_name }}" in namespace "{{ $labels.dspa_namespace }}" has been NotReady for more than 5 minutes
+          expr: min(max_over_time(data_science_pipelines_application_persistenceagent_ready[3m])) by (dspa_name, dspa_namespace) == 0
+          for: 2m
+          labels:
+            severity: info
+        - alert: Data Science Pipeline ScheduledWorkflows Unavailable
+          annotations:
+            message: 'Data Science Pipelines ScheduledWorkflows component is down!'
+            triage: 'https://gitlab.cee.redhat.com/service/managed-tenants-sops/-/blob/main/RHODS/Data-Science-Pipelines/data-science-pipelines-application-component-readiness-status.md'
+            summary: A Data Science Pipelines ScheduledWorkflow controller pod owned by DSPA "{{ $labels.dspa_name }}" in namespace "{{ $labels.dspa_namespace }}" has been NotReady for more than 5 minutes
+          expr: min(max_over_time(data_science_pipelines_application_scheduledworkflow_ready[3m])) by (dspa_name, dspa_namespace) == 0
+          for: 2m
+          labels:
+            severity: info
   prometheus.yml: |
     rule_files:
       - '*.rules'
