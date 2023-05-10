@@ -14,7 +14,10 @@ spec:
     disableTracking: false
     enablement: true
     disableProjects: false
+    disablePipelines: false
     disableModelServing: false
+    disableProjectSharing: false
+    disableCustomServingRuntimes: false
     modelMetricsNamespace: ''
   groupsConfig:
     adminGroups: "<admin_groups>"
@@ -81,3 +84,4 @@ spec:
       requests:
         cpu: "6"
         memory: 16Gi
+  templateOrder: []
