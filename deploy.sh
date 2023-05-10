@@ -101,35 +101,6 @@ function oc::object::safe::to::apply() {
   return 0
 }
 
-function add_servingruntime_config() {
-  # Replace OpenVINO Model Server image in servingruntime config
-  openvino_img='quay.io/modh/openvino-model-server@sha256:c89f76386bc8b59f0748cf173868e5beef21ac7d2f78dada69089c4d37c44116'
-    
-  # Replace image
-  sed -i "s|<openvino_image>|${openvino_img}|g" model-mesh/serving_runtime_config.yaml
-
-  # Check if the configmap exists
-  configmap_exists=$(oc get -n $ODH_PROJECT configmap/servingruntimes-config -o name | grep configmap/servingruntimes-config || echo "false")
-
-  # Check if the key default-config exists
-  default_config_key_exists=$(oc get -n $ODH_PROJECT configmap/servingruntimes-config -o jsonpath='{.data}' | grep "default-config" || echo "false")
-
-  if [ "$configmap_exists" == "false" ]; then
-    echo "ConfigMap servingruntimes-config doesn't exist, creating it with the default configuration"
-    oc apply -f model-mesh/serving_runtime_config.yaml -n $ODH_PROJECT
-    return 0
-  elif [ "$default_config_key_exists" == "false" ]; then
-    echo "Key default-config doesn't exist in ConfigMap servingruntimes-config applying the key"
-    oc patch -n $ODH_PROJECT configmap/servingruntimes-config --patch-file model-mesh/serving_runtime_config.yaml
-    return 0
-  else
-    echo "Key default-config exists in ConfigMap servingruntimes-config, reverting the configuration to the initial state and updating openvino image"
-    oc patch -n $ODH_PROJECT configmap/servingruntimes-config --patch-file model-mesh/serving_runtime_config.yaml
-    return 0
-  fi
-  return 1
-}
-
 ODH_PROJECT=${ODH_CR_NAMESPACE:-"redhat-ods-applications"}
 ODH_MONITORING_PROJECT=${ODH_MONITORING_NAMESPACE:-"redhat-ods-monitoring"}
 ODH_NOTEBOOK_PROJECT=${ODH_NOTEBOOK_NAMESPACE:-"rhods-notebooks"}
@@ -342,7 +313,7 @@ fi
 
 # Configure Serving Runtime resources
 echo "Creating Serving Runtime resources..."
-add_servingruntime_config
+oc apply -n ${ODH_PROJECT} -k odh-dashboard/modelserving
 
 # Add segment.io secret key & configmap
 oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-secret.yaml
