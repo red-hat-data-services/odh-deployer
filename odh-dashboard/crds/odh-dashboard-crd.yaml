@@ -45,8 +45,14 @@ spec:
                       type: boolean
                     disableModelServing:
                       type: boolean
+                    disableProjectSharing:
+                      type: boolean
+                    disableCustomServingRuntimes:
+                      type: boolean
                     modelMetricsNamespace:
                       type: string
+                    disablePipelines:
+                      type: boolean
                 groupsConfig:
                   type: object
                   required:
@@ -85,32 +91,32 @@ spec:
                               memory:
                                 type: string
                 modelServerSizes:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - name
-                        - resources
-                      properties:
-                        name:
-                          type: string
-                        resources:
-                          type: object
-                          properties:
-                            requests:
-                              type: object
-                              properties:
-                                cpu:
-                                  type: string
-                                memory:
-                                  type: string
-                            limits:
-                              type: object
-                              properties:
-                                cpu:
-                                  type: string
-                                memory:
-                                  type: string
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - resources
+                    properties:
+                      name:
+                        type: string
+                      resources:
+                        type: object
+                        properties:
+                          requests:
+                            type: object
+                            properties:
+                              cpu:
+                                type: string
+                              memory:
+                                type: string
+                          limits:
+                            type: object
+                            properties:
+                              cpu:
+                                type: string
+                              memory:
+                                type: string
                 notebookController:
                   type: object
                   required:
@@ -134,6 +140,10 @@ spec:
                             type: string
                     storageClassName:
                       type: string
+                templateOrder:
+                  type: array
+                  items:
+                    type: string
             status:
               type: object
               properties:
