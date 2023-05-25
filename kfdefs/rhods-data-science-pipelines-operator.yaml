@@ -22,6 +22,8 @@ spec:
             value: registry.redhat.io/ubi8/ubi-micro@sha256:6a56010de933f172b195a1a575855d37b70a4968be8edb35157f6ca193969ad2
           - name: IMAGES_MARIADB
             value: registry.redhat.io/rhel8/mariadb-103@sha256:08c90a8f133b4cdb1477a742bc44be4d8fc4e88153b8bc2a2a148cbdf19f4e7d
+          - name: IMAGES_OAUTHPROXY
+            value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:eb96f4b753606528750b3c28f7f9256582f81fa030450b05afdef684634903be
         repoRef:
           name: manifests
           path: data-science-pipelines-operator/
