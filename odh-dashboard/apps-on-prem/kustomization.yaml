@@ -9,5 +9,4 @@ bases:
   - ./jupyter
   - ./openvino
   - ./pachyderm
-  - ./rhosak
   - ./watson
