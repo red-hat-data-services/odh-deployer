@@ -10,3 +10,4 @@ bases:
   - ./openvino
   - ./pachyderm
   - ./watson
+  - ./starburst-enterprise
