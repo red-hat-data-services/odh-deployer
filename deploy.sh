@@ -120,6 +120,8 @@ oc label namespace $ODH_MONITORING_PROJECT openshift.io/cluster-monitoring=true 
 oc label namespace $ODH_MONITORING_PROJECT  $NAMESPACE_LABEL --overwrite=true || echo "INFO: ${NAMESPACE_LABEL} label already exists."
 oc label namespace $ODH_MONITORING_PROJECT  $POD_SECURITY_LABEL --overwrite=true || echo "INFO: ${POD_SECURITY_LABEL} label already exists."
 
+oc label namespace $ODH_PROJECT openshift.io/cluster-monitoring=true --overwrite=true
+
 # Create Rolebinding for baseline permissions
 oc apply -n ${ODH_PROJECT} -f pod-security-rbac/applications-ns-rolebinding.yaml
 oc apply -n ${ODH_MONITORING_PROJECT} -f pod-security-rbac/monitoring-ns-rolebinding.yaml
