@@ -59,7 +59,7 @@ The steps to add new information are:
 
 1. Set up this project locally following the steps mentioned in the [how to contribute section](#how-to-contribute-code-to-odh-deployer).
 2. Create or modify one of the isv folders inside the path mentioned above.
-3. If you are creating a new folder, add it to the `kustomize` file of one of the two folders mentioned above.
+3. If you are creating a new folder, add it to `kustomization.yaml` file in one of the two folders mentioned above.
 4. Create a PR with the changes.
 5. Attach the Jira Link to the PR.
 
