@@ -16,6 +16,7 @@ objects:
       name: ovms
       annotations:
         openshift.io/display-name: 'OpenVINO Model Server'
+        opendatahub.io/disable-gpu: 'true'
       labels:
         opendatahub.io/dashboard: 'true'
     spec:
@@ -54,4 +55,7 @@ objects:
         - autoSelect: true
           name: onnx
           version: '1'
+        - autoSelect: true
+          name: tensorflow
+          version: "2"
 parameters: []
