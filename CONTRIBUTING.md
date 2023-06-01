@@ -42,7 +42,7 @@ ISV partners can contribute in this repo to display documentation in RHODS
 
 In order to contribute to RHODS, we currently support three different object definitions to display different data:
 
-- [OdhApplication](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-application-crd.yaml): Describe the Application Tile displayed in the ISV section.
+- [OdhApplication](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-application-crd.yaml): Describe the Application Title displayed in the ISV section.
 - [OdhDocument](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-document-crd.yaml): Represent documentation such as tutorials.
 - [OdhQuickStart](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-quick-start-crd.yaml): Quickstart definition.
 
