@@ -50,7 +50,7 @@ In order to contribute to RHODS, we currently support three different object def
 
 In order to contribute, just add the desired changes in the documentation and raise a new PR for our team to review it.
 
-The docs are held in the following path, `/odh-dashboard/crds`, in one of these two folders:
+The docs are held in the following path, `/odh-dashboard`, in one of these two folders:
 
 - `apps-managed-service`: For managed installations
 - `apps-on-prem`: For self-managed installations.
