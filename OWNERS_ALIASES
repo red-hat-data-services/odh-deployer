@@ -6,13 +6,11 @@ aliases:
     - LaVLaS
     - lucferbux
     - VaishnaviHire
+    - Jooho
   # folks who can review and LGTM any PRs in the repo
   dev-reviewers:
     - anishasthana
     - LaVLaS
     - lucferbux
     - VaishnaviHire
-  # folks who can review/test and QE-APPROVED any PRs in the repo
-  qe-approvers:
-    - jgarciao
-    - tarukumar
+    - Jooho
