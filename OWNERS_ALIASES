@@ -12,7 +12,3 @@ aliases:
     - LaVLaS
     - lucferbux
     - VaishnaviHire
-  # folks who can review/test and QE-APPROVED any PRs in the repo
-  qe-approvers:
-    - jgarciao
-    - tarukumar
