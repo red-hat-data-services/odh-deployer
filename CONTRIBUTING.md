@@ -24,7 +24,6 @@ When contributing to this repository, please first discuss the change you wish t
 - We are using OpenShift CI to control merges to the deployer repository. PRs will automatically be merged when the following conditions are met:
   - A `lgtm` label has been added by a reviewer
   - An `approved` label has been added by an approver
-  - A `qe-approved` label has been added by a QE member
   - The [OWNERS_ALIASES](https://github.com/red-hat-data-services/odh-deployer/blob/main/OWNERS_ALIASES) file of the repository has a list of the people who can review, approve, and qe-approve PRs.
 
 
@@ -62,7 +61,3 @@ The steps to add new information are:
 3. If you are creating a new folder, add it to `kustomization.yaml` file in one of the two folders mentioned above.
 4. Create a PR with the changes.
 5. Attach the Jira Link to the PR.
-
-## Primary QE contacts
-
-- Tarun Kumar (takumar@redhat.com).
