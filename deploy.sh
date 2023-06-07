@@ -132,6 +132,20 @@ oc delete crd rhodsquickstarts.console.openshift.io 2>/dev/null || echo "INFO: U
 RHODS_SELF_MANAGED=0
 oc get catalogsource -n ${ODH_OPERATOR_PROJECT} addon-managed-odh-catalog || RHODS_SELF_MANAGED=1
 
+# TODO: This part for 1.27->1.28 upgrade so it needs to be removed in 1.29
+# ClusterRoleBiding name for modelmesh is changed so old CRB need to be removed for proper upgrade (RHODS-9245)
+ export old_odh_model_controller_crb_exit=true
+ oc get clusterrolebinding odh-model-controller-rolebinding-redhat-ods-applications > /dev/null 2>&1|| old_odh_model_controller_crb_exit=false
+ if [[ ${old_odh_model_controller_crb_exit} != "false" ]];then
+  if [[ $(oc get clusterrolebinding odh-model-controller-rolebinding-redhat-ods-applications -ojsonpath='{.roleRef.name}') == "manager-role" ]]; then
+     echo "Old ClusterRoleBinding for modelmesh is deleted"
+     oc delete clusterrolebinding odh-model-controller-rolebinding-redhat-ods-applications
+     oc create clusterrolebinding odh-model-controller-rolebinding-redhat-ods-applications --clusterrole=odh-model-controller-role --serviceaccount=redhat-ods-applications:odh-model-controller
+  else
+     echo "New ClusterRoleBinding for modelmesh is already upated."
+  fi
+ fi
+
 # TODO: Remove in 1.21
 # If buildconfigs with label rhods/buildchain=cuda-* found, delete them (replaced by pre-build notebooks).
 oc delete buildconfig -n redhat-ods-applications -l rhods/buildchain
