@@ -3,14 +3,18 @@ aliases:
   dev-approvers:
     - anishasthana
     - HumairAK
+    - Jooho
     - LaVLaS
     - lucferbux
     - VaishnaviHire
-    - Jooho
+    - zdtsw
+
   # folks who can review and LGTM any PRs in the repo
   dev-reviewers:
     - anishasthana
+    - Jooho
     - LaVLaS
     - lucferbux
     - VaishnaviHire
     - Jooho
+    - zdtsw
