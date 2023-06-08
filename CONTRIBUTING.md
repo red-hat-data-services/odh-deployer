@@ -51,9 +51,9 @@ In order to contribute, just add the desired changes in the documentation and ra
 
 The docs are held in the following path, `/odh-dashboard`, in one of these three folders:
 
-- `apps`: For both managed and self-managed installations.
-- `apps-managed-service`: For managed installations.
-- `apps-on-prem`: For self-managed installations.
+- `apps`: For installations on both managed and self-managed env.
+- `apps-managed-service`: Only for installations on managed env .
+- `apps-on-prem`: Only for installations on self-managed env.
 
 The steps to add new information are:
 
