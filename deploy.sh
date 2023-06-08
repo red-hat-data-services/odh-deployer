@@ -62,20 +62,21 @@ function oc::dashboard::apply::isvs() {
     fi
   done
 
-  oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-on-prem
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Attempt to install the default Dashboard ISVs application tiles failed"
-    exit 1
-  fi
+
 
   # Embedding the command in the IF statement since bash SHELLOPT "errexit" is enabled
   #    and the script will exit immediately when this command fails
   if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
-    # Managed services has both the on prem and managed service additons.
     oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-managed-service
 
     if [ $? -ne 0 ]; then
       echo "ERROR: Attempt to install the Dashaboard ISVs application tiles for managed services failed"
+      exit 1
+    fi
+  else
+    oc apply -n ${ODH_PROJECT} -k odh-dashboard/apps-on-prem
+    if [ $? -ne 0 ]; then
+      echo "ERROR: Attempt to install the Dashboard ISVs application tiles for self-managed services failed"
       exit 1
     fi
   fi
