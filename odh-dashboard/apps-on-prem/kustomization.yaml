@@ -5,10 +5,4 @@ commonLabels:
   app.kubernetes.io/part-of: odh-dashboard
 bases:
   - ../apps
-  - ./aikit
-  - ./anaconda-ce
-  - ./jupyter
-  - ./openvino
-  - ./pachyderm
-  - ./watson
   - ./starburst-enterprise
