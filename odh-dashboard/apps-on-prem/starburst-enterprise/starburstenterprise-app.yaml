@@ -15,6 +15,7 @@ spec:
   route:
   category: Self-managed
   support: Starburst
+  csvName: starburst-enterprise-helm-operator
   docsLink: https://docs.starburst.io/latest/overview.html
   quickStart: using-starburst-enterprise
   getStartedLink: https://docs.starburst.io/ecosystems/redhat/openshift-deployment.html
