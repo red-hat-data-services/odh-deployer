@@ -18,8 +18,6 @@ spec:
           value: ${RELATED_IMAGE_ODH_MODEL_CONTROLLER_IMAGE}
         - name: monitoring-namespace
           value: redhat-ods-monitoring
-        overlays:
-          - odh-model-controller
         repoRef:
           name: manifests
           path: model-mesh
