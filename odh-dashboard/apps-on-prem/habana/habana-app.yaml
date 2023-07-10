@@ -1,14 +1,14 @@
 apiVersion: dashboard.opendatahub.io/v1
 kind: OdhApplication
 metadata:
-  name: aikit
+  name: Habana Gaudi Add-on 
   annotations:
-    opendatahub.io/categories: 'Data preprocessing,Model development'
+    opendatahub.io/categories: 'Model development'
 spec:
-  displayName: Intel® oneAPI AI Analytics Toolkit Container
-  provider: Intel®
+  displayName: Habana® Gaudi® Add-on
+  provider: Habana Labs, an Intel company 
   description: >-
-    The AI Kit is a set of AI software tools to accelerate end-to-end data science and analytics pipelines on Intel® architectures.
+    Habana Gaudi Add-on prepares OpenShift to run Gaudi-accelerated deep-learning workloads on Gaudi clusters.  
   route: ''
   img: >-
     <svg width="100%" height="100%" viewBox="0 0 3000 1800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
@@ -21,50 +21,15 @@ spec:
   category: Self-managed
   support: third party support
   csvName: aikit-operator
-  docsLink: https://software.intel.com/content/www/us/en/develop/tools/oneapi/ai-analytics-toolkit.html
+  docsLink: https://docs.habana.ai/en/latest/
   quickStart: create-aikit-notebook
-  getStartedLink: https://software.intel.com/content/www/us/en/develop/documentation/get-started-with-ai-linux/top.html
+  getStartedLink: https://developer.habana.ai/resources/getting-started-with-gaudi/
   getStartedMarkDown: >-
-    # AI Kit
+    The Gaudi® platform architecture is purpose-designed for Deep Learning workloads in data centers—in the cloud and on-premises. It comprises a fully programmable Tensor Processing Core (TPC) cluster with supporting development tools and libraries. With Gaudi’s programmable architecture, we give the data scientist flexibility and ease of use to migrate or build models with Habana’s SynapseAI® software stack, reference models, extensive kernel libraries, and documentation. 
 
-    [Intel® oneAPI AI Analytics Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/ai-analytics-toolkit.html#gs.2zxkin) - Achieve End-to-End Performance for Data Science and AI Workloads
+You can use your favorite deep learning framework, [PyTorch](https://docs.habana.ai/en/latest/PyTorch/index.html), [PyTorch Lightning]( https://pytorch-lightning.readthedocs.io/en/latest/accelerators/hpu.html), or [TensorFlow]( https://docs.habana.ai/en/latest/TensorFlow/index.html), to design, build and train your models.  
 
+First-generation Gaudi delivers up to 40% better price-performance than comparable GPU-based solutions—for both the EC2 DL2 instance and on-premise systems. Training with Gaudi clusters is available both in the cloud with AWS EC2 DL1 instances consisting of 8 Gaudis and on-premises with the Supermicro X12 Gaudi Training Server, also consisting of 8 Gaudis. In addition, Gaudi2, which launched in May 2022, offers substantial performance advances that enable significantly faster training of models, while preserving cost-efficiency. Gaudi2 systems will be available from Supermicro in 2H 2022 for on-premises implementation. 
 
-    ## Accelerate Data Science & AI Pipelines
-
-    The Intel® oneAPI AI Analytics Toolkit gives data scientists, AI developers, and researchers familiar Python* tools and frameworks to accelerate end-to-end data science and machine learning pipelines on Intel® architectures. The components are built using oneAPI libraries for low-level compute optimizations. This toolkit maximizes performance from preprocessing through machine and deep learning phases and provides interoperability for efficient model development and deployment across single and multinodes.
-
-
-    Using this toolkit, you can:
-
-    - Deliver high-performance deep learning (DL) training and inference on Intel® XPUs with Intel-optimized DL frameworks: TensorFlow* and PyTorch*, pretrained models, and Intel Low Precision Optimization Tool. 
-
-    - Achieve drop-in acceleration for data preprocessing and machine learning workflows with compute-intensive Python packages: Modin*, scikit-learn*, and XGBoost* optimized for Intel.
-    
-    - Gain direct access to Intel analytics and AI optimizations to ensure that your software works together seamlessly.
-
-
-    ## Installing AI Kit
-
-    Intel® oneAPI AI Analytics Toolkit libraries are provided through Anaconda* and can be installed from many existing notebook container images. Intel provides a number of certified container images on RedHat OpenShift DataScience pre-installed JupyterHub that have toolkit components pre-installed, and ready to use. 
-
-    Try out selecting the “intel-aikit-notebook:v/0.0.1” JupyterHub Notebook image in JupyterHub to get started!
-
-    ## Installing AI Kit Operator
-
-    Intel® oneAPI AI Analytics Toolkit Operator has a Red Hat marketplace listing.
-
-    ### Subscribe to the operator on Marketplace
-
-    - [https://marketplace.redhat.com/en-us/products/ai-analytics-toolkit](https://marketplace.redhat.com/en-us/products/ai-analytics-toolkit)
-
-    ### Install the operator and validate
-
-    - [https://marketplace.redhat.com/en-us/documentation/operators](https://marketplace.redhat.com/en-us/documentation/operators)
-
-    ## Getting Started with AI Kit Resources:
-
-    - [AI Analytics Toolkit Website](https://software.intel.com/oneapi/ai-kit)
-
-    - [AI Analytics Toolkit Code Samples](https://github.com/oneapi-src/oneAPI-samples/tree/master/AI-and-Analytics)
+Please see [Habana Developer Website](https://developer.habana.ai/) and [Gaudi Documentations](https://docs.habana.ai/en/latest/) for more information. You can also join [Habana’s Developer Forum](https://forum.habana.ai/) to ask your questions or start a discussion.   
     
