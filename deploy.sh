@@ -147,6 +147,16 @@ oc get catalogsource -n ${ODH_OPERATOR_PROJECT} addon-managed-odh-catalog || RHO
   fi
  fi
 
+# TODO: This is a part of the 1.28->1.29 upgrade so it needs to be removed in 1.30
+# Labels for DSPO have been updated so the old DSPO deployment needs to be removed for proper upgrade
+ export old_dspo_deployment_exit=true
+ oc get deployment controller-manager -n ${ODH_PROJECT}  > /dev/null 2>&1|| old_dspo_deployment_exit=false
+ if [[ ${old_dspo_deployment_exit} != "false" ]];then
+  if [[ $(oc get deployment controller-manager -n ${ODH_PROJECT} -o jsonpath='{.metadata.labels.control-plane}') == "controller-manager" ]]; then
+     oc delete deployment controller-manager -n ${ODH_PROJECT}
+  fi
+ fi
+
 # TODO: Remove in 1.21
 # If buildconfigs with label rhods/buildchain=cuda-* found, delete them (replaced by pre-build notebooks).
 oc delete buildconfig -n redhat-ods-applications -l rhods/buildchain
