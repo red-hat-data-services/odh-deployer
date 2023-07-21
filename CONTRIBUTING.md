@@ -43,7 +43,17 @@ In order to contribute to RHODS, we currently support three different object def
 
 - [OdhApplication](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-application-crd.yaml): Describe the Application Title displayed in the ISV section.
 - [OdhDocument](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-document-crd.yaml): Represent documentation such as tutorials.
-- [OdhQuickStart](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-quick-start-crd.yaml): Quickstart definition.
+- [OdhQuickStart](https://github.com/red-hat-data-services/odh-deployer/blob/main/odh-dashboard/crds/odh-quick-start-crd.yaml): Quickstart definition (you can find templates [here](https://github.com/openshift/openshift-docs/blob/57037675c7f122a837491893d6ad7121b9f51727/modules/templates-quickstart.adoc)).
+
+### Preview
+
+To preview the code output, we recommend using the [quickstarts-preview extension](https://marketplace.visualstudio.com/items?itemName=PatternFly.quickstarts-preview) in VS Code.
+The steps to run it are:
+
+1. Install the extension in VSCode.
+2. Open the desired resource file.
+3. Open the command palette (Ctrl+Shift+P / Command+Shift+P) and search for `Quick Starts: Preview`.
+4. You'll see a preview of the code in the right side of the screen.
 
 ### Deployment
 
