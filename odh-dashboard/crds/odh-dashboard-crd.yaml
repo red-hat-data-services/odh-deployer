@@ -148,19 +148,3 @@ spec:
                   type: array
                   items:
                     type: string
-            status:
-              type: object
-              properties:
-                notebookControllerState:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      user:
-                        type: string
-                      lastSelectedImage:
-                        type: string
-                      lastSelectedSize:
-                        type: string
-                      lastActivity:
-                        type: number
