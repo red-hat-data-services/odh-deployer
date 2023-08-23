@@ -333,9 +333,14 @@ if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
     oc apply -f monitoring/prometheus/blackbox-exporter-external.yaml -n $ODH_MONITORING_PROJECT
   fi
 
+  # Consolelink
+  consolelink_title="OpenShift Managed Services"
+
 # Apply specific configuration for self-managed environments
 else
     echo "INFO: Applying specific configuration for self-managed environments."
+    # Consolelink
+    consolelink_title="OpenShift Self Managed Services"
 fi
 
 # Configure Serving Runtime resources
@@ -350,6 +355,7 @@ oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-config.yaml
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
 odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
+sed -i "s#<section-title>#$consolelink_title#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
 
 ####################################################################################################
