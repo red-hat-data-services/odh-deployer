@@ -921,7 +921,7 @@ data:
         - source_labels: [__address__]
           regex: (.+):(\d+)
           target_label: __address__
-          replacement: ${1}:8080
+          replacement: ${1}:9090
 
     - job_name: 'CodeFlare Operator'
       honor_labels: true
