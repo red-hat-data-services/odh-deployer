@@ -10,3 +10,5 @@ bases:
   - ./openvino
   - ./pachyderm
   - ./watson
+  - ./habana
+  
