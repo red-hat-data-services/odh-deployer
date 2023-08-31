@@ -178,12 +178,10 @@ spec:
             main()
         ```
       review:
-        instructions: |-
-
         failedTaskHelp: This task is not verified yet. Try the task again.
       summary:
-        success: 
-        failed: 
+        success: Continue 
+        failed: Try the steps again.
     - title: Review the code 
       description: |-
         The example.py presents a basic PyTorch code example. The Habana-specific lines are explained below.
@@ -200,11 +198,9 @@ spec:
         htcore.mark_step()
         ```
       review:
-        instructions: |-
-          
         failedTaskHelp: This task is not verified yet. Try the task again.
       summary:
-        success: 
+        success: Continue
         failed: Try the steps again.
     - title: Executing the Example
       description: |-
@@ -234,12 +230,10 @@ spec:
         ```
         Since the first iteration includes graph compilation time, you can see the first iteration takes longer to run than later iterations. The software stack compiles the graph and saves the recipe to cache. Unless the graph changes or a new graph comes in, no recompilation is needed during the training. Typically, the graph compilation happens at the beginning of the training and at the beginning of the evaluation.
       review:
-        instructions: |-
-         
         failedTaskHelp:
           This task is not verified yet. Try the task again.
       summary:
-        success: 
+        success: Continue
         failed: Try the steps again.
   conclusion: You are now able to run a simple PyTorch model on Habana Gaudi
   nextQuickStart: []
