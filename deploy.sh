@@ -147,15 +147,15 @@ oc get catalogsource -n ${ODH_OPERATOR_PROJECT} addon-managed-odh-catalog || RHO
   fi
  fi
 
-# TODO: This is a part of the 1.28->1.29 upgrade so it needs to be removed in 1.30
 # Labels for DSPO have been updated so the old DSPO deployment needs to be removed for proper upgrade
- export old_dspo_deployment_exit=true
- oc get deployment controller-manager -n ${ODH_PROJECT}  > /dev/null 2>&1|| old_dspo_deployment_exit=false
- if [[ ${old_dspo_deployment_exit} != "false" ]];then
-  if [[ $(oc get deployment controller-manager -n ${ODH_PROJECT} -o jsonpath='{.metadata.labels.control-plane}') == "controller-manager" ]]; then
-     oc delete deployment controller-manager -n ${ODH_PROJECT}
+export old_dspo_deployment_exit=true
+DSPO_DEPLOYMENT=data-science-pipelines-operator-controller-manager
+oc get deployment ${DSPO_DEPLOYMENT} -n ${ODH_PROJECT}  > /dev/null 2>&1 || old_dspo_deployment_exit=false
+if [[ ${old_dspo_deployment_exit} != "false" ]];then
+  if [[ $(oc get deployment ${DSPO_DEPLOYMENT} -n ${ODH_PROJECT} -o jsonpath='{.metadata.labels.control-plane}') == "controller-manager" ]]; then
+     oc delete deployment ${DSPO_DEPLOYMENT} -n ${ODH_PROJECT}
   fi
- fi
+fi
 
 # TODO: Remove in 1.21
 # If buildconfigs with label rhods/buildchain=cuda-* found, delete them (replaced by pre-build notebooks).
@@ -333,9 +333,14 @@ if [ "$RHODS_SELF_MANAGED" -eq 0 ]; then
     oc apply -f monitoring/prometheus/blackbox-exporter-external.yaml -n $ODH_MONITORING_PROJECT
   fi
 
+  # Consolelink
+  consolelink_title="OpenShift Managed Services"
+
 # Apply specific configuration for self-managed environments
 else
     echo "INFO: Applying specific configuration for self-managed environments."
+    # Consolelink
+    consolelink_title="OpenShift Self Managed Services"
 fi
 
 # Configure Serving Runtime resources
@@ -350,6 +355,7 @@ oc apply -n ${ODH_PROJECT} -f monitoring/segment-key-config.yaml
 cluster_domain=$(oc get ingresses.config.openshift.io cluster --template {{.spec.domain}})
 odh_dashboard_route="https://rhods-dashboard-$ODH_PROJECT.$cluster_domain"
 sed -i "s#<rhods-dashboard-url>#$odh_dashboard_route#g" consolelink/consolelink.yaml
+sed -i "s#<section-title>#$consolelink_title#g" consolelink/consolelink.yaml
 oc apply -f consolelink/consolelink.yaml
 
 ####################################################################################################
