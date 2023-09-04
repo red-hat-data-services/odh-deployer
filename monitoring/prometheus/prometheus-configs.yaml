@@ -274,6 +274,82 @@ data:
             instance: data-science-pipelines-operator
           record: probe_success:burnrate6h
 
+      - name: SLOs - MCAD Controller
+        rules:
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"mcad-controller-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: mcad-controller
+          record: probe_success:burnrate6h
+
+      - name: SLOs - CodeFlare Operator
+        rules:
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[1d])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate1d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[1h])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate1h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[2h])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate2h
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[30m])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate30m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[3d])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate3d
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[5m])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate5m
+        - expr: |
+            1 - avg_over_time(probe_success{instance=~"codeflare-operator-.*", job="user_facing_endpoints_status"}[6h])
+          labels:
+            instance: codeflare-operator
+          record: probe_success:burnrate6h
+
       - name: SLOs - Data Science Pipelines Application
         rules:
         - expr: |
@@ -686,6 +762,80 @@ data:
           labels:
             severity: warning
 
+        - alert: MCAD Controller Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage:
+            summary: MCAD Controller Probe Success Burn Rate
+          expr: |
+            sum(probe_success:burnrate5m{instance=~"mcad-controller"}) by (instance) > (14.40 * (1-0.99950))
+            and
+            sum(probe_success:burnrate1h{instance=~"mcad-controller"}) by (instance) > (14.40 * (1-0.99950))
+          for: 2m
+          labels:
+            severity: warning
+        - alert: MCAD Controller Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage:
+            summary: MCAD Controller Probe Success Burn Rate
+          expr: |
+            sum(probe_success:burnrate30m{instance=~"mcad-controller"}) by (instance) > (6.00 * (1-0.99950))
+            and
+            sum(probe_success:burnrate6h{instance=~"mcad-controller"}) by (instance) > (6.00 * (1-0.99950))
+          for: 15m
+          labels:
+            severity: warning
+        - alert: MCAD Controller Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage:
+            summary: MCAD Controller Probe Success Burn Rate
+          expr: |
+            sum(probe_success:burnrate2h{instance=~"mcad-controller"}) by (instance) > (3.00 * (1-0.99950))
+            and
+            sum(probe_success:burnrate1d{instance=~"mcad-controller"}) by (instance) > (3.00 * (1-0.99950))
+          for: 1h
+          labels:
+            severity: warning
+
+        - alert: CodeFlare Operator Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage:
+            summary: CodeFlare Operator Probe Success Burn Rate
+          expr: |
+            sum(probe_success:burnrate5m{instance=~"codeflare-operator"}) by (instance) > (14.40 * (1-0.99950))
+            and
+            sum(probe_success:burnrate1h{instance=~"codeflare-operator"}) by (instance) > (14.40 * (1-0.99950))
+          for: 2m
+          labels:
+            severity: warning
+        - alert: CodeFlare Operator Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage:
+            summary: CodeFlare Operator Probe Success Burn Rate
+          expr: |
+            sum(probe_success:burnrate30m{instance=~"codeflare-operator"}) by (instance) > (6.00 * (1-0.99950))
+            and
+            sum(probe_success:burnrate6h{instance=~"codeflare-operator"}) by (instance) > (6.00 * (1-0.99950))
+          for: 15m
+          labels:
+            severity: warning
+        - alert: CodeFlare Operator Probe Success Burn Rate
+          annotations:
+            message: 'High error budget burn for {{ $labels.instance }} (current value: {{ $value }}).'
+            triage:
+            summary: CodeFlare Operator Probe Success Burn Rate
+          expr: |
+            sum(probe_success:burnrate2h{instance=~"codeflare-operator"}) by (instance) > (3.00 * (1-0.99950))
+            and
+            sum(probe_success:burnrate1d{instance=~"codeflare-operator"}) by (instance) > (3.00 * (1-0.99950))
+          for: 1h
+          labels:
+            severity: warning
+
       - name: RHODS Notebook controllers
         rules:
         - alert: Kubeflow notebook controller pod is not running
@@ -750,7 +900,7 @@ data:
         interval: 1m
         rules:
           - alert: KubeRay Operator is not running
-            expr: absent(up{job=~'KubeRay Operator'})
+            expr: absent(up{job=~'KubeRay Operator'}) or up{job=~'KubeRay Operator'} != 1
             labels:
               severity: warning
             annotations:
@@ -762,11 +912,19 @@ data:
         interval: 1m
         rules:
           - alert: MCAD is not running
-            expr: absent(up{job=~'MCAD Controller'})
+            expr: absent(up{job=~'MCAD Controller'}) or up{job=~'MCAD Controller'} != 1
             labels:
               severity: warning
             annotations:
               description: This alert fires when the MCAD Controller is not running.
+              triage:
+              summary: Alerting for MCAD Controller
+          - alert: MCAD taking too long to be up
+            expr: absent_over_time(up{job="MCAD Controller"}[2m]) == 1
+            labels:
+              severity: warning
+            annotations:
+              description: This alert fires when the MCAD Controller takes over 2 min. to come back online. Either MCAD is not running and failing to become ready, is misconfigured, or the metrics endpoint is not responding.
               triage:
               summary: Alerting for MCAD Controller
 
@@ -774,13 +932,21 @@ data:
         interval: 1m
         rules:
           - alert: CodeFlare Operator is not running
-            expr: absent(up{job=~'CodeFlare Operator'})
+            expr: absent(up{job=~'CodeFlare Operator'}) or up{job=~'CodeFlare Operator'} != 1
             labels:
               severity: warning
             annotations:
               description: This alert fires when the CodeFlare Operator is not running.
               triage:
-              summary: Alerting for CodeFlare Operator 
+              summary: Alerting for CodeFlare Operator
+          - alert: CodeFlare Operator taking too long to be up
+            expr: absent_over_time(up{job="CodeFlare Operator"}[2m]) == 1
+            labels:
+              severity: warning
+            annotations:
+              description: This alert fires when the CodeFlare Operator takes over 2 min. to come back online. Either CodeFlare Operator is not running and failing to become ready, is misconfigured, or the metrics endpoint is not responding.
+              triage:
+              summary: Alerting for CodeFlare Operator
 
   prometheus.yml: |
     rule_files:
@@ -839,6 +1005,12 @@ data:
       - targets: [<data_science_pipelines_operator_host>]
         labels:
           name: data-science-pipelines-operator
+      - targets: [mcad-mcad-metrics.redhat-ods-applications.svc:8083/metrics]
+        labels:
+          name: mcad-controller
+      - targets: [codeflare-operator-manager-metrics.openshift-operators.svc:8080/metrics]
+        labels:
+          name: codeflare-operator
       relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -1000,7 +1172,7 @@ data:
         - source_labels: [__address__]
           regex: (.+):(\d+)
           target_label: __address__
-          replacement: ${1}:9090
+          replacement: ${1}:8083
 
     - job_name: 'CodeFlare Operator'
       honor_labels: true
