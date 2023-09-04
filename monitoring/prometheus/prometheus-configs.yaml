@@ -745,6 +745,43 @@ data:
           for: 2m
           labels:
             severity: info
+
+      - name: Distributed Workloads Kuberay
+        interval: 1m
+        rules:
+          - alert: KubeRay Operator is not running
+            expr: absent(up{job=~'KubeRay Operator'})
+            labels:
+              severity: warning
+            annotations:
+              description: This alert fires when the KubeRay Operator is not running.
+              triage:
+              summary: Alerting for KubeRay Operator
+          
+      - name: Distributed Workloads MCAD
+        interval: 1m
+        rules:
+          - alert: MCAD is not running
+            expr: absent(up{job=~'MCAD Controller'})
+            labels:
+              severity: warning
+            annotations:
+              description: This alert fires when the MCAD Controller is not running.
+              triage:
+              summary: Alerting for MCAD Controller
+
+      - name: Distributed Workloads CodeFlare
+        interval: 1m
+        rules:
+          - alert: CodeFlare Operator is not running
+            expr: absent(up{job=~'CodeFlare Operator'})
+            labels:
+              severity: warning
+            annotations:
+              description: This alert fires when the CodeFlare Operator is not running.
+              triage:
+              summary: Alerting for CodeFlare Operator 
+
   prometheus.yml: |
     rule_files:
       - '*.rules'
@@ -926,6 +963,63 @@ data:
           target_label: dspa_service
         - source_labels: [__meta_kubernetes_namespace]
           target_label: namespace
+
+    - job_name: 'KubeRay Operator'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(kuberay-operator)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
+
+    - job_name: 'MCAD Controller'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - redhat-ods-applications
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(mcad-mcad-metrics)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:9090
+
+    - job_name: 'CodeFlare Operator'
+      honor_labels: true
+      metrics_path: /metrics
+      scheme: http
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - openshift-operators
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          regex: ^(codeflare-operator-manager-metrics)$
+          target_label: kubernetes_name
+          action: keep
+        - source_labels: [__address__]
+          regex: (.+):(\d+)
+          target_label: __address__
+          replacement: ${1}:8080
 
     - job_name: 'RHODS Metrics'
       honor_labels: true
