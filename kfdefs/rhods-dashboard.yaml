@@ -14,7 +14,7 @@ spec:
       - name: odh-dashboard-image
         value: ${RELATED_IMAGE_ODH_DASHBOARD_IMAGE}
       overlays:
-        - authentication
+        - rhods
       repoRef:
         name: manifests
         path: odh-dashboard
