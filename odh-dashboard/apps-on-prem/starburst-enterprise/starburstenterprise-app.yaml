@@ -12,7 +12,7 @@ spec:
   description: |-
     Starburst Enterprise platform (SEP) is the commericial distribution of Trino, which is an open-source, Massively Parallel Processing (MPP) ANSI SQL query engine.  Starburst simplifies data access for your RHODS workloads by providing fast access to all of your data, no matter where it lives.  Starburst does this by connecting directly to each data source and pulling the data back into memory for processing, alleviating the need to copy or move the data into a single location first.
   kfdefApplications: []
-  route:
+  route: ''
   category: Self-managed
   support: Starburst
   csvName: starburst-enterprise-helm-operator
@@ -26,7 +26,7 @@ spec:
 
     Before installing Starburst Enterprise, you will need:
 
-    - Access to an OpenShift cluster with [correctly-sized nodes](https://docs.starburst.io/356-e/k8s/requirements.html#k8s-cluster-requirements), using IAM credentials, and with sufficient Elastic IPs.
+    - Access to an OpenShift cluster with [correctly-sized nodes](https://docs.starburst.io/latest/k8s/requirements), using IAM credentials, and with sufficient Elastic IPs.
     - Previously installed and configured Kubernetes, including access to **kubectl**.
     - An editor suitable for editing YAML files.
     - Your SEP (Starburst Enterprise) license file.
