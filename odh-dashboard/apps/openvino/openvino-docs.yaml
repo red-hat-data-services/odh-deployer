@@ -10,5 +10,5 @@ spec:
   type: how-to
   description: |-
     Learn how to deploy optimized models with the OpenVINO Model Server using OpenVINO custom resources.
-  url: https://github.com/openvinotoolkit/model_server/tree/main/extras/ovms-operator
+  url: https://github.com/openvinotoolkit/operator
   durationMinutes: 10
