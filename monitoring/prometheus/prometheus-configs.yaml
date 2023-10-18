@@ -910,7 +910,7 @@ data:
       - targets: [<data_science_pipelines_operator_host>]
         labels:
           name: data-science-pipelines-operator
-      - targets: [codeflare-operator-manager-metrics.openshift-operators.svc:8080/metrics]
+      - targets: [codeflare-operator-manager-metrics.redhat-ods-applications.svc:8080/metrics]
         labels:
           name: codeflare-operator
       relabel_configs:
@@ -1046,7 +1046,7 @@ data:
         - role: endpoints
           namespaces:
             names:
-              - opendatahub
+              - redhat-ods-applications
       relabel_configs:
         - source_labels: [__meta_kubernetes_service_name]
           regex: ^(kuberay-operator)$
@@ -1065,7 +1065,7 @@ data:
         - role: endpoints
           namespaces:
             names:
-              - openshift-operators
+              - redhat-ods-applications
       relabel_configs:
         - source_labels: [__meta_kubernetes_service_name]
           regex: ^(codeflare-operator-manager-metrics)$
