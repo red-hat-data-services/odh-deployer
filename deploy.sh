@@ -195,6 +195,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Create Kfdef for RHODS Data Science pipelines operator
+oc apply -n ${ODH_PROJECT} -f rhods-trustyai-service-operator.yaml
+if [ $? -ne 0 ]; then
+  echo "ERROR: Attempt to create the TrustyAI Service Operator CR failed."
+  exit 1
+fi
+
 # Create KfDef for RHODS Notebooks ImageStreams
 oc apply -n ${ODH_NOTEBOOK_PROJECT} -f rhods-notebooks.yaml
 if [ $? -ne 0 ]; then
@@ -215,6 +222,7 @@ if [ $? -ne 0 ]; then
   echo "ERROR: Attempt to create the RHODS monitoring stack failed."
   exit 1
 fi
+
 
 # Create KfDef for Anaconda
 oc apply -n ${ODH_PROJECT} -f rhods-anaconda.yaml
